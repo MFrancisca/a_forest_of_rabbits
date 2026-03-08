@@ -104,7 +104,7 @@ Note: Phase 4 depends only on Phase 1 (independent of Phases 2-3) and can be pla
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation and Models | 0/4 | Not started | - |
+| 1. Foundation and Models | 1/4 | In Progress|  |
 | 2. Pigment Filtering | 0/? | Not started | - |
 | 3. Pigment Detail and Data | 0/? | Not started | - |
 | 4. Editorial Content | 0/? | Not started | - |
