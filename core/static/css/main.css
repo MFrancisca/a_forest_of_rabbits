@@ -1,3 +1,10 @@
+@import "tailwindcss";
+
+/* Scan all Django app templates */
+@source "../../core/templates/**/*.html";
+@source "../../pigments/templates/**/*.html";
+@source "../../blog/templates/**/*.html";
+
 /* Una Nueva Esperanza — Tailwind v4 @theme customizations */
 /* Phase 1: defaults only. Add custom colors and typography here in later phases. */
 
