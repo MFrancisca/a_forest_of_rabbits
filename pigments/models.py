@@ -104,11 +104,17 @@ class Paint(models.Model):
         blank=True,
         help_text='CSS hex e.g. #A3B2C1',
     )
+    abbreviation = models.CharField(
+        max_length=10,
+        blank=True,
+        help_text='Short label used in compact formula notation (e.g. "W" for white)',
+    )
 
     panels = [
         FieldPanel('brand'),
         FieldPanel('name'),
         FieldPanel('hex_color'),
+        FieldPanel('abbreviation'),
     ]
 
     class Meta:
@@ -142,6 +148,14 @@ class Manuscript(models.Model):
     )
     date_end = models.IntegerField(null=True, blank=True)
     notes = models.TextField(blank=True)
+
+    @property
+    def date_display(self):
+        if self.date_start and self.date_end:
+            return f'c.{self.date_start}\u2013{self.date_end}'
+        elif self.date_start:
+            return f'c.{self.date_start}'
+        return '\u2014'
 
     panels = [
         FieldPanel('name'),

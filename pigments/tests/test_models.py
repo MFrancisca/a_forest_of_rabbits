@@ -147,3 +147,44 @@ def test_factory_sequences_unique():
     cf1 = ColorFamilyFactory()
     cf2 = ColorFamilyFactory()
     assert cf1.name != cf2.name
+
+
+# ---------------------------------------------------------------------------
+# Phase 03-01 tests: Paint.abbreviation and Manuscript.date_display
+# ---------------------------------------------------------------------------
+
+@pytest.mark.django_db
+def test_paint_abbreviation_field():
+    """Paint.abbreviation exists, max_length=10, blank=True, default is ''."""
+    paint = PaintFactory()
+    assert hasattr(paint, 'abbreviation')
+    assert len(paint.abbreviation) == 1  # PaintFactory Sequence produces single letter A-Z
+
+
+@pytest.mark.django_db
+def test_paint_factory_abbreviation():
+    """PaintFactory() produces a non-empty abbreviation string."""
+    paint = PaintFactory()
+    assert isinstance(paint.abbreviation, str)
+    assert len(paint.abbreviation) > 0
+
+
+@pytest.mark.django_db
+def test_manuscript_date_display_both():
+    """Manuscript with start and end renders 'c.800\u2013900'."""
+    manuscript = ManuscriptFactory(date_start=800, date_end=900)
+    assert manuscript.date_display == 'c.800\u2013900'
+
+
+@pytest.mark.django_db
+def test_manuscript_date_display_start_only():
+    """Manuscript with only start renders 'c.800'."""
+    manuscript = ManuscriptFactory(date_start=800, date_end=None)
+    assert manuscript.date_display == 'c.800'
+
+
+@pytest.mark.django_db
+def test_manuscript_date_display_neither():
+    """Manuscript with no dates renders em-dash."""
+    manuscript = ManuscriptFactory(date_start=None, date_end=None)
+    assert manuscript.date_display == '\u2014'

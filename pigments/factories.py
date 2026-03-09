@@ -58,6 +58,7 @@ class PaintFactory(DjangoModelFactory):
     brand = factory.SubFactory(BrandFactory)
     name = factory.Sequence(lambda n: f'Paint {n}')
     hex_color = factory.Sequence(lambda n: f'#{n:06x}')
+    abbreviation = factory.Sequence(lambda n: chr(65 + (n % 26)))  # A, B, C, ... Z, A, ...
 
 
 class ManuscriptFactory(DjangoModelFactory):
