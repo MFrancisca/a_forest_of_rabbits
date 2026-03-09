@@ -3,10 +3,10 @@ DJANGO_SETTINGS_MODULE = "config.settings.test"
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
-addopts = "--cov=pigments --cov=core --cov-report=term-missing --cov-fail-under=80"
+addopts = "--cov=pigments --cov=core --cov=blog --cov-report=term-missing --cov-fail-under=80"
 
 [tool.coverage.run]
-source = ["pigments", "core"]
+source = ["pigments", "core", "blog"]
 omit = [
     "*/migrations/*",
     "*/tests/*",
