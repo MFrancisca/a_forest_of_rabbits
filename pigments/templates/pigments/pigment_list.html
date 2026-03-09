@@ -1,2 +1,197 @@
 {% extends "base.html" %}
-{% block content %}stub{% endblock %}
+
+{% block title %}Pigments — Una Nueva Esperanza{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 py-8">
+
+  <h1 class="text-2xl font-semibold mb-6">Pigments</h1>
+
+  <!-- Filter bar -->
+  <form id="filter-form"
+        hx-get="/pigments/"
+        hx-target="#pigment-results"
+        hx-push-url="true"
+        hx-trigger="change from:.filter-select">
+
+    <div class="flex flex-wrap gap-2 mb-4">
+
+      <!-- Color Family dropdown -->
+      <div x-data="{
+            open: false,
+            selected: {{ active_filters.getlist|default:'[]' }}
+          }"
+           class="relative">
+        <button @click="open = !open"
+                @click.outside="open = false"
+                type="button"
+                class="inline-flex items-center gap-1 border border-stone-300 rounded px-3 py-1 text-sm bg-white hover:bg-stone-50">
+          Color Family
+          {% with active_filters.getlist as cf_vals %}
+            {% with active_filters|dictsort:"0" as _ %}
+            {% endwith %}
+          {% endwith %}
+        </button>
+        <div x-show="open"
+             x-cloak
+             class="absolute z-10 bg-white border border-stone-200 rounded shadow-md p-2 min-w-40 mt-1">
+          {% for cf in color_families %}
+          <label class="flex items-center gap-2 py-1 px-1 text-sm cursor-pointer hover:bg-stone-50 rounded">
+            <input type="checkbox"
+                   name="color"
+                   value="{{ cf.id }}"
+                   class="filter-select"
+                   {% if cf.id|stringformat:"s" in active_filters.getlist %}checked{% endif %}>
+            {{ cf.name }}
+          </label>
+          {% empty %}
+          <p class="text-sm text-stone-400 px-1">No options</p>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Pigment Family dropdown -->
+      <div x-data="{ open: false }" class="relative">
+        <button @click="open = !open"
+                @click.outside="open = false"
+                type="button"
+                class="inline-flex items-center gap-1 border border-stone-300 rounded px-3 py-1 text-sm bg-white hover:bg-stone-50">
+          Pigment Family
+        </button>
+        <div x-show="open"
+             x-cloak
+             class="absolute z-10 bg-white border border-stone-200 rounded shadow-md p-2 min-w-40 mt-1">
+          {% for pf in pigment_families %}
+          <label class="flex items-center gap-2 py-1 px-1 text-sm cursor-pointer hover:bg-stone-50 rounded">
+            <input type="checkbox"
+                   name="pfam"
+                   value="{{ pf.id }}"
+                   class="filter-select"
+                   {% if pf.id|stringformat:"s" in active_filters.getlist %}checked{% endif %}>
+            {{ pf.name }}
+          </label>
+          {% empty %}
+          <p class="text-sm text-stone-400 px-1">No options</p>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Country dropdown -->
+      <div x-data="{ open: false }" class="relative">
+        <button @click="open = !open"
+                @click.outside="open = false"
+                type="button"
+                class="inline-flex items-center gap-1 border border-stone-300 rounded px-3 py-1 text-sm bg-white hover:bg-stone-50">
+          Country
+        </button>
+        <div x-show="open"
+             x-cloak
+             class="absolute z-10 bg-white border border-stone-200 rounded shadow-md p-2 min-w-40 mt-1">
+          {% for country in countries %}
+          <label class="flex items-center gap-2 py-1 px-1 text-sm cursor-pointer hover:bg-stone-50 rounded">
+            <input type="checkbox"
+                   name="country"
+                   value="{{ country.id }}"
+                   class="filter-select"
+                   {% if country.id|stringformat:"s" in active_filters.getlist %}checked{% endif %}>
+            {{ country.name }}
+          </label>
+          {% empty %}
+          <p class="text-sm text-stone-400 px-1">No options</p>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Manuscript dropdown -->
+      <div x-data="{ open: false }" class="relative">
+        <button @click="open = !open"
+                @click.outside="open = false"
+                type="button"
+                class="inline-flex items-center gap-1 border border-stone-300 rounded px-3 py-1 text-sm bg-white hover:bg-stone-50">
+          Manuscript
+        </button>
+        <div x-show="open"
+             x-cloak
+             class="absolute z-10 bg-white border border-stone-200 rounded shadow-md p-2 min-w-48 mt-1">
+          {% for ms in manuscripts %}
+          <label class="flex items-center gap-2 py-1 px-1 text-sm cursor-pointer hover:bg-stone-50 rounded">
+            <input type="checkbox"
+                   name="manuscript"
+                   value="{{ ms.id }}"
+                   class="filter-select"
+                   {% if ms.id|stringformat:"s" in active_filters.getlist %}checked{% endif %}>
+            {{ ms.title }}
+          </label>
+          {% empty %}
+          <p class="text-sm text-stone-400 px-1">No options</p>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Time Period dropdown -->
+      <div x-data="{ open: false }" class="relative">
+        <button @click="open = !open"
+                @click.outside="open = false"
+                type="button"
+                class="inline-flex items-center gap-1 border border-stone-300 rounded px-3 py-1 text-sm bg-white hover:bg-stone-50">
+          Time Period
+        </button>
+        <div x-show="open"
+             x-cloak
+             class="absolute z-10 bg-white border border-stone-200 rounded shadow-md p-2 min-w-40 mt-1">
+          {% for bucket in century_buckets %}
+          <label class="flex items-center gap-2 py-1 px-1 text-sm cursor-pointer hover:bg-stone-50 rounded">
+            <input type="checkbox"
+                   name="century"
+                   value="{{ bucket.start }}"
+                   class="filter-select"
+                   {% if bucket.start|stringformat:"s" in active_filters.getlist %}checked{% endif %}>
+            {{ bucket.label }}
+          </label>
+          {% empty %}
+          <p class="text-sm text-stone-400 px-1">No options</p>
+          {% endfor %}
+        </div>
+      </div>
+
+    </div><!-- end filter bar -->
+  </form>
+
+  <!-- Active pills row -->
+  {% if active_pills %}
+  <div class="flex flex-wrap items-center gap-2 mb-4">
+    {% for pill in active_pills %}
+    <span class="inline-flex items-center gap-1 bg-stone-100 border border-stone-300 rounded-full px-3 py-1 text-sm">
+      {{ pill.label }}
+      <button type="button"
+              class="text-stone-500 hover:text-stone-800 ml-1 leading-none"
+              onclick="
+                (function() {
+                  var param = '{{ pill.param }}';
+                  {% if pill.is_century %}
+                    var values = [{% for v in pill.values %}'{{ v }}'{% if not forloop.last %},{% endif %}{% endfor %}];
+                    values.forEach(function(v) {
+                      document.querySelectorAll('input[name=century][value=&quot;' + v + '&quot;]').forEach(function(cb) { cb.checked = false; });
+                    });
+                  {% else %}
+                    var val = '{{ pill.value }}';
+                    document.querySelectorAll('input[name=&quot;' + param + '&quot;][value=&quot;' + val + '&quot;]').forEach(function(cb) { cb.checked = false; });
+                  {% endif %}
+                  document.querySelector('.filter-select').dispatchEvent(new Event('change', {bubbles: true}));
+                })();
+              "
+              aria-label="Remove filter">&#x00D7;</button>
+    </span>
+    {% endfor %}
+    <a href="/pigments/"
+       class="text-sm text-stone-500 hover:text-stone-800 underline ml-1">Clear all</a>
+  </div>
+  {% endif %}
+
+  <!-- Results area (HTMX swap target) -->
+  <div id="pigment-results">
+    {% include "pigments/pigment_list_partial.html" %}
+  </div>
+
+</div>
+{% endblock %}

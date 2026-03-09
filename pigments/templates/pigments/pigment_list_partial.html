@@ -1,1 +1,39 @@
-<div>stub partial</div>
+{# HTMX fragment — no extends, no base.html wrapper #}
+
+{# Result count #}
+<p class="text-sm text-stone-500 mb-3">
+  {% if is_filtered %}
+    {{ filtered_count }} of {{ total_count }} pigment{{ total_count|pluralize }}
+  {% else %}
+    {{ total_count }} pigment{{ total_count|pluralize }}
+  {% endif %}
+</p>
+
+{# Pigment list rows #}
+<ul class="divide-y divide-stone-200 border border-stone-200 rounded">
+  {% for pigment in pigments %}
+  <li>
+    <a href="/pigments/{{ pigment.pk }}/"
+       class="flex items-center justify-between px-4 py-3 hover:bg-stone-50">
+      <span class="font-medium text-stone-800">{{ pigment.name }}</span>
+      <span class="flex gap-2">
+        {% if pigment.color_family %}
+        <span class="text-xs bg-stone-100 border border-stone-200 rounded-full px-2 py-0.5 text-stone-600">
+          {{ pigment.color_family }}
+        </span>
+        {% endif %}
+        {% if pigment.pigment_family %}
+        <span class="text-xs bg-stone-100 border border-stone-200 rounded-full px-2 py-0.5 text-stone-600">
+          {{ pigment.pigment_family }}
+        </span>
+        {% endif %}
+      </span>
+    </a>
+  </li>
+  {% empty %}
+  <li class="px-4 py-6 text-center text-stone-500">
+    No pigments match these filters.
+    <a href="/pigments/" class="text-stone-700 underline ml-1">Clear filters</a>
+  </li>
+  {% endfor %}
+</ul>
