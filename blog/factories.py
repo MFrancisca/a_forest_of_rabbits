@@ -24,6 +24,7 @@ class ProjectPageFactory(wagtail_factories.PageFactory):
     title = factory.Sequence(lambda n: f'Project {n}')
     date = factory.Faker('date_object')
     excerpt = factory.Sequence(lambda n: f'Excerpt for project {n}')
+    body = factory.Sequence(lambda n: f'<p>Body content for project {n}</p>')
     category = factory.SubFactory(CategoryFactory)
 
     class Meta:
@@ -33,6 +34,7 @@ class ProjectPageFactory(wagtail_factories.PageFactory):
 class AboutPageFactory(wagtail_factories.PageFactory):
     title = 'About'
     slug = factory.Sequence(lambda n: f'about-{n}')
+    body = '<p>About this site.</p>'
 
     class Meta:
         model = AboutPage
