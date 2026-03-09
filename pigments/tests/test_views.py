@@ -12,6 +12,7 @@ from django.urls import reverse
 from pigments.factories import (
     ColorFamilyFactory,
     CountryFactory,
+    FormulaFactory,
     ManuscriptFactory,
     PigmentFactory,
     PigmentManuscriptFactory,
@@ -216,3 +217,72 @@ def test_direct_get_returns_full_page():
     response = client.get(url)
     template_names = [t.name for t in response.templates]
     assert "pigments/pigment_list.html" in template_names
+
+
+# ---------------------------------------------------------------------------
+# Phase 03-01 tests: pigment detail view (RED stubs)
+# ---------------------------------------------------------------------------
+
+@pytest.mark.django_db
+def test_pigment_detail_returns_200():
+    pigment = PigmentFactory()
+    client = Client()
+    url = reverse('pigments:detail', kwargs={'pk': pigment.pk})
+    response = client.get(url)
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_pigment_detail_404():
+    client = Client()
+    url = reverse('pigments:detail', kwargs={'pk': 99999})
+    response = client.get(url)
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_pigment_detail_shows_name():
+    pigment = PigmentFactory()
+    client = Client()
+    url = reverse('pigments:detail', kwargs={'pk': pigment.pk})
+    response = client.get(url)
+    assert pigment.name.encode() in response.content
+
+
+@pytest.mark.django_db
+def test_pigment_detail_shows_description():
+    pigment = PigmentFactory(description='A rare blue pigment from lapis lazuli.')
+    client = Client()
+    url = reverse('pigments:detail', kwargs={'pk': pigment.pk})
+    response = client.get(url)
+    assert b'A rare blue pigment from lapis lazuli.' in response.content
+
+
+@pytest.mark.django_db
+def test_detail_shows_manuscript_links():
+    pigment = PigmentFactory()
+    manuscript = ManuscriptFactory(name='Book of Kells')
+    PigmentManuscriptFactory(pigment=pigment, manuscript=manuscript)
+    client = Client()
+    url = reverse('pigments:detail', kwargs={'pk': pigment.pk})
+    response = client.get(url)
+    assert b'Book of Kells' in response.content
+
+
+@pytest.mark.django_db
+def test_detail_no_manuscript_section_when_empty():
+    pigment = PigmentFactory()
+    client = Client()
+    url = reverse('pigments:detail', kwargs={'pk': pigment.pk})
+    response = client.get(url)
+    assert b'Manuscript' not in response.content
+
+
+@pytest.mark.django_db
+def test_detail_context_has_formulas():
+    pigment = PigmentFactory()
+    FormulaFactory(pigment=pigment)
+    client = Client()
+    url = reverse('pigments:detail', kwargs={'pk': pigment.pk})
+    response = client.get(url)
+    assert 'formulas' in response.context

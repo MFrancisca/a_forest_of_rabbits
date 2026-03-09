@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.db.models import Q
 
 from pigments.models import (
@@ -195,3 +195,8 @@ def pigment_list(request):
         return render(request, "pigments/pigment_list_partial.html", context)
 
     return render(request, "pigments/pigment_list.html", context)
+
+
+def pigment_detail(request, pk):
+    pigment = get_object_or_404(Pigment, pk=pk)
+    return render(request, 'pigments/pigment_detail.html', {'pigment': pigment})
