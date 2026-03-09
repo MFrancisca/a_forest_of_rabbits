@@ -1,0 +1,79 @@
+{
+  "pigments": [
+    {
+      "name": "Ultramarine Blue",
+      "color_family": "Blue",
+      "pigment_family": "Lapis Lazuli",
+      "description": "Lapis lazuli-derived blue, among the most prized pigments of the medieval period. Ground from the semi-precious stone, its intense colour was reserved for the most sacred figures.",
+      "formulas": [
+        {
+          "brand": "Rublev Colours",
+          "notes": "",
+          "parts": [
+            {"paint_name": "Lead White", "paint_brand": "Rublev Colours", "abbreviation": "W", "hex_color": "#F5F0E8", "parts": 3},
+            {"paint_name": "Ultramarine Blue", "paint_brand": "Rublev Colours", "abbreviation": "UB", "hex_color": "#1B3A8C", "parts": 1}
+          ]
+        }
+      ],
+      "manuscripts": [
+        {"name": "Mappae Clavicula", "country": "Italy", "date_start": 800, "date_end": 1100, "page_reference": "folio 12r", "notes": ""}
+      ]
+    },
+    {
+      "name": "Lead White",
+      "color_family": "White",
+      "pigment_family": "Lead",
+      "description": "Basic lead carbonate, the principal white pigment of Western art from antiquity through the 19th century. Mixed into nearly every paint mixture to increase opacity and drying speed.",
+      "formulas": [
+        {
+          "brand": "Rublev Colours",
+          "notes": "",
+          "parts": [
+            {"paint_name": "Lead White", "paint_brand": "Rublev Colours", "abbreviation": "W", "hex_color": "#F5F0E8", "parts": 1}
+          ]
+        }
+      ],
+      "manuscripts": [
+        {"name": "De Arte Illuminandi", "country": "Italy", "date_start": 1300, "date_end": 1400, "page_reference": "chapter III", "notes": ""}
+      ]
+    },
+    {
+      "name": "Red Ochre",
+      "color_family": "Red",
+      "pigment_family": "Iron Oxide",
+      "description": "Iron oxide earth pigment ranging from warm red to deep brown-red. One of the oldest pigments known, found in prehistoric cave paintings and used continuously through the medieval period.",
+      "formulas": [
+        {
+          "brand": "Williamsburg",
+          "notes": "",
+          "parts": [
+            {"paint_name": "Red Ochre", "paint_brand": "Williamsburg", "abbreviation": "RO", "hex_color": "#8B2500", "parts": 2},
+            {"paint_name": "Lead White", "paint_brand": "Rublev Colours", "abbreviation": "W", "hex_color": "#F5F0E8", "parts": 1}
+          ]
+        }
+      ],
+      "manuscripts": [
+        {"name": "Mappae Clavicula", "country": "Italy", "date_start": 800, "date_end": 1100, "page_reference": "folio 7v", "notes": ""}
+      ]
+    },
+    {
+      "name": "Verdigris",
+      "color_family": "Green",
+      "pigment_family": "Copper",
+      "description": "Copper acetate pigment produced by exposing copper plates to acetic acid vapors. The most common green pigment in medieval manuscript illumination, prized for its brilliant transparency.",
+      "formulas": [
+        {
+          "brand": "Rublev Colours",
+          "notes": "",
+          "parts": [
+            {"paint_name": "Verdigris", "paint_brand": "Rublev Colours", "abbreviation": "VG", "hex_color": "#4A7C59", "parts": 1},
+            {"paint_name": "Lead White", "paint_brand": "Rublev Colours", "abbreviation": "W", "hex_color": "#F5F0E8", "parts": 2}
+          ]
+        }
+      ],
+      "manuscripts": [
+        {"name": "De Arte Illuminandi", "country": "Italy", "date_start": 1300, "date_end": 1400, "page_reference": "", "notes": ""}
+      ]
+    }
+  ]
+}
