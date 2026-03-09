@@ -22,7 +22,7 @@ class Command(BaseCommand):
             self.stdout.write('ProjectsIndexPage already exists — skipping.')
 
         if not root.get_children().filter(slug='about').exists():
-            about = AboutPage(title='About', slug='about')
+            about = AboutPage(title='About', slug='about', body='<p>About page content — edit this in the Wagtail admin.</p>')
             root.add_child(instance=about)
             about.save_revision().publish()
             self.stdout.write(self.style.SUCCESS('Created AboutPage at /about/'))
