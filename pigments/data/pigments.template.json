@@ -1,0 +1,55 @@
+{
+  "_instructions": {
+    "usage": "python manage.py load_initial_pigments --data-file pigments/data/your_pigments.json",
+    "notes": [
+      "Copy this file, remove _instructions, and fill in your real data.",
+      "All fields marked REQUIRED must be present. Optional fields can be omitted.",
+      "abbreviation: short code used in formula notation (e.g. 'W' for white, 'UB' for ultramarine blue). Same color concept should use the same abbreviation across all brands.",
+      "hex_color: CSS hex color for the paint swatch, e.g. '#A3B2C1'. Leave empty string if unknown.",
+      "parts: numeric quantity — use integers where possible (3 not 3.0). Decimals allowed (1.5).",
+      "date_start / date_end: year CE as integer, e.g. 800. Use null if unknown.",
+      "page_reference: folio, chapter, or page, e.g. 'folio 12r' or 'chapter III'. Empty string if none.",
+      "The command is idempotent — safe to re-run after database resets (uses get_or_create throughout)."
+    ]
+  },
+  "pigments": [
+    {
+      "name": "REQUIRED — e.g. Ultramarine Blue",
+      "color_family": "REQUIRED — e.g. Blue",
+      "pigment_family": "REQUIRED — e.g. Lapis Lazuli",
+      "description": "REQUIRED — free text description of the pigment, its history and properties.",
+      "formulas": [
+        {
+          "brand": "REQUIRED — e.g. Rublev Colours",
+          "notes": "Optional — any notes about this formula.",
+          "parts": [
+            {
+              "paint_name": "REQUIRED — e.g. Lead White",
+              "paint_brand": "REQUIRED — brand that makes this paint, e.g. Rublev Colours",
+              "abbreviation": "REQUIRED — short code, e.g. W",
+              "hex_color": "REQUIRED — e.g. #F5F0E8 (empty string if unknown)",
+              "parts": 3
+            },
+            {
+              "paint_name": "REQUIRED — second paint in formula",
+              "paint_brand": "REQUIRED",
+              "abbreviation": "REQUIRED — e.g. UB",
+              "hex_color": "#1B3A8C",
+              "parts": 1
+            }
+          ]
+        }
+      ],
+      "manuscripts": [
+        {
+          "name": "REQUIRED — e.g. Mappae Clavicula",
+          "country": "REQUIRED — e.g. Italy",
+          "date_start": 800,
+          "date_end": 1100,
+          "page_reference": "e.g. folio 12r",
+          "notes": "Optional — any notes about this manuscript reference."
+        }
+      ]
+    }
+  ]
+}

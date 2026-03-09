@@ -66,7 +66,13 @@ Plans:
   3. Multiple brand recipes for the same pigment appear side-by-side or in a clear comparison layout
   4. At least one real pigment with a complete formula is visible in the running database
   5. Detail view and formula rendering have backend tests using factories; all pass green
-**Plans**: TBD
+**Plans**: 4 plans
+
+Plans:
+- [ ] 03-01-PLAN.md — Paint.abbreviation migration, Manuscript.date_display, TDD scaffold (RED): test stubs, stub view, URL route, template stub
+- [ ] 03-02-PLAN.md — Full pigment_detail view + complete pigment_detail.html template (GREEN): Alpine.js tabs, legend, lightbox, provenance table
+- [ ] 03-03-PLAN.md — load_initial_pigments management command: 4 real pigments with formulas and manuscript links
+- [ ] 03-04-PLAN.md — Browser verification: Alpine.js tab switching, reactive legend, lightbox, mobile layout
 
 ### Phase 4: Editorial Content
 **Goal**: Visitors can read craft tutorials and art research articles, and learn about the site and its author
@@ -111,7 +117,7 @@ Note: Phase 4 depends only on Phase 1 (independent of Phases 2-3) and can be pla
 |-------|----------------|--------|-----------|
 | 1. Foundation and Models | 4/4 | Complete    | 2026-03-08 |
 | 2. Pigment Filtering | 1/3 | Complete    | 2026-03-09 |
-| 3. Pigment Detail and Data | 0/? | Not started | - |
+| 3. Pigment Detail and Data | 0/4 | Not started | - |
 | 4. Editorial Content | 0/? | Not started | - |
 | 5. Content Migration | 0/? | Not started | - |
 | 6. Production Deploy | 0/? | Not started | - |
