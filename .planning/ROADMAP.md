@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Foundation and Models** - Working local environment with all pigment models migrated and Wagtail admin operational (completed 2026-03-08)
 - [x] **Phase 2: Pigment Filtering** - HTMX-powered filterable pigment list at /pigments/ with bookmarkable URLs (completed 2026-03-09)
 - [x] **Phase 3: Pigment Detail and Data** - Pigment detail pages with formula system and color swatches; initial data populated (completed 2026-03-09)
-- [ ] **Phase 4: Editorial Content** - Blog index, article pages, and About page live in Wagtail
+- [x] **Phase 4: Editorial Content** - Blog index, article pages, and About page live in Wagtail (completed 2026-03-09)
 - [ ] **Phase 5: Content Migration** - Existing Google Sites articles and images imported into Wagtail
 - [ ] **Phase 6: Production Deploy** - Site live at www.unanuovasperanza.art on Railway with R2 media storage and Cloudflare DNS
 
@@ -87,10 +87,10 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
-- [ ] 04-01-PLAN.md — TDD scaffold (RED): wagtail-factories install, blog factories, 9 failing test stubs, pyproject.toml coverage update
-- [ ] 04-02-PLAN.md — Blog models + migration (GREEN skeleton): Category snippet, ProjectsIndexPage, ProjectPage, AboutPage
-- [ ] 04-03-PLAN.md — Templates + management command + nav update (GREEN full): all 9 tests pass
-- [ ] 04-04-PLAN.md — Browser verification: admin publishing flow, nav, responsive About layout
+- [x] 04-01-PLAN.md — TDD scaffold (RED): wagtail-factories install, blog factories, 9 failing test stubs, pyproject.toml coverage update
+- [x] 04-02-PLAN.md — Blog models + migration (GREEN skeleton): Category snippet, ProjectsIndexPage, ProjectPage, AboutPage
+- [x] 04-03-PLAN.md — Templates + management command + nav update (GREEN full): all 9 tests pass
+- [x] 04-04-PLAN.md — Browser verification: admin publishing flow, nav, responsive About layout
 
 ### Phase 5: Content Migration
 **Goal**: All existing Google Sites content is accessible on the new Wagtail site, with images preserved
@@ -124,6 +124,6 @@ Note: Phase 4 depends only on Phase 1 (independent of Phases 2-3) and can be pla
 | 1. Foundation and Models | 4/4 | Complete    | 2026-03-08 |
 | 2. Pigment Filtering | 1/3 | Complete    | 2026-03-09 |
 | 3. Pigment Detail and Data | 4/4 | Complete    | 2026-03-09 |
-| 4. Editorial Content | 2/4 | In Progress|  |
+| 4. Editorial Content | 4/4 | Complete    | 2026-03-09 |
 | 5. Content Migration | 0/? | Not started | - |
 | 6. Production Deploy | 0/? | Not started | - |
