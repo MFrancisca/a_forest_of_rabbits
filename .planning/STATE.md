@@ -4,7 +4,7 @@ milestone: v1.0
 milestone_name: milestone
 status: planning
 stopped_at: Completed 03-04-PLAN.md
-last_updated: "2026-03-09T17:11:58.861Z"
+last_updated: "2026-03-09T17:41:37.812Z"
 last_activity: 2026-03-06 — Roadmap created; ready for Phase 1 planning
 progress:
   total_phases: 6
@@ -59,6 +59,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 03-pigment-detail-and-data P02 | 5min | 2 tasks | 2 files |
 | Phase 03-pigment-detail-and-data P03 | 5min | 1 tasks | 2 files |
 | Phase 03-pigment-detail-and-data P04 | 10min | 2 tasks | 1 files |
+| Phase 03-pigment-detail-and-data P04 | 10min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -87,6 +88,8 @@ Recent decisions affecting current work:
 - [Phase 03-pigment-detail-and-data]: Lightbox x-data on outer wrapper, formula tabs x-data on formula section — Alpine v3 nested x-data is intentional and correct
 - [Phase 03-pigment-detail-and-data]: JSON data file at pigments/data/ (plain directory, no __init__.py); DEFAULT_DATA_FILE resolved via Path(__file__) for cwd-independence; FormulaPart and PigmentManuscript guarded with .exists() for idempotency
 - [Phase 03-pigment-detail-and-data]: Williamsburg formula added to seed data (not Wagtail admin) for version-controlled multi-brand tab testing
+- [Phase 03-pigment-detail-and-data]: config/urls.py must include static(MEDIA_URL, ...) for images to serve in dev — discovered during browser verification
+- [Phase 03-pigment-detail-and-data]: Alpine.js x-data for manuscript row expansion belongs on tbody, not individual tr elements — tr-level x-data broke sibling row isolation
 
 ### Pending Todos
 
@@ -101,6 +104,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-09T17:11:58.859Z
+Last session: 2026-03-09T17:41:37.809Z
 Stopped at: Completed 03-04-PLAN.md
 Resume file: None

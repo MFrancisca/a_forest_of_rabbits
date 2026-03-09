@@ -2,7 +2,7 @@
 phase: 03-pigment-detail-and-data
 plan: "04"
 subsystem: ui
-tags: [alpine-js, django, wagtail, htmx, browser-verification]
+tags: [alpine.js, django, htmx, lightbox, template, browser-verification]
 
 # Dependency graph
 requires:
@@ -13,28 +13,33 @@ requires:
 
 provides:
   - human-verified confirmation that all interactive detail page behaviors work correctly in a real browser
-  - multi-brand tab switching verified live (Ultramarine Blue with Williamsburg formula added for testing)
+  - media file serving fix in dev (config/urls.py)
+  - Alpine.js x-data scope fix on manuscript rows (x-data on tbody not tr)
 
 affects:
-  - 04-tutorials (any future phase adding interactive UI should follow Alpine.js nested x-data pattern established here)
+  - 04-tutorials (any future phase adding interactive UI should follow Alpine.js x-data patterns established here)
 
 # Tech tracking
 tech-stack:
   added: []
   patterns:
-    - Alpine.js x-data nested scopes (lightbox outer, formula tabs inner) verified working in browser
-    - Legend panel responsive layout: right side desktop / stacked below formula on mobile
+    - "Alpine.js x-data on tbody not tr — row-level x-data creates isolated scopes; expansion state must live on the container"
+    - "Media serving in dev requires static(MEDIA_URL, ...) appended to urlpatterns in config/urls.py when DEBUG=True"
+    - "Legend panel responsive layout: right side desktop / stacked below formula on mobile"
 
 key-files:
   created: []
   modified:
-    - pigments/fixtures/initial_pigments.json (Williamsburg formula added to Ultramarine Blue for multi-brand testing)
+    - config/urls.py
+    - pigments/templates/pigments/pigment_detail.html
 
 key-decisions:
-  - "Williamsburg formula added to Ultramarine Blue via seed data (not admin) to enable multi-brand tab testing during verification — committed in a50a924"
+  - "config/urls.py must include static(MEDIA_URL, ...) for images to serve in dev — discovered during browser verification"
+  - "Alpine.js x-data for manuscript row expansion belongs on tbody, not individual tr elements — tr-level x-data broke sibling row isolation"
 
 patterns-established:
   - "Browser verification plans: add real multi-brand test data before human-verify checkpoint so the reviewer can exercise all interactive paths"
+  - "Bugs found during human verification are deviation Rule 1; fix, commit, and re-confirm before closing the plan"
 
 requirements-completed:
   - PIGM-02
@@ -47,7 +52,7 @@ completed: 2026-03-09
 
 # Phase 3 Plan 04: Browser Verification Summary
 
-**All 6 interactive detail page checks passed in browser: Alpine.js reactive brand tabs, responsive legend panel, manuscript provenance table with expandable notes, lightbox-ready structure, absent-section suppression, and back-button navigation.**
+**Interactive pigment detail page browser-verified: Alpine.js tabs, reactive legend, expandable manuscript rows, and mobile layout all confirmed working after fixing media file serving and Alpine x-data scope on manuscript rows**
 
 ## Performance
 
@@ -55,36 +60,60 @@ completed: 2026-03-09
 - **Started:** 2026-03-09
 - **Completed:** 2026-03-09
 - **Tasks:** 2 (1 auto + 1 human-verify checkpoint)
-- **Files modified:** 1 (seed data)
+- **Files modified:** 2
 
 ## Accomplishments
 
-- Dev server started and 4 pigments confirmed seeded via `load_initial_pigments`
-- Multi-brand tab switching verified live — Williamsburg formula added to Ultramarine Blue before the checkpoint to enable this check
-- All 6 specified verification steps passed and approved by user
+- All 6 browser verification checks passed (navigation, formula tabs, legend panel, mobile layout, manuscript table, back button)
+- Fixed media file 404s in dev by adding `static(MEDIA_URL, ...)` to `config/urls.py`
+- Fixed Alpine.js x-data scope bug — moved `x-data` from `<tr>` to `<tbody>` so manuscript row expansion works correctly
+- All 18 existing view tests remain green after both fixes
 
 ## Task Commits
 
 1. **Task 1: Seed database and start dev server** — operational, no file commits
-2. **Task 2: Browser verification checkpoint** — `a50a924` (feat: add Williamsburg formula to Ultramarine Blue for multi-brand tab testing)
+2. **Task 2: Browser verification checkpoint** — `21b7ea5` (fix: serve media files in dev + fix Alpine x-data scope on manuscript rows)
 
-**Plan metadata:** pending final docs commit
+**Plan metadata:** `0e088f0` (docs: complete browser verification plan)
 
 ## Files Created/Modified
 
-- `pigments/fixtures/initial_pigments.json` (or equivalent seed data) — Williamsburg brand formula added to Ultramarine Blue pigment entry
+- `config/urls.py` — Added `static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)` for dev media serving
+- `pigments/templates/pigments/pigment_detail.html` — Moved `x-data` from `<tr>` to `<tbody>` on manuscript rows
 
 ## Decisions Made
 
-- Williamsburg formula added to seed data (not via Wagtail admin) so the change is version-controlled and reproducible for future verification runs.
+- Media URL pattern must be appended to `urlpatterns` in `config/urls.py` when `DEBUG=True`; omitting it causes all MEDIA_ROOT-served images to 404 in development.
+- Alpine.js `x-data` on a `<tr>` creates an isolated scope per row, preventing rows from toggling correctly; `x-data` belongs on `<tbody>` so all rows share a single Alpine component.
 
 ## Deviations from Plan
 
-None — plan executed exactly as written. The addition of the Williamsburg formula was explicitly suggested in the plan's Step 2 instructions ("add one via Wagtail admin if needed"); doing it via seed data instead of admin was a minor implementation choice, not a scope deviation.
+### Auto-fixed Issues
+
+**1. [Rule 1 - Bug] Media files serving missing in development (images 404ing)**
+- **Found during:** Task 2 (Browser verification checkpoint)
+- **Issue:** `config/urls.py` lacked `static(MEDIA_URL, ...)` URL pattern, so any image stored in MEDIA_ROOT returned 404 in the dev server
+- **Fix:** Added `from django.conf import settings`, `from django.conf.urls.static import static`, and appended `static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)` to `urlpatterns`
+- **Files modified:** `config/urls.py`
+- **Verification:** Images loaded correctly in browser after fix
+- **Committed in:** `21b7ea5`
+
+**2. [Rule 1 - Bug] Alpine.js x-data scope bug on manuscript rows (rows not expanding)**
+- **Found during:** Task 2 (Browser verification checkpoint)
+- **Issue:** `x-data` was placed on individual `<tr>` elements; each row had an isolated Alpine scope, so clicking a row did not toggle the notes expansion correctly
+- **Fix:** Moved `x-data` to the parent `<tbody>` element so all manuscript rows share one Alpine component instance
+- **Files modified:** `pigments/templates/pigments/pigment_detail.html`
+- **Verification:** Manuscript rows with notes expanded on click; rows without notes remained non-clickable; all 18 view tests still green
+- **Committed in:** `21b7ea5`
+
+---
+
+**Total deviations:** 2 auto-fixed (both Rule 1 — bugs)
+**Impact on plan:** Both fixes required for correct interactive behavior. No scope creep.
 
 ## Issues Encountered
 
-None.
+None beyond the two bugs documented above, which were found and fixed during the verification session.
 
 ## User Setup Required
 
@@ -92,8 +121,9 @@ None - no external service configuration required.
 
 ## Next Phase Readiness
 
-- Phase 3 is fully complete: models, detail view, template, seed data, and browser verification all done.
-- Phase 4 (tutorials or next phase) can proceed — all pigment detail interactive behaviors are confirmed working.
+- Phase 3 is fully closed. All pigment detail interactive behaviors verified in a real browser.
+- Phase 4 (blog/tutorials) can begin; the pigment detail page is the reference implementation for Alpine.js patterns in this project.
+- No blockers.
 
 ---
 *Phase: 03-pigment-detail-and-data*
