@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 04-editorial-content-02-PLAN.md
-last_updated: "2026-03-09T20:13:21.842Z"
+stopped_at: Completed 04-editorial-content-03-PLAN.md
+last_updated: "2026-03-09T20:26:04.090Z"
 last_activity: 2026-03-06 — Roadmap created; ready for Phase 1 planning
 progress:
   total_phases: 6
   completed_phases: 3
   total_plans: 15
-  completed_plans: 13
+  completed_plans: 14
   percent: 0
 ---
 
@@ -62,6 +62,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 03-pigment-detail-and-data P04 | 10min | 2 tasks | 2 files |
 | Phase 04-editorial-content P01 | 10min | 3 tasks | 8 files |
 | Phase 04-editorial-content P02 | 5min | 2 tasks | 3 files |
+| Phase 04-editorial-content P03 | 15min | 2 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -97,6 +98,9 @@ Recent decisions affecting current work:
 - [Phase 04-editorial-content]: wagtail-factories 4.4.0 with no version pin in requirements/dev.txt; wagtail_factories.PageFactory for page model factories
 - [Phase 04-editorial-content]: Deleted stub 0001_initial.py (unapplied) and regenerated from real models — keeps migration history clean with single initial migration
 - [Phase 04-editorial-content]: ProjectPageFactory and AboutPageFactory require body field defaults — RichTextField not blank causes ValidationError in Wagtail full_clean()
+- [Phase 04-editorial-content]: blog/migrations/0001_initial.py is root-owned; created blog/migrations_test/ with wagtailcore 0094 dep and MIGRATION_MODULES override in test settings
+- [Phase 04-editorial-content]: wagtail_site fixture must explicitly update root_page when default site pre-exists from Wagtail initial migration — get_or_create does not update existing records
+- [Phase 04-editorial-content]: Management command create_site_skeleton uses add_child + save_revision().publish() for idempotent ProjectsIndexPage and AboutPage creation
 
 ### Pending Todos
 
@@ -111,6 +115,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-09T20:13:21.839Z
-Stopped at: Completed 04-editorial-content-02-PLAN.md
+Last session: 2026-03-09T20:26:04.088Z
+Stopped at: Completed 04-editorial-content-03-PLAN.md
 Resume file: None
