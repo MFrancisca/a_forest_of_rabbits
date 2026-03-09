@@ -1,4 +1,192 @@
 {% extends "base.html" %}
+{% load wagtailimages_tags %}
+
+{% block extra_head %}
+<style>[x-cloak]{display:none!important}</style>
+{% endblock %}
+
 {% block content %}
-<h1>{{ pigment.name }}</h1>
+<div x-data="{ lightboxOpen: false, lightboxSrc: '' }"
+     @keydown.escape.window="lightboxOpen = false"
+     class="max-w-4xl mx-auto px-4 py-8">
+
+  {# 1. Heading + taxonomy tags #}
+  <div class="mb-6">
+    <h1 class="text-3xl font-semibold text-stone-800 mb-2">{{ pigment.name }}</h1>
+    <div class="flex flex-wrap gap-2">
+      {% if pigment.color_family %}
+      <span class="px-2 py-1 text-xs rounded-full bg-stone-100 text-stone-600">
+        {{ pigment.color_family.name }}
+      </span>
+      {% endif %}
+      {% if pigment.pigment_family %}
+      <span class="px-2 py-1 text-xs rounded-full bg-stone-100 text-stone-600">
+        {{ pigment.pigment_family.name }}
+      </span>
+      {% endif %}
+    </div>
+  </div>
+
+  {# 2. Description #}
+  {% if pigment.description %}
+  <div class="prose prose-stone mb-8">
+    <p>{{ pigment.description }}</p>
+  </div>
+  {% endif %}
+
+  {# 3. Featured image #}
+  {% if featured_image and featured_image.image %}
+  {% image featured_image.image fill-800x600 as feat_rendition %}
+  <div class="mb-8">
+    <img src="{{ feat_rendition.url }}"
+         alt="{{ featured_image.alt_text|default:pigment.name }}"
+         class="w-full max-h-96 object-cover rounded-lg cursor-pointer shadow-sm"
+         @click="lightboxOpen = true; lightboxSrc = '{{ feat_rendition.url }}'" />
+    {% if featured_image.caption %}
+    <p class="text-sm text-stone-500 mt-2">{{ featured_image.caption }}</p>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {# 4. Formula section #}
+  {% if formulas %}
+  <div class="mb-8" x-data="{ activeTab: 0 }">
+    <h2 class="text-xl font-semibold text-stone-700 mb-4">Modern Paint Formulas</h2>
+
+    {# Brand tab buttons #}
+    <div class="flex gap-1 border-b border-stone-200 mb-4">
+      {% for formula in formulas %}
+      <button type="button"
+              @click="activeTab = {{ forloop.counter0 }}"
+              :class="activeTab === {{ forloop.counter0 }}
+                ? 'border-b-2 border-stone-800 font-semibold text-stone-800 -mb-px'
+                : 'text-stone-500 hover:text-stone-700'"
+              class="px-4 py-2 text-sm transition-colors">
+        {{ formula.brand.name }}
+      </button>
+      {% endfor %}
+    </div>
+
+    {# Formula panels + right-side legend #}
+    <div class="flex flex-col lg:flex-row gap-6">
+
+      {# Left: formula notation panels #}
+      <div class="flex-1">
+        {% for formula in formulas %}
+        <div x-show="activeTab === {{ forloop.counter0 }}" x-cloak>
+          <p class="text-2xl font-mono tracking-wide text-stone-800 mb-2">
+            {% for part in formula.parts.all %}{{ part.parts|floatformat:"-2" }}{{ part.paint.abbreviation }}{% if not forloop.last %} + {% endif %}{% endfor %}
+          </p>
+          {% if formula.notes %}
+          <p class="text-sm text-stone-500 mt-2">{{ formula.notes }}</p>
+          {% endif %}
+
+          {# Mobile-only legend (below notation, inside tab panel) #}
+          <div class="mt-4 lg:hidden">
+            {% for part in formula.parts.all %}
+            <div class="flex items-center gap-2 mb-2">
+              {% if part.paint.hex_color %}
+              <span class="w-4 h-4 rounded-sm border border-stone-200 flex-shrink-0"
+                    style="background-color: {{ part.paint.hex_color }}"></span>
+              {% endif %}
+              <span class="text-sm font-mono font-semibold text-stone-700">{{ part.paint.abbreviation }}</span>
+              <span class="text-sm text-stone-600">{{ part.paint.name }}</span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      {# Right: desktop-only sticky legend panel #}
+      <div class="hidden lg:block w-52 flex-shrink-0">
+        <div class="sticky top-6">
+          {% for formula in formulas %}
+          <div x-show="activeTab === {{ forloop.counter0 }}" x-cloak>
+            <h3 class="text-xs font-semibold uppercase tracking-wider text-stone-400 mb-3">Legend</h3>
+            {% for part in formula.parts.all %}
+            <div class="flex items-center gap-2 mb-2">
+              {% if part.paint.hex_color %}
+              <span class="w-4 h-4 rounded-sm border border-stone-200 flex-shrink-0"
+                    style="background-color: {{ part.paint.hex_color }}"></span>
+              {% endif %}
+              <span class="text-sm font-mono font-semibold text-stone-700 w-6">{{ part.paint.abbreviation }}</span>
+              <span class="text-sm text-stone-600">{{ part.paint.name }}</span>
+            </div>
+            {% endfor %}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+    </div>
+  </div>
+  {% endif %}
+
+  {# 5. Additional images strip (2+ images only) #}
+  {% if additional_images %}
+  <div class="mb-8">
+    <div class="flex gap-3 overflow-x-auto pb-2">
+      {% for img in additional_images %}
+      {% if img.image %}
+      {% image img.image fill-200x150 as strip_rendition %}
+      <img src="{{ strip_rendition.url }}"
+           alt="{{ img.alt_text|default:pigment.name }}"
+           class="w-36 h-28 object-cover rounded flex-shrink-0 cursor-pointer shadow-sm"
+           @click="lightboxOpen = true; lightboxSrc = '{{ strip_rendition.url }}'" />
+      {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {# 6. Manuscript provenance table #}
+  {% if manuscript_links %}
+  <div class="mb-8">
+    <h2 class="text-xl font-semibold text-stone-700 mb-4">Manuscript Sources</h2>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm text-left border-collapse">
+        <thead>
+          <tr class="border-b border-stone-200">
+            <th class="py-2 pr-4 font-semibold text-stone-600">Manuscript</th>
+            <th class="py-2 pr-4 font-semibold text-stone-600">Dates</th>
+            <th class="py-2 pr-4 font-semibold text-stone-600">Country</th>
+            <th class="py-2 font-semibold text-stone-600">Page ref.</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for link in manuscript_links %}
+          <tr {% if link.notes %}x-data="{ expanded: false }" @click="expanded = !expanded"{% endif %}
+              class="border-b border-stone-100{% if link.notes %} cursor-pointer hover:bg-stone-50{% endif %}">
+            <td class="py-2 pr-4 text-stone-800">{{ link.manuscript.name }}</td>
+            <td class="py-2 pr-4 text-stone-600">{{ link.manuscript.date_display }}</td>
+            <td class="py-2 pr-4 text-stone-600">{{ link.manuscript.country.name|default:"—" }}</td>
+            <td class="py-2 text-stone-600">{{ link.page_reference|default:"—" }}</td>
+          </tr>
+          {% if link.notes %}
+          <tr x-show="expanded" x-cloak class="bg-stone-50">
+            <td colspan="4" class="px-2 py-2 text-sm text-stone-600 italic">
+              {{ link.notes }}
+            </td>
+          </tr>
+          {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+
+{# Lightbox overlay #}
+<div x-show="lightboxOpen"
+     x-cloak
+     class="fixed inset-0 z-50 flex items-center justify-center bg-black/80"
+     @click.self="lightboxOpen = false">
+  <img :src="lightboxSrc"
+       class="max-w-full max-h-screen object-contain p-4"
+       alt="Enlarged image" />
+</div>
+
 {% endblock %}
