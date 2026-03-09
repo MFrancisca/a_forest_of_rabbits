@@ -13,6 +13,14 @@
             {"paint_name": "Lead White", "paint_brand": "Rublev Colours", "abbreviation": "W", "hex_color": "#F5F0E8", "parts": 3},
             {"paint_name": "Ultramarine Blue", "paint_brand": "Rublev Colours", "abbreviation": "UB", "hex_color": "#1B3A8C", "parts": 1}
           ]
+        },
+        {
+          "brand": "Williamsburg",
+          "notes": "Williamsburg's ultramarine is slightly warmer in tone.",
+          "parts": [
+            {"paint_name": "Flake White", "paint_brand": "Williamsburg", "abbreviation": "W", "hex_color": "#F2EDE3", "parts": 2},
+            {"paint_name": "Ultramarine Blue Deep", "paint_brand": "Williamsburg", "abbreviation": "UB", "hex_color": "#152E6E", "parts": 1}
+          ]
         }
       ],
       "manuscripts": [
