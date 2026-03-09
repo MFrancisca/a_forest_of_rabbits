@@ -49,7 +49,12 @@ Plans:
   3. The URL in the browser updates to reflect active filters, and sharing that URL produces the same filtered results
   4. Pressing the browser back button after filtering returns a correctly-rendered full page (not a partial HTML fragment)
   5. Tests cover filter edge cases (empty results, combined filters, M2M joins with .distinct()) and HTMX partial/full-page response logic; all pass green
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 02-01-PLAN.md — Failing test stubs (RED) + scaffold: view stub, URL route, template stubs
+- [ ] 02-02-PLAN.md — View implementation + templates (GREEN) — all 11 tests pass
+- [ ] 02-03-PLAN.md — Browser verification: HTMX swaps, pills, back button, bookmarkable URLs
 
 ### Phase 3: Pigment Detail and Data
 **Goal**: Visitors can view complete pigment information — including images, manuscript provenance, and modern paint formulas — and the database contains real initial data
@@ -105,7 +110,7 @@ Note: Phase 4 depends only on Phase 1 (independent of Phases 2-3) and can be pla
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation and Models | 4/4 | Complete    | 2026-03-08 |
-| 2. Pigment Filtering | 0/? | Not started | - |
+| 2. Pigment Filtering | 0/3 | Planned     | - |
 | 3. Pigment Detail and Data | 0/? | Not started | - |
 | 4. Editorial Content | 0/? | Not started | - |
 | 5. Content Migration | 0/? | Not started | - |
