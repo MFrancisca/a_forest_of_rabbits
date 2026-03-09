@@ -13,7 +13,7 @@ Six phases take the project from an empty repo to a live site at www.unanuovaspe
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation and Models** - Working local environment with all pigment models migrated and Wagtail admin operational (completed 2026-03-08)
-- [ ] **Phase 2: Pigment Filtering** - HTMX-powered filterable pigment list at /pigments/ with bookmarkable URLs
+- [x] **Phase 2: Pigment Filtering** - HTMX-powered filterable pigment list at /pigments/ with bookmarkable URLs (completed 2026-03-09)
 - [ ] **Phase 3: Pigment Detail and Data** - Pigment detail pages with formula system and color swatches; initial data populated
 - [ ] **Phase 4: Editorial Content** - Blog index, article pages, and About page live in Wagtail
 - [ ] **Phase 5: Content Migration** - Existing Google Sites articles and images imported into Wagtail
@@ -110,7 +110,7 @@ Note: Phase 4 depends only on Phase 1 (independent of Phases 2-3) and can be pla
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation and Models | 4/4 | Complete    | 2026-03-08 |
-| 2. Pigment Filtering | 1/3 | In Progress|  |
+| 2. Pigment Filtering | 1/3 | Complete    | 2026-03-09 |
 | 3. Pigment Detail and Data | 0/? | Not started | - |
 | 4. Editorial Content | 0/? | Not started | - |
 | 5. Content Migration | 0/? | Not started | - |
