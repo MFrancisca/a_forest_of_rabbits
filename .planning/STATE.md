@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 01-foundation-and-models/01-04-PLAN.md
-last_updated: "2026-03-08T22:59:44.556Z"
+stopped_at: Completed 02-01-PLAN.md
+last_updated: "2026-03-09T02:11:10.921Z"
 last_activity: 2026-03-06 — Roadmap created; ready for Phase 1 planning
 progress:
   total_phases: 6
   completed_phases: 1
-  total_plans: 4
-  completed_plans: 4
+  total_plans: 7
+  completed_plans: 5
   percent: 0
 ---
 
@@ -52,6 +52,7 @@ Progress: [░░░░░░░░░░] 0%
 *Updated after each plan completion*
 | Phase 01-foundation-and-models P01 | 2 | 2 tasks | 25 files |
 | Phase 01-foundation-and-models P04 | 20min | 2 tasks | 8 files |
+| Phase 02-pigment-filtering P01 | 2min | 1 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -70,6 +71,8 @@ Recent decisions affecting current work:
 - [Phase 01-04]: SQLite :memory: test settings added (config/settings/test.py) — PostgreSQL unavailable without Docker; all 15 tests pass with SQLite
 - [Phase 01-04]: DJANGO_SETTINGS_MODULE changed to config.settings.test in pyproject.toml for all pytest runs
 - [Phase 01-04]: --cov=blog removed from addopts in Phase 1 — blog has no code yet; will re-add in Phase 4
+- [Phase 02-pigment-filtering]: Stub view returns HttpResponse (not render) — causes context=None failures which is acceptable RED state
+- [Phase 02-pigment-filtering]: Template stubs created before running tests so TemplateDoesNotExist does not mask assertion failures
 
 ### Pending Todos
 
@@ -84,6 +87,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-08T22:21:08.184Z
-Stopped at: Completed 01-foundation-and-models/01-04-PLAN.md
+Last session: 2026-03-09T02:11:10.918Z
+Stopped at: Completed 02-01-PLAN.md
 Resume file: None

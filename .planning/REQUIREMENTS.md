@@ -7,7 +7,7 @@
 
 ### Pigment Database
 
-- [ ] **PIGM-01**: User can browse pigments in a filterable list, sliceable by color family, pigment family, manuscript, country, and time period
+- [x] **PIGM-01**: User can browse pigments in a filterable list, sliceable by color family, pigment family, manuscript, country, and time period
 - [ ] **PIGM-02**: User can view a pigment detail page with description, reference images, and manuscript provenance links
 - [ ] **PIGM-03**: User can see brand-specific modern paint formulas with color swatches and part proportions for each pigment
 - [ ] **PIGM-04**: Owner can manage all pigment data (taxonomy entries, formulas, images, manuscript links) through Wagtail admin without touching code
@@ -28,8 +28,8 @@
 
 - [x] **TEST-01**: All models, views, filters, and URL routing have backend tests written using pytest + pytest-django
 - [x] **TEST-02**: All test data is created via factory_boy factories — no Django fixtures anywhere in the test suite
-- [ ] **TEST-03**: Tests cover edge cases for the pigment filter (empty results, M2M joins, combined filters)
-- [ ] **TEST-04**: Tests cover the HTMX partial/full-page response logic in the pigment list view
+- [x] **TEST-03**: Tests cover edge cases for the pigment filter (empty results, M2M joins, combined filters)
+- [x] **TEST-04**: Tests cover the HTMX partial/full-page response logic in the pigment list view
 
 ## v2 Requirements
 
@@ -67,7 +67,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PIGM-01 | Phase 2 | Pending |
+| PIGM-01 | Phase 2 | Complete |
 | PIGM-02 | Phase 3 | Pending |
 | PIGM-03 | Phase 3 | Pending |
 | PIGM-04 | Phase 1 | Pending |
@@ -79,8 +79,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | INFRA-04 | Phase 6 | Pending |
 | TEST-01 | Phase 1–4 | Complete |
 | TEST-02 | Phase 1–4 | Complete |
-| TEST-03 | Phase 2 | Pending |
-| TEST-04 | Phase 2 | Pending |
+| TEST-03 | Phase 2 | Complete |
+| TEST-04 | Phase 2 | Complete |
 
 **Coverage:**
 - v1 requirements: 14 total
