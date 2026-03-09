@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 03-01-PLAN.md
-last_updated: "2026-03-09T16:45:39.035Z"
+stopped_at: Completed 03-02-PLAN.md
+last_updated: "2026-03-09T16:50:02.635Z"
 last_activity: 2026-03-06 — Roadmap created; ready for Phase 1 planning
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 11
-  completed_plans: 8
+  completed_plans: 9
   percent: 0
 ---
 
@@ -56,6 +56,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 02-pigment-filtering P02 | 3 | 2 tasks | 3 files |
 | Phase 02-pigment-filtering P03 | 15min | 2 tasks | 1 files |
 | Phase 03-pigment-detail-and-data P01 | 3min | 2 tasks | 10 files |
+| Phase 03-pigment-detail-and-data P02 | 5min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -81,6 +82,7 @@ Recent decisions affecting current work:
 - [Phase 02-pigment-filtering]: Active pills row moved inside HTMX swap target (pigment_list_partial.html) — pills placed outside the swap target were not updated on filter change
 - [Phase 03-pigment-detail-and-data]: Stub view renders template (not HttpResponse) to prevent TemplateDoesNotExist masking test assertion failures
 - [Phase 03-pigment-detail-and-data]: Infrastructure before tests: create management __init__ files, stub command, stub view, stub template BEFORE writing test stubs
+- [Phase 03-pigment-detail-and-data]: Lightbox x-data on outer wrapper, formula tabs x-data on formula section — Alpine v3 nested x-data is intentional and correct
 
 ### Pending Todos
 
@@ -95,6 +97,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-09T16:45:39.032Z
-Stopped at: Completed 03-01-PLAN.md
+Last session: 2026-03-09T16:50:02.632Z
+Stopped at: Completed 03-02-PLAN.md
 Resume file: None
