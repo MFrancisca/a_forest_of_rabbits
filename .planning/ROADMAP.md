@@ -84,7 +84,13 @@ Plans:
   3. An About page is accessible from the main navigation describing the site and its author
   4. Owner can create and publish a new article from Wagtail admin without touching code
   5. Blog page types and URL routing have backend tests using factories; all pass green
-**Plans**: TBD
+**Plans**: 4 plans
+
+Plans:
+- [ ] 04-01-PLAN.md — TDD scaffold (RED): wagtail-factories install, blog factories, 9 failing test stubs, pyproject.toml coverage update
+- [ ] 04-02-PLAN.md — Blog models + migration (GREEN skeleton): Category snippet, ProjectsIndexPage, ProjectPage, AboutPage
+- [ ] 04-03-PLAN.md — Templates + management command + nav update (GREEN full): all 9 tests pass
+- [ ] 04-04-PLAN.md — Browser verification: admin publishing flow, nav, responsive About layout
 
 ### Phase 5: Content Migration
 **Goal**: All existing Google Sites content is accessible on the new Wagtail site, with images preserved
@@ -118,6 +124,6 @@ Note: Phase 4 depends only on Phase 1 (independent of Phases 2-3) and can be pla
 | 1. Foundation and Models | 4/4 | Complete    | 2026-03-08 |
 | 2. Pigment Filtering | 1/3 | Complete    | 2026-03-09 |
 | 3. Pigment Detail and Data | 4/4 | Complete    | 2026-03-09 |
-| 4. Editorial Content | 0/? | Not started | - |
+| 4. Editorial Content | 0/4 | Not started | - |
 | 5. Content Migration | 0/? | Not started | - |
 | 6. Production Deploy | 0/? | Not started | - |
