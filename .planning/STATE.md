@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 02-02-PLAN.md
-last_updated: "2026-03-09T02:17:00.043Z"
+stopped_at: Completed 02-03-PLAN.md
+last_updated: "2026-03-09T02:29:03.380Z"
 last_activity: 2026-03-06 — Roadmap created; ready for Phase 1 planning
 progress:
   total_phases: 6
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 7
-  completed_plans: 6
+  completed_plans: 7
   percent: 0
 ---
 
@@ -54,6 +54,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01-foundation-and-models P04 | 20min | 2 tasks | 8 files |
 | Phase 02-pigment-filtering P01 | 2min | 1 tasks | 5 files |
 | Phase 02-pigment-filtering P02 | 3 | 2 tasks | 3 files |
+| Phase 02-pigment-filtering P03 | 15min | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -76,6 +77,7 @@ Recent decisions affecting current work:
 - [Phase 02-pigment-filtering]: Template stubs created before running tests so TemplateDoesNotExist does not mask assertion failures
 - [Phase 02-pigment-filtering]: Use request.headers.get('HX-Request') not request.META — cleaner Django 2.2+ API
 - [Phase 02-pigment-filtering]: Django template comments ({# #}) instead of HTML comments in partial — HTML comments do not prevent parser from finding {%...%} tags
+- [Phase 02-pigment-filtering]: Active pills row moved inside HTMX swap target (pigment_list_partial.html) — pills placed outside the swap target were not updated on filter change
 
 ### Pending Todos
 
@@ -90,6 +92,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-09T02:17:00.040Z
-Stopped at: Completed 02-02-PLAN.md
+Last session: 2026-03-09T02:29:03.376Z
+Stopped at: Completed 02-03-PLAN.md
 Resume file: None
