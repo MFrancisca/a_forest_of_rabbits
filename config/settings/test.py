@@ -21,3 +21,10 @@ DATABASES = {
 INSTALLED_APPS = [app for app in INSTALLED_APPS if app != 'debug_toolbar']  # noqa: F405
 
 # Wagtail requires at least one site — tests create it via migrations
+
+# Redirect blog migrations to a version with correct wagtailcore dependency
+# (the main blog/migrations/0001_initial.py was generated with wagtailcore 0096
+# which does not exist in wagtail 7.0.6 — this override uses the correct 0094)
+MIGRATION_MODULES = {
+    'blog': 'blog.migrations_test',
+}

@@ -16,11 +16,21 @@ def root_page(db):
 
 @pytest.fixture
 def wagtail_site(db, root_page):
-    """Return or create the default Wagtail site pointing to root."""
-    site, _ = Site.objects.get_or_create(
+    """Return or create the default Wagtail site pointing to root.
+
+    Wagtail's initial migration creates a default site pointing to a depth=2
+    homepage.  We need it to point to root_page (depth=1) so that pages added
+    as children of root_page are reachable at their slug URLs.
+    """
+    site, created = Site.objects.get_or_create(
         is_default_site=True,
         defaults={'hostname': 'localhost', 'port': 80, 'root_page': root_page},
     )
+    if not created and site.root_page_id != root_page.pk:
+        # The initial migration already created a default site with a different
+        # root_page — update it so our test pages are routable.
+        site.root_page = root_page
+        site.save()
     return site
 
 
