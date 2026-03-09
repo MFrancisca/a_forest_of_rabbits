@@ -199,4 +199,19 @@ def pigment_list(request):
 
 def pigment_detail(request, pk):
     pigment = get_object_or_404(Pigment, pk=pk)
-    return render(request, 'pigments/pigment_detail.html', {'pigment': pigment})
+    formulas = pigment.formulas.select_related('brand').prefetch_related(
+        'parts__paint'
+    ).all()
+    images = list(pigment.images.select_related('image').all())
+    manuscript_links = pigment.manuscript_links.select_related(
+        'manuscript__country'
+    ).all()
+    context = {
+        'pigment': pigment,
+        'formulas': formulas,
+        'images': images,
+        'featured_image': images[0] if images else None,
+        'additional_images': images[1:] if len(images) > 1 else [],
+        'manuscript_links': manuscript_links,
+    }
+    return render(request, 'pigments/pigment_detail.html', context)
