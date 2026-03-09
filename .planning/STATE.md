@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 03-04-PLAN.md
-last_updated: "2026-03-09T17:53:19.397Z"
+stopped_at: Completed 04-editorial-content-01-PLAN.md
+last_updated: "2026-03-09T20:08:20.443Z"
 last_activity: 2026-03-06 — Roadmap created; ready for Phase 1 planning
 progress:
   total_phases: 6
   completed_phases: 3
-  total_plans: 11
-  completed_plans: 11
+  total_plans: 15
+  completed_plans: 12
   percent: 0
 ---
 
@@ -60,6 +60,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 03-pigment-detail-and-data P03 | 5min | 1 tasks | 2 files |
 | Phase 03-pigment-detail-and-data P04 | 10min | 2 tasks | 1 files |
 | Phase 03-pigment-detail-and-data P04 | 10min | 2 tasks | 2 files |
+| Phase 04-editorial-content P01 | 10min | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -90,6 +91,9 @@ Recent decisions affecting current work:
 - [Phase 03-pigment-detail-and-data]: Williamsburg formula added to seed data (not Wagtail admin) for version-controlled multi-brand tab testing
 - [Phase 03-pigment-detail-and-data]: config/urls.py must include static(MEDIA_URL, ...) for images to serve in dev — discovered during browser verification
 - [Phase 03-pigment-detail-and-data]: Alpine.js x-data for manuscript row expansion belongs on tbody, not individual tr elements — tr-level x-data broke sibling row isolation
+- [Phase 04-editorial-content]: Create stub models in blog/models.py before tests to allow clean collection without ImportError (following Phase 3 pattern)
+- [Phase 04-editorial-content]: blog/migrations/0001_initial.py required for Category model to resolve InvalidBasesError during test DB setup
+- [Phase 04-editorial-content]: wagtail-factories 4.4.0 with no version pin in requirements/dev.txt; wagtail_factories.PageFactory for page model factories
 
 ### Pending Todos
 
@@ -104,6 +108,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-09T17:41:37.809Z
-Stopped at: Completed 03-04-PLAN.md
+Last session: 2026-03-09T20:08:20.440Z
+Stopped at: Completed 04-editorial-content-01-PLAN.md
 Resume file: None
