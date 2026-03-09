@@ -8,8 +8,8 @@
 ### Pigment Database
 
 - [x] **PIGM-01**: User can browse pigments in a filterable list, sliceable by color family, pigment family, manuscript, country, and time period
-- [ ] **PIGM-02**: User can view a pigment detail page with description, reference images, and manuscript provenance links
-- [ ] **PIGM-03**: User can see brand-specific modern paint formulas with color swatches and part proportions for each pigment
+- [x] **PIGM-02**: User can view a pigment detail page with description, reference images, and manuscript provenance links
+- [x] **PIGM-03**: User can see brand-specific modern paint formulas with color swatches and part proportions for each pigment
 - [ ] **PIGM-04**: Owner can manage all pigment data (taxonomy entries, formulas, images, manuscript links) through Wagtail admin without touching code
 
 ### Editorial
@@ -68,8 +68,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | PIGM-01 | Phase 2 | Complete |
-| PIGM-02 | Phase 3 | Pending |
-| PIGM-03 | Phase 3 | Pending |
+| PIGM-02 | Phase 3 | Complete |
+| PIGM-03 | Phase 3 | Complete |
 | PIGM-04 | Phase 1 | Pending |
 | EDIT-01 | Phase 4 | Pending |
 | EDIT-02 | Phase 4 | Pending |
