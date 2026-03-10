@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Pigment Filtering** - HTMX-powered filterable pigment list at /pigments/ with bookmarkable URLs (completed 2026-03-09)
 - [x] **Phase 3: Pigment Detail and Data** - Pigment detail pages with formula system and color swatches; initial data populated (completed 2026-03-09)
 - [x] **Phase 4: Editorial Content** - Blog index, article pages, and About page live in Wagtail (completed 2026-03-09)
-- [ ] **Phase 5: Content Migration** - Existing Google Sites articles and images imported into Wagtail
+- [x] **Phase 5: Content Migration** - Existing Google Sites articles and images imported into Wagtail (completed 2026-03-10)
 - [ ] **Phase 6: Production Deploy** - Site live at www.unanuovasperanza.art on Railway with R2 media storage and Cloudflare DNS
 
 ## Phase Details
@@ -130,5 +130,5 @@ Note: Phase 4 depends only on Phase 1 (independent of Phases 2-3) and can be pla
 | 2. Pigment Filtering | 1/3 | Complete    | 2026-03-09 |
 | 3. Pigment Detail and Data | 4/4 | Complete    | 2026-03-09 |
 | 4. Editorial Content | 4/4 | Complete    | 2026-03-10 |
-| 5. Content Migration | 2/3 | In Progress|  |
+| 5. Content Migration | 3/3 | Complete   | 2026-03-10 |
 | 6. Production Deploy | 0/? | Not started | - |
