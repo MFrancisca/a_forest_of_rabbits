@@ -79,6 +79,8 @@ Work through one article at a time, completing all sub-steps (2a–2f) before mo
 - Apply headings (H2, H3), bold, italic, and lists using the toolbar as needed
 - Minor formatting differences from Google Sites are acceptable — the goal is content fidelity, not pixel-perfect reproduction
 
+> **Collapsible sections:** Google Sites articles start with a collapsible box section. Wagtail's RichTextField does not support collapsible elements. **Replace each collapsible box with an H2 or H3 heading** — the content stays visible but clearly sectioned. Collapsible blocks are planned for v2 (INFRA-v2-02) once StreamField is introduced.
+
 > **Pitfall to avoid:** Do not publish before inserting images (Step 2e). Body text without images is an incomplete article.
 
 ---

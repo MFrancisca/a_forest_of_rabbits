@@ -21,7 +21,7 @@
 
 - [x] **INFRA-01**: Site runs locally via Docker Compose for development (Docker up = working site with database)
 - [ ] **INFRA-02**: All uploaded images are stored on Cloudflare R2 and persist across Railway deployments
-- [ ] **INFRA-03**: Existing Google Sites articles are migrated into Wagtail and accessible on the new site
+- [x] **INFRA-03**: Existing Google Sites articles are migrated into Wagtail and accessible on the new site
 - [ ] **INFRA-04**: Site is deployed and live at www.unanuovasperanza.art on Railway with Cloudflare DNS and SSL
 
 ### Testing
@@ -47,6 +47,7 @@
 ### Infrastructure
 
 - **INFRA-v2-01**: StreamField step-by-step blocks for tutorial articles (richer than RichTextField)
+- **INFRA-v2-02**: Collapsible section blocks for project pages — Google Sites articles use collapsible boxes as a top-level structure element; v1 migration replaces these with H2/H3 headings (good-faith fidelity); v2 should restore the collapsible behavior once StreamField is in place
 
 ## Out of Scope
 
@@ -75,7 +76,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | EDIT-02 | Phase 4 | Complete |
 | INFRA-01 | Phase 1 | Complete |
 | INFRA-02 | Phase 6 | Pending |
-| INFRA-03 | Phase 5 | Pending |
+| INFRA-03 | Phase 5 | Complete |
 | INFRA-04 | Phase 6 | Pending |
 | TEST-01 | Phase 1–4 | Complete |
 | TEST-02 | Phase 1–4 | Complete |
