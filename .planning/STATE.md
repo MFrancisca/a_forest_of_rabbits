@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 05.1-01-PLAN.md
-last_updated: "2026-03-10T20:09:14.398Z"
+stopped_at: Completed 05.1-02-PLAN.md
+last_updated: "2026-03-10T20:13:09.420Z"
 last_activity: 2026-03-10 — Phase 5 content migration complete; side-by-side review signed off
 progress:
   total_phases: 7
   completed_phases: 5
   total_plans: 22
-  completed_plans: 19
+  completed_plans: 20
   percent: 100
 ---
 
@@ -68,6 +68,7 @@ Progress: [██████████] 100% (Phase 5 of 6 complete; all 18 p
 | Phase 05-content-migration P02 | 1 session | 1 tasks | 3 files |
 | Phase 05-content-migration P03 | owner-session | 1 tasks | 1 files |
 | Phase 05.1-google-sites-scraper-and-importer P01 | 2min | 2 tasks | 4 files |
+| Phase 05.1-google-sites-scraper-and-importer P02 | 1min | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -119,6 +120,8 @@ Recent decisions affecting current work:
 - [Phase 05.1-google-sites-scraper-and-importer]: Do NOT add requests to requirements — Playwright handles fetching (CONTEXT.md approach overridden by research)
 - [Phase 05.1-google-sites-scraper-and-importer]: Dockerfile Chromium install uses --with-deps for headless operation in python:3.12-slim (+~130MB image, required)
 - [Phase 05.1-google-sites-scraper-and-importer]: 9 test stubs created (not 8 as task name said) — behavior spec and done criteria both specify 9 including test_update_about_page
+- [Phase 05.1-google-sites-scraper-and-importer]: create_project_page signature follows test stub contract (title, slug, body_html) not RESEARCH.md command-level signature — tests define the unit interface
+- [Phase 05.1-google-sites-scraper-and-importer]: update_about_page accepts raw HTML and calls extract_body_html internally — matches test expectation
 
 ### Pending Todos
 
@@ -133,6 +136,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-10T20:09:08.160Z
-Stopped at: Completed 05.1-01-PLAN.md
+Last session: 2026-03-10T20:13:09.417Z
+Stopped at: Completed 05.1-02-PLAN.md
 Resume file: None
