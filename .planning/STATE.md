@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 04-editorial-content-04-PLAN.md
-last_updated: "2026-03-10T00:44:45.437Z"
+stopped_at: Completed 05-01-PLAN.md
+last_updated: "2026-03-10T01:23:32.529Z"
 last_activity: 2026-03-09 — Phase 4 editorial content complete; all browser checks passed
 progress:
   total_phases: 6
   completed_phases: 4
-  total_plans: 15
-  completed_plans: 15
+  total_plans: 18
+  completed_plans: 16
   percent: 100
 ---
 
@@ -64,6 +64,7 @@ Progress: [██████████] 100% (Phase 4 of 6 complete; all 15 p
 | Phase 04-editorial-content P02 | 5min | 2 tasks | 3 files |
 | Phase 04-editorial-content P03 | 15min | 2 tasks | 10 files |
 | Phase 04-editorial-content P04 | 10min | 2 tasks | 1 files |
+| Phase 05-content-migration P01 | 5min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -103,6 +104,8 @@ Recent decisions affecting current work:
 - [Phase 04-editorial-content]: wagtail_site fixture must explicitly update root_page when default site pre-exists from Wagtail initial migration — get_or_create does not update existing records
 - [Phase 04-editorial-content]: Management command create_site_skeleton uses add_child + save_revision().publish() for idempotent ProjectsIndexPage and AboutPage creation
 - [Phase 04-editorial-content P04]: Browser verification passed all 5 checks — admin publishing flow, /projects/ list with category chips, article detail, /about/ two-column layout, nav on desktop + mobile
+- [Phase 05-content-migration]: All images go inline in body RichTextField during migration — cover_image field left blank
+- [Phase 05-content-migration]: Checklist must be 100% complete before Phase 6 DNS cutover is permitted
 
 ### Pending Todos
 
@@ -117,6 +120,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-09T20:36:00.000Z
-Stopped at: Completed 04-editorial-content-04-PLAN.md
+Last session: 2026-03-10T01:23:32.526Z
+Stopped at: Completed 05-01-PLAN.md
 Resume file: None
