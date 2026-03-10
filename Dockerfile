@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y \
 
 COPY requirements/ /app/requirements/
 RUN pip install --no-cache-dir -r requirements/dev.txt
+RUN python -m playwright install --with-deps chromium
 
 COPY . /app/
 
