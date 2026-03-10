@@ -124,13 +124,19 @@ class Command(BaseCommand):
             help='Print what would be created without touching the database.',
         )
 
-    def handle(self, *args, **options):
+    def handle(self, *args, **options):  # pragma: no cover
         from playwright.sync_api import sync_playwright
 
         dry_run = options.get('dry_run', False)
         created = 0
         skipped = 0
         failed = 0
+
+        # Phase 1: Fetch all HTML using Playwright (outside Django ORM).
+        # This avoids "You cannot call this from an async context" errors that
+        # occur when Django ORM calls are made inside the Playwright event loop.
+        scraped = []  # list of (url, category, page_type, title, slug, body_html, raw_html)
+        fetch_errors = []  # list of (url, error_message)
 
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=True)
@@ -141,35 +147,47 @@ class Command(BaseCommand):
                     pw_page.goto(url, wait_until='networkidle')
                     html = pw_page.content()
                     pw_page.close()
-
                     title = extract_title(html)
                     slug = slug_from_url(url)
                     body_html = extract_body_html(html, slug)
-
-                    if page_type == 'about':
-                        if dry_run:
-                            self.stdout.write(f'[dry-run] Would update AboutPage with {len(body_html)} chars')
-                        else:
-                            update_about_page(html)
-                            self.stdout.write('\u2713 Updated: AboutPage')
-                    elif page_type == 'project':
-                        if dry_run:
-                            self.stdout.write(f'[dry-run] Would create ProjectPage: {title} ({category})')
-                        else:
-                            result = create_project_page(
-                                title=title,
-                                slug=slug,
-                                body_html=body_html,
-                                category_name=category,
-                            )
-                            if result == 'created':
-                                created += 1
-                            else:
-                                skipped += 1
+                    scraped.append((url, category, page_type, title, slug, body_html, html))
                 except Exception as e:
-                    self.stdout.write(f'\u2717 Failed: {url} \u2014 {e}')
-                    failed += 1
+                    fetch_errors.append((url, str(e)))
             browser.close()
+
+        # Phase 2: Persist to Django/Wagtail (pure ORM, no async context).
+        for url, category, page_type, title, slug, body_html, raw_html in scraped:
+            try:
+                if page_type == 'about':
+                    if dry_run:
+                        self.stdout.write(f'[dry-run] Would update AboutPage with {len(body_html)} chars')
+                    else:
+                        update_about_page(raw_html)
+                        self.stdout.write('\u2713 Updated: AboutPage')
+                elif page_type == 'project':
+                    if dry_run:
+                        self.stdout.write(f'[dry-run] Would create ProjectPage: {title} ({category})')
+                    else:
+                        result = create_project_page(
+                            title=title,
+                            slug=slug,
+                            body_html=body_html,
+                            category_name=category,
+                        )
+                        if result == 'created':
+                            created += 1
+                            self.stdout.write(f'\u2713 Created: {title}')
+                        else:
+                            skipped += 1
+                            self.stdout.write(f'\u23ed Skipped: {title} (existing)')
+            except Exception as e:
+                self.stdout.write(f'\u2717 Failed: {url} \u2014 {e}')
+                failed += 1
+
+        # Propagate any fetch-phase errors into the failed count.
+        for url, err in fetch_errors:
+            self.stdout.write(f'\u2717 Failed (fetch): {url} \u2014 {err}')
+            failed += 1
 
         self.stdout.write('\u2500' * 33)
         self.stdout.write('Scrape complete')
