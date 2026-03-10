@@ -107,6 +107,19 @@ Plans:
 - [ ] 05-02-PLAN.md — Owner performs content migration (human checkpoint)
 - [ ] 05-03-PLAN.md — Side-by-side review and sign-off (human checkpoint)
 
+### Phase 05.1: Google Sites Scraper and Importer (INSERTED)
+
+**Goal:** All 11 Google Sites articles are automatically scraped and imported as published Wagtail pages using Playwright; image placeholders mark where manually-uploaded images should be inserted
+**Requirements**: INFRA-03
+**Depends on:** Phase 5
+**Plans:** 4 plans
+
+Plans:
+- [ ] 05.1-01-PLAN.md — Dependencies (playwright, beautifulsoup4, lxml), Dockerfile Chromium install, command stub, 8 failing test stubs (Wave 0)
+- [ ] 05.1-02-PLAN.md — Implement helper functions extract_title, extract_body_html, slug_from_url — all 8 tests GREEN (TDD)
+- [ ] 05.1-03-PLAN.md — Implement management command handle() with SCRAPE_CONFIG and Playwright fetcher
+- [ ] 05.1-04-PLAN.md — Rebuild Docker image, run scraper against live site, human verification of created pages
+
 ### Phase 6: Production Deploy
 **Goal**: The site is live at www.unanuovasperanza.art, media files persist across deployments, and DNS has been cut over from Google Sites
 **Depends on**: Phase 5
@@ -131,4 +144,5 @@ Note: Phase 4 depends only on Phase 1 (independent of Phases 2-3) and can be pla
 | 3. Pigment Detail and Data | 4/4 | Complete    | 2026-03-09 |
 | 4. Editorial Content | 4/4 | Complete    | 2026-03-10 |
 | 5. Content Migration | 3/3 | Complete   | 2026-03-10 |
+| 5.1. Google Sites Scraper | 0/4 | Not started | - |
 | 6. Production Deploy | 0/? | Not started | - |
