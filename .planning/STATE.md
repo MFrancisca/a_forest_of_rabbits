@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 05-01-PLAN.md
-last_updated: "2026-03-10T01:23:32.529Z"
+stopped_at: Completed 05-02-PLAN.md
+last_updated: "2026-03-10T04:57:43.527Z"
 last_activity: 2026-03-09 — Phase 4 editorial content complete; all browser checks passed
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 18
-  completed_plans: 16
+  completed_plans: 17
   percent: 100
 ---
 
@@ -65,6 +65,7 @@ Progress: [██████████] 100% (Phase 4 of 6 complete; all 15 p
 | Phase 04-editorial-content P03 | 15min | 2 tasks | 10 files |
 | Phase 04-editorial-content P04 | 10min | 2 tasks | 1 files |
 | Phase 05-content-migration P01 | 5min | 2 tasks | 2 files |
+| Phase 05-content-migration P02 | 1 session | 1 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -106,6 +107,8 @@ Recent decisions affecting current work:
 - [Phase 04-editorial-content P04]: Browser verification passed all 5 checks — admin publishing flow, /projects/ list with category chips, article detail, /about/ two-column layout, nav on desktop + mobile
 - [Phase 05-content-migration]: All images go inline in body RichTextField during migration — cover_image field left blank
 - [Phase 05-content-migration]: Checklist must be 100% complete before Phase 6 DNS cutover is permitted
+- [Phase Phase 05-content-migration]: Tailwind typography plugin enabled via CDN query string so .prose class styles h2/h3/p/ul inside RichTextField body
+- [Phase Phase 05-content-migration]: Google Sites collapsible boxes replaced with H2/H3 headings during migration; INFRA-v2-02 logged for future StreamField collapsible block
 
 ### Pending Todos
 
@@ -120,6 +123,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-10T01:23:32.526Z
-Stopped at: Completed 05-01-PLAN.md
+Last session: 2026-03-10T04:57:43.524Z
+Stopped at: Completed 05-02-PLAN.md
 Resume file: None

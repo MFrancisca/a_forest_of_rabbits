@@ -130,5 +130,5 @@ Note: Phase 4 depends only on Phase 1 (independent of Phases 2-3) and can be pla
 | 2. Pigment Filtering | 1/3 | Complete    | 2026-03-09 |
 | 3. Pigment Detail and Data | 4/4 | Complete    | 2026-03-09 |
 | 4. Editorial Content | 4/4 | Complete    | 2026-03-10 |
-| 5. Content Migration | 1/3 | In Progress|  |
+| 5. Content Migration | 2/3 | In Progress|  |
 | 6. Production Deploy | 0/? | Not started | - |
