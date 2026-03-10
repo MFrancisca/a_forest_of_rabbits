@@ -112,7 +112,7 @@ Plans:
 **Goal:** All 11 Google Sites articles are automatically scraped and imported as published Wagtail pages using Playwright; image placeholders mark where manually-uploaded images should be inserted
 **Requirements**: INFRA-03
 **Depends on:** Phase 5
-**Plans:** 2/4 plans executed
+**Plans:** 3/4 plans executed
 
 Plans:
 - [ ] 05.1-01-PLAN.md — Dependencies (playwright, beautifulsoup4, lxml), Dockerfile Chromium install, command stub, 8 failing test stubs (Wave 0)
