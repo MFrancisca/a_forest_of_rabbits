@@ -14,8 +14,8 @@
 
 ### Editorial
 
-- [ ] **EDIT-01**: User can browse and read craft tutorials and art research articles
-- [ ] **EDIT-02**: User can read an About page describing the site and its author
+- [x] **EDIT-01**: User can browse and read craft tutorials and art research articles
+- [x] **EDIT-02**: User can read an About page describing the site and its author
 
 ### Infrastructure
 
@@ -71,8 +71,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PIGM-02 | Phase 3 | Complete |
 | PIGM-03 | Phase 3 | Complete |
 | PIGM-04 | Phase 1 | Pending |
-| EDIT-01 | Phase 4 | Pending |
-| EDIT-02 | Phase 4 | Pending |
+| EDIT-01 | Phase 4 | Complete |
+| EDIT-02 | Phase 4 | Complete |
 | INFRA-01 | Phase 1 | Complete |
 | INFRA-02 | Phase 6 | Pending |
 | INFRA-03 | Phase 5 | Pending |
