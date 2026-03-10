@@ -48,6 +48,7 @@ Visitors can easily explore and access historical pigment knowledge and craft tu
 - **Maintenance time**: Updates must be achievable in short sessions; code must be clean enough for the owner to understand and modify
 - **No JS build step in dev**: Tailwind via CDN for development, CLI for production (from migration plan)
 - **Zero downtime goal**: New site must be fully functional before DNS cutover from Google Sites
+- **Testing**: TDD throughout — all backend code covered by tests using factory_boy factories (never fixtures); thorough coverage is required before any phase is considered complete
 
 ## Key Decisions
 
@@ -58,6 +59,7 @@ Visitors can easily explore and access historical pigment knowledge and craft tu
 | Cloudflare R2 for media storage | Cost-effective, CDN-backed, S3-compatible | — Pending |
 | Railway for hosting | Simple Docker deploy, 1-click Postgres, low devops overhead | — Pending |
 | Tailwind CDN in dev / CLI in prod | No build step in development; optimized bundle in production | — Pending |
+| TDD with factory_boy (no fixtures) | Factories are more flexible and maintainable than fixtures; TDD ensures backend is solid before moving on | — Pending |
 
 ---
-*Last updated: 2026-03-06 after initialization*
+*Last updated: 2026-03-07 after adding testing constraint*
