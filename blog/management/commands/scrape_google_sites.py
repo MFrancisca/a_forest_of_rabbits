@@ -5,6 +5,21 @@ from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 from django.core.management.base import BaseCommand
 
+SCRAPE_CONFIG = [
+    ('https://www.unanuovasperanza.art/home', None, 'about'),
+    ('https://www.unanuovasperanza.art/projects/scrolls/qc-sonja-iii', 'Calligraphy & Illumination', 'project'),
+    ('https://www.unanuovasperanza.art/projects/scrolls/court-baronies-for-elfseas-founding-bb', 'Calligraphy & Illumination', 'project'),
+    ('https://www.unanuovasperanza.art/projects/scrolls/rainbow-triskele-sable-swap-2024', 'Calligraphy & Illumination', 'project'),
+    ('https://www.unanuovasperanza.art/projects/scrolls/collaborations/queens-champion-for-hrm-gilyan-iii', 'Calligraphy & Illumination', 'project'),
+    ('https://www.unanuovasperanza.art/projects/scrolls/collaborations/bjornsborg-champions-spring-2025', 'Calligraphy & Illumination', 'project'),
+    ('https://www.unanuovasperanza.art/projects/garb/handsewn-camicia', 'Clothing', 'project'),
+    ('https://www.unanuovasperanza.art/projects/armor/leather-fencing-doublet', 'Armor', 'project'),
+    ('https://www.unanuovasperanza.art/projects/armor/rotella', 'Armor', 'project'),
+    ('https://www.unanuovasperanza.art/research/classes', 'Classes', 'project'),
+    ('https://www.unanuovasperanza.art/archive/scribal', 'Archive', 'project'),
+    ('https://www.unanuovasperanza.art/archive/weaving', 'Archive', 'project'),
+]
+
 
 def extract_title(html: str) -> str:
     """Extract the page title from HTML.
@@ -102,5 +117,63 @@ def update_about_page(html: str) -> None:
 class Command(BaseCommand):
     help = "Scrape pages from Google Sites and import them as Wagtail pages."
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--dry-run',
+            action='store_true',
+            help='Print what would be created without touching the database.',
+        )
+
     def handle(self, *args, **options):
-        pass
+        from playwright.sync_api import sync_playwright
+
+        dry_run = options.get('dry_run', False)
+        created = 0
+        skipped = 0
+        failed = 0
+
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)
+            for url, category, page_type in SCRAPE_CONFIG:
+                self.stdout.write(f'\u2192 Scraping: {url}')
+                try:
+                    pw_page = browser.new_page()
+                    pw_page.goto(url, wait_until='networkidle')
+                    html = pw_page.content()
+                    pw_page.close()
+
+                    title = extract_title(html)
+                    slug = slug_from_url(url)
+                    body_html = extract_body_html(html, slug)
+
+                    if page_type == 'about':
+                        if dry_run:
+                            self.stdout.write(f'[dry-run] Would update AboutPage with {len(body_html)} chars')
+                        else:
+                            update_about_page(html)
+                            self.stdout.write('\u2713 Updated: AboutPage')
+                    elif page_type == 'project':
+                        if dry_run:
+                            self.stdout.write(f'[dry-run] Would create ProjectPage: {title} ({category})')
+                        else:
+                            result = create_project_page(
+                                title=title,
+                                slug=slug,
+                                body_html=body_html,
+                                category_name=category,
+                            )
+                            if result == 'created':
+                                created += 1
+                            else:
+                                skipped += 1
+                except Exception as e:
+                    self.stdout.write(f'\u2717 Failed: {url} \u2014 {e}')
+                    failed += 1
+            browser.close()
+
+        self.stdout.write('\u2500' * 33)
+        self.stdout.write('Scrape complete')
+        self.stdout.write(f'Created:  {created}')
+        self.stdout.write(f'Skipped:  {skipped} (existing)')
+        self.stdout.write(f'Failed:   {failed}')
+        self.stdout.write('\u2500' * 33)
