@@ -100,7 +100,12 @@ Plans:
   1. Every article from the current Google Sites is readable on the new site
   2. Images from migrated articles display correctly (not broken links pointing to Google Sites)
   3. No content that exists on the current Google Sites is missing from the new site
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 05-01-PLAN.md — Create migration guide + checklist documents (automated)
+- [ ] 05-02-PLAN.md — Owner performs content migration (human checkpoint)
+- [ ] 05-03-PLAN.md — Side-by-side review and sign-off (human checkpoint)
 
 ### Phase 6: Production Deploy
 **Goal**: The site is live at www.unanuovasperanza.art, media files persist across deployments, and DNS has been cut over from Google Sites
@@ -125,5 +130,5 @@ Note: Phase 4 depends only on Phase 1 (independent of Phases 2-3) and can be pla
 | 2. Pigment Filtering | 1/3 | Complete    | 2026-03-09 |
 | 3. Pigment Detail and Data | 4/4 | Complete    | 2026-03-09 |
 | 4. Editorial Content | 4/4 | Complete    | 2026-03-10 |
-| 5. Content Migration | 0/? | Not started | - |
+| 5. Content Migration | 0/3 | Not started | - |
 | 6. Production Deploy | 0/? | Not started | - |
