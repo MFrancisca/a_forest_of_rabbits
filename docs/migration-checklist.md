@@ -10,19 +10,20 @@ Fill in all columns as you complete each article. Article titles are not pre-pop
 
 ## Articles
 
-| Done | Article Title | Category | Wagtail URL |
-|------|---------------|----------|-------------|
-| [ ] | | | |
-| [ ] | | | |
-| [ ] | | | |
-| [ ] | | | |
-| [ ] | | | |
-| [ ] | | | |
-| [ ] | | | |
-| [ ] | | | |
-| [ ] | | | |
-| [ ] | | | |
-
+| Done | Article Title                           | Category                   | Wagtail URL                                       |
+|------|-----------------------------------------|----------------------------|---------------------------------------------------|
+| [x]  | About                                   | About                      | /about                                            |
+| [x]  | Weaving Archive                         | Archive                    | /projects/weaving/                                |
+| [x]  | Scribal Archive                         | Archive                    | /projects/scribal/                                |
+| [x]  | Classes                                 | Classes                    | /projects/classes/                                |
+| [x]  | Rotella                                 | Armor                      | /projects/rotella                                 |
+| [x]  | Leather Fencing Doublet                 | Armor                      | /projects/letather-fencing-doublet                |
+| [x]  | Handsewn Italian Camicia                | Clothing                   | /projects/handsewn-camicia                        |
+| [x]  | Bjornsborg Chapions - Spring 2025       | Calligraphy & Illumination | /projects/bjornsborg-champions-spring-2025        |
+| [x]  | Queen's Champion for HRM Gilyan III     | Calligraphy & Illumination | /projects/queens-champion-for-hrm-gilyan-iii      |
+| [x]  | Rainbow Triskele - Sable Swap 2024      | Calligraphy & Illumination | /projects/rainbow-triskele-sable-swap-2024        |
+| [x]  | Court Baronies for Elfea's founding B&B | Calligraphy & Illumination | /projects/court-baronies-for-elfseas-founding-bb  |
+| [x]  | Queen's CHampion for HRM Sonja III      | Calligraphy & Illumination | /projects/queens-champion-for-sonja-iii/          |
 ---
 
 **Example of a completed row:**
