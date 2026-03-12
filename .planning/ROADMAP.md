@@ -129,7 +129,13 @@ Plans:
   2. Images uploaded through Wagtail admin are still visible after a new Railway deployment (persisted on Cloudflare R2)
   3. The pigment list, at least one pigment detail page, and at least one article are accessible to an anonymous visitor on the production URL
   4. The old Google Sites URL redirects or is fully replaced (hot swap complete)
-**Plans**: TBD
+**Plans**: 4 plans
+
+Plans:
+- [ ] 06-01-PLAN.md — Production config files: requirements, production.py, Dockerfile.prod, railway.toml, .dockerignore, robots.txt
+- [ ] 06-02-PLAN.md — External service provisioning: Railway project + PostgreSQL, Cloudflare account + DNS + R2 bucket
+- [ ] 06-03-PLAN.md — First deploy, one-time setup commands, media sync to R2, staging smoke test
+- [ ] 06-04-PLAN.md — DNS cutover: robots.txt Allow all, Cloudflare CNAME, production smoke test
 
 ## Progress
 
@@ -145,4 +151,4 @@ Note: Phase 4 depends only on Phase 1 (independent of Phases 2-3) and can be pla
 | 4. Editorial Content | 4/4 | Complete    | 2026-03-10 |
 | 5. Content Migration | 3/3 | Complete   | 2026-03-10 |
 | 5.1. Google Sites Scraper | 0/4 | Complete    | 2026-03-11 |
-| 6. Production Deploy | 0/? | Not started | - |
+| 6. Production Deploy | 0/4 | Not started | - |

@@ -1,6 +1,6 @@
 from .base import *  # noqa: F401, F403
-
 from decouple import config
+import dj_database_url
 
 DEBUG = False
 
@@ -8,18 +8,49 @@ SECRET_KEY = config('SECRET_KEY')
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost').split(',')
 
-# Database — read individual components from env via python-decouple
-# Uses psycopg3 (psycopg[binary]) driver
+# Database — Railway PostgreSQL via DATABASE_URL (replaces individual POSTGRES_* vars)
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('POSTGRES_DB', default='esperanza'),
-        'USER': config('POSTGRES_USER', default='postgres'),
-        'PASSWORD': config('POSTGRES_PASSWORD'),
-        'HOST': config('POSTGRES_HOST', default='db'),
-        'PORT': config('POSTGRES_PORT', default='5432'),
-    }
+    'default': dj_database_url.config(conn_max_age=600, conn_health_checks=True)
 }
 
-# Static files — whitenoise compressed manifest storage
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# Media + static storage — Django 5.x STORAGES dict
+# DEFAULT_FILE_STORAGE and STATICFILES_STORAGE were removed in Django 5.1
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+        "OPTIONS": {
+            "access_key": config('AWS_ACCESS_KEY_ID'),
+            "secret_key": config('AWS_SECRET_ACCESS_KEY'),
+            "bucket_name": config('AWS_STORAGE_BUCKET_NAME'),
+            "endpoint_url": config('AWS_S3_ENDPOINT_URL'),
+            "custom_domain": 'media.unanuovasperanza.art',
+            "querystring_auth": False,
+            "region_name": "auto",
+            "signature_version": "s3v4",
+        },
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
+MEDIA_URL = 'https://media.unanuovasperanza.art/'
+
+# Security — Cloudflare terminates SSL; Django sees HTTP internally
+# DO NOT set SECURE_SSL_REDIRECT — causes redirect loops behind Cloudflare proxy
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+CSRF_TRUSTED_ORIGINS = ['https://www.unanuovasperanza.art', 'https://*.up.railway.app']
+X_FRAME_OPTIONS = 'SAMEORIGIN'
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# Wagtail
+WAGTAILADMIN_BASE_URL = 'https://www.unanuovasperanza.art'
+
+# Logging — errors to console (Railway captures stdout/stderr)
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {'console': {'class': 'logging.StreamHandler'}},
+    'root': {'handlers': ['console'], 'level': 'WARNING'},
+}
