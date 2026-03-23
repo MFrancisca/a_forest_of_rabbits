@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 05.1-04-PLAN.md
-last_updated: "2026-03-11T02:11:52.039Z"
+stopped_at: Completed 06-01-PLAN.md
+last_updated: "2026-03-12T20:38:32.862Z"
 last_activity: 2026-03-10 — Phase 5 content migration complete; side-by-side review signed off
 progress:
   total_phases: 7
   completed_phases: 6
-  total_plans: 22
-  completed_plans: 22
+  total_plans: 26
+  completed_plans: 23
   percent: 100
 ---
 
@@ -71,6 +71,7 @@ Progress: [██████████] 100% (Phase 5 of 6 complete; all 18 p
 | Phase 05.1-google-sites-scraper-and-importer P02 | 1min | 1 tasks | 1 files |
 | Phase 05.1-google-sites-scraper-and-importer P03 | 2min | 1 tasks | 1 files |
 | Phase 05.1-google-sites-scraper-and-importer P04 | 30min | 2 tasks | 1 files |
+| Phase 06-production-deploy P01 | 2min | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -127,6 +128,7 @@ Recent decisions affecting current work:
 - [Phase 05.1-google-sites-scraper-and-importer]: Playwright import deferred inside handle() body to avoid ModuleNotFoundError at test collection time
 - [Phase 05.1-google-sites-scraper-and-importer]: create_project_page called with keyword args matching Plan 02 unit-tested signature (title, slug, body_html, category_name=) not RESEARCH.md positional signature
 - [Phase 05.1-google-sites-scraper-and-importer]: Playwright fetch and Django ORM calls split into two phases to avoid async context conflict — fetch all HTML first, then write all pages in a separate sync block
+- [Phase 06-production-deploy]: STORAGES dict used (not DEFAULT_FILE_STORAGE/STATICFILES_STORAGE) — both removed in Django 5.1; dj_database_url.config() replaces individual POSTGRES_* vars; SECURE_SSL_REDIRECT omitted to avoid Cloudflare proxy redirect loops
 
 ### Pending Todos
 
@@ -141,6 +143,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-10T21:00:40.026Z
-Stopped at: Completed 05.1-04-PLAN.md
+Last session: 2026-03-12T20:38:32.859Z
+Stopped at: Completed 06-01-PLAN.md
 Resume file: None

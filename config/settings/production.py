@@ -23,7 +23,7 @@ STORAGES = {
             "secret_key": config('AWS_SECRET_ACCESS_KEY'),
             "bucket_name": config('AWS_STORAGE_BUCKET_NAME'),
             "endpoint_url": config('AWS_S3_ENDPOINT_URL'),
-            "custom_domain": 'media.unanuovasperanza.art',
+            "custom_domain": 'media.aforestofrabbits.art',
             "querystring_auth": False,
             "region_name": "auto",
             "signature_version": "s3v4",
@@ -33,19 +33,19 @@ STORAGES = {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
-MEDIA_URL = 'https://media.unanuovasperanza.art/'
+MEDIA_URL = 'https://media.aforestofrabbits.art/'
 
 # Security — Cloudflare terminates SSL; Django sees HTTP internally
 # DO NOT set SECURE_SSL_REDIRECT — causes redirect loops behind Cloudflare proxy
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
-CSRF_TRUSTED_ORIGINS = ['https://www.unanuovasperanza.art', 'https://*.up.railway.app']
+CSRF_TRUSTED_ORIGINS = ['https://www.aforestofrabbits.art', 'https://*.up.railway.app']
 X_FRAME_OPTIONS = 'SAMEORIGIN'
 SECURE_CONTENT_TYPE_NOSNIFF = True
 
 # Wagtail
-WAGTAILADMIN_BASE_URL = 'https://www.unanuovasperanza.art'
+WAGTAILADMIN_BASE_URL = 'https://www.aforestofrabbits.art'
 
 # Logging — errors to console (Railway captures stdout/stderr)
 LOGGING = {
