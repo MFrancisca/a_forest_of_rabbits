@@ -116,3 +116,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 WAGTAIL_SITE_NAME = 'Una Nueva Esperanza'
 WAGTAILADMIN_BASE_URL = 'http://localhost:8000'
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10_000
+
+#AWS S3 Settings
+AWS_S3_FILE_OVERWRITE = False
