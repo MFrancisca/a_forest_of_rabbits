@@ -11,7 +11,7 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost').split(',')
 
 # Database — Railway PostgreSQL via DATABASE_URL (replaces individual POSTGRES_* vars)
 DATABASES = {
-    'default': dj_database_url.config(default=os.environ.get('DATABASE_URL'),conn_max_age=600, conn_health_checks=True)
+    'default': dj_database_url.config(conn_max_age=600, conn_health_checks=True)
 }
 
 # Media + static storage — Django 5.x STORAGES dict
