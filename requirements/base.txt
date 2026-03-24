@@ -10,3 +10,4 @@ beautifulsoup4>=4.12
 lxml>=5.0
 dj-database-url>=2.0
 django-storages[s3]>=1.14
+django-debug-toolbar==4.*
