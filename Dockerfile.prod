@@ -20,6 +20,7 @@ COPY . /app/
 RUN DJANGO_SETTINGS_MODULE=config.settings.production \
     SECRET_KEY=build-time-placeholder \
     ALLOWED_HOSTS=localhost \
+    DATABASE_URL=postgres://placeholder:placeholder@localhost/placeholder \
     AWS_ACCESS_KEY_ID=placeholder \
     AWS_SECRET_ACCESS_KEY=placeholder \
     AWS_STORAGE_BUCKET_NAME=placeholder \
