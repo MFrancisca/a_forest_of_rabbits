@@ -20,9 +20,9 @@
 ### Infrastructure
 
 - [x] **INFRA-01**: Site runs locally via Docker Compose for development (Docker up = working site with database)
-- [ ] **INFRA-02**: All uploaded images are stored on Cloudflare R2 and persist across Railway deployments
+- [x] **INFRA-02**: All uploaded images are stored on Cloudflare R2 and persist across Railway deployments
 - [x] **INFRA-03**: Existing Google Sites articles are migrated into Wagtail and accessible on the new site
-- [ ] **INFRA-04**: Site is deployed and live at www.unanuovasperanza.art on Railway with Cloudflare DNS and SSL
+- [x] **INFRA-04**: Site is deployed and live at www.unanuovasperanza.art on Railway with Cloudflare DNS and SSL
 
 ### Testing
 
@@ -75,9 +75,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | EDIT-01 | Phase 4 | Complete |
 | EDIT-02 | Phase 4 | Complete |
 | INFRA-01 | Phase 1 | Complete |
-| INFRA-02 | Phase 6 | Pending |
+| INFRA-02 | Phase 6 | Complete |
 | INFRA-03 | Phase 5 | Complete |
-| INFRA-04 | Phase 6 | Pending |
+| INFRA-04 | Phase 6 | Complete |
 | TEST-01 | Phase 1–4 | Complete |
 | TEST-02 | Phase 1–4 | Complete |
 | TEST-03 | Phase 2 | Complete |

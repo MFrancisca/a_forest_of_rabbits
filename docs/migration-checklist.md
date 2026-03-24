@@ -34,8 +34,8 @@ Fill in all columns as you complete each article. Article titles are not pre-pop
 
 ## Completed
 
-- [ ] All rows above are ticked
-- [ ] Side-by-side browser comparison with live Google Sites done — no missing content
-- [ ] Existing test suite green: `docker compose exec web pytest -q`
+- [x] All rows above are ticked
+- [x] Side-by-side browser comparison with live Google Sites done — no missing content
+- [x] Existing test suite green: `docker compose exec web pytest -q`
 
 When all three boxes are ticked, Phase 6 DNS cutover is unblocked.
