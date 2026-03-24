@@ -30,8 +30,7 @@ RUN DJANGO_SETTINGS_MODULE=config.settings.production \
 RUN useradd -m appuser && chown -R appuser /app
 USER appuser
 
-RUN python manage.py migrate --no-input
-
 EXPOSE 8000
 
-CMD gunicorn config.wsgi --workers 2 --bind 0.0.0.0:$PORT --error-logfile=- --access-logfile=- --log-level debug
+# Shell form so && and $PORT are expanded at runtime (not exec form)
+CMD ["sh", "-c", "python manage.py migrate --no-input && gunicorn config.wsgi --workers 2 --bind 0.0.0.0:$PORT --error-logfile=- --access-logfile=- --log-level debug"]
