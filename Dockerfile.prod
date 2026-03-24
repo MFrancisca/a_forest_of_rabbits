@@ -30,4 +30,8 @@ RUN DJANGO_SETTINGS_MODULE=config.settings.production \
 RUN useradd -m appuser && chown -R appuser /app
 USER appuser
 
+RUN python manage.py migrate --no-input
+
 EXPOSE 8000
+
+CMD gunicorn config.wsgi --workers 2 --bind 0.0.0.0:$PORT --error-logfile=- --access-logfile=- --log-level debug
