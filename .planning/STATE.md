@@ -141,7 +141,7 @@ None yet.
 
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
-| 260504-001 | Update upload_images_to_r2 to use CLOUDFARE_* env vars | 2026-05-04 | pending | [260504-001-update-upload-images-r2-env-vars](.planning/quick/260504-001-update-upload-images-r2-env-vars/) |
+| 260504-001 | Update upload_images_to_r2 to use CLOUDFARE_* env vars | 2026-05-04 | 2b68114 | [260504-001-update-upload-images-r2-env-vars](.planning/quick/260504-001-update-upload-images-r2-env-vars/) |
 
 ## Session Continuity
 
