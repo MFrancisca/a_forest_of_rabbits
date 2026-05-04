@@ -137,6 +137,12 @@ None yet.
 - `dj-database-url` missing from requirements — add before Phase 6 production settings
 - Formula UI design (per-brand comparison layout) not yet designed — needed before Phase 3 implementation
 
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260504-001 | Update upload_images_to_r2 to use CLOUDFARE_* env vars | 2026-05-04 | pending | [260504-001-update-upload-images-r2-env-vars](.planning/quick/260504-001-update-upload-images-r2-env-vars/) |
+
 ## Session Continuity
 
 Last session: 2026-03-12T20:38:32.859Z
