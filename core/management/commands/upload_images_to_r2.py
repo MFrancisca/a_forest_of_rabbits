@@ -99,10 +99,10 @@ class Command(BaseCommand):
         missing = [
             name
             for name, val in [
-                ("--bucket / AWS_STORAGE_BUCKET_NAME", bucket),
-                ("--endpoint / AWS_S3_ENDPOINT_URL", endpoint),
-                ("--access-key / AWS_ACCESS_KEY_ID", access_key),
-                ("--secret-key / AWS_SECRET_ACCESS_KEY", secret_key),
+                ("--bucket / CLOUDFARE_BUCKET_NAME", bucket),
+                ("--endpoint / CLOUDFARE_ENDPOINT", endpoint),
+                ("--access-key / CLOUDFARE_ACCESS_ID", access_key),
+                ("--secret-key / CLOUDFARE_ACCESS_KEY", secret_key),
             ]
             if not val
         ]
