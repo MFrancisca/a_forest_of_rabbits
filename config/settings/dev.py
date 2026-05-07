@@ -1,25 +1,34 @@
 from .base import *  # noqa: F401, F403
 
-from decouple import config
+import os
+
+import dj_database_url
+from dotenv import load_dotenv
+
+load_dotenv()
 
 DEBUG = True
 
-SECRET_KEY = config('SECRET_KEY', default='insecure-dev-secret-key-change-in-production')
+SECRET_KEY = os.environ.get('SECRET_KEY', 'insecure-dev-secret-key-change-in-production')
 
 ALLOWED_HOSTS = ['*']
 
-# Database — read individual components from env via python-decouple
-# Uses psycopg3 (psycopg[binary]) driver
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('POSTGRES_DB', default='esperanza'),
-        'USER': config('POSTGRES_USER', default='postgres'),
-        'PASSWORD': config('POSTGRES_PASSWORD', default='postgres'),
-        'HOST': config('POSTGRES_HOST', default='db'),
-        'PORT': config('POSTGRES_PORT', default='5432'),
+# DATABASE_PUBLIC_URL is set by Railway when connecting via shell or `railway run`.
+# Fall back to individual POSTGRES_* vars for local Docker Compose.
+_db_url = os.environ.get('DATABASE_PUBLIC_URL')
+if _db_url:
+    DATABASES = {'default': dj_database_url.parse(_db_url)}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get('POSTGRES_DB', 'esperanza'),
+            'USER': os.environ.get('POSTGRES_USER', 'postgres'),
+            'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'postgres'),
+            'HOST': os.environ.get('POSTGRES_HOST', 'db'),
+            'PORT': os.environ.get('POSTGRES_PORT', '5432'),
+        }
     }
-}
 
 # django-debug-toolbar
 INSTALLED_APPS = INSTALLED_APPS + ['debug_toolbar']  # noqa: F405

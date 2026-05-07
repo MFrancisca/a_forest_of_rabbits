@@ -27,5 +27,12 @@ services:
       timeout: 5s
       retries: 5
 
+  railway:
+    build: .
+    volumes:
+      - .:/app
+    env_file: .env.railway
+    profiles: ["railway"]
+
 volumes:
   postgres_data:

@@ -1,13 +1,17 @@
 from .base import *  # noqa: F401, F403
-from decouple import config
-import dj_database_url
+
 import os
+
+import dj_database_url
+from dotenv import load_dotenv
+
+load_dotenv()
 
 DEBUG = False
 
-SECRET_KEY = config('SECRET_KEY')
+SECRET_KEY = os.environ['SECRET_KEY']
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost').split(',')
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost').split(',')
 
 # Database — Railway PostgreSQL via DATABASE_URL (replaces individual POSTGRES_* vars)
 DATABASES = {
@@ -20,10 +24,10 @@ STORAGES = {
     "default": {
         "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
         "OPTIONS": {
-            "access_key": config('AWS_ACCESS_KEY_ID'),
-            "secret_key": config('AWS_SECRET_ACCESS_KEY'),
-            "bucket_name": config('AWS_STORAGE_BUCKET_NAME'),
-            "endpoint_url": config('AWS_S3_ENDPOINT_URL'),
+            "access_key": os.environ['AWS_ACCESS_KEY_ID'],
+            "secret_key": os.environ['AWS_SECRET_ACCESS_KEY'],
+            "bucket_name": os.environ['AWS_STORAGE_BUCKET_NAME'],
+            "endpoint_url": os.environ['AWS_S3_ENDPOINT_URL'],
             "custom_domain": 'media.aforestofrabbits.art',
             "querystring_auth": False,
             "region_name": "auto",
