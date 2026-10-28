@@ -177,16 +177,16 @@
   </div>
   {% endif %}
 
-</div>
+  {# Lightbox overlay #}
+  <div x-show="lightboxOpen"
+       x-cloak
+       class="fixed inset-0 z-50 flex items-center justify-center bg-black/80"
+       @click.self="lightboxOpen = false">
+    <img :src="lightboxSrc"
+         class="max-w-full max-h-screen object-contain p-4"
+         alt="Enlarged image" />
+  </div>
 
-{# Lightbox overlay #}
-<div x-show="lightboxOpen"
-     x-cloak
-     class="fixed inset-0 z-50 flex items-center justify-center bg-black/80"
-     @click.self="lightboxOpen = false">
-  <img :src="lightboxSrc"
-       class="max-w-full max-h-screen object-contain p-4"
-       alt="Enlarged image" />
 </div>
 
 {% endblock %}
