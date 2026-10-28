@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Phases 01/02/03/05.1 verification passed; Phase 04 still human_needed; Phase 05/06 gaps_found (see per-phase notes)
-stopped_at: Phase 03 UAT complete — 2 passed outright, 1 gap found and fixed (lightbox Alpine scope bug)
-last_updated: "2026-10-28T12:10:00.000Z"
+status: Phases 01/02/03/04/05.1 verification passed; Phase 05/06 gaps_found (see per-phase notes, both pre-existing/deliberate — not open UAT work)
+stopped_at: Phase 04 UAT complete — all 4 human checks passed, zero issues
+last_updated: "2026-10-28T14:05:00.000Z"
 progress:
   total_phases: 7
   completed_phases: 7
   total_plans: 27
   completed_plans: 27
-current_phase: 04
-current_phase_name: editorial-content
+current_phase: 05
+current_phase_name: content-migration
 ---
 
 # Project State
@@ -21,14 +21,13 @@ current_phase_name: editorial-content
 See: .planning/PROJECT.md (updated 2026-03-06)
 
 **Core value:** Visitors can easily explore and access historical pigment knowledge and craft tutorials; the owner can add new content in minutes without friction.
-**Current focus:** Phase 04 — editorial-content (next open verification item)
+**Current focus:** None — all actionable UAT work is done. Phases 05/06's remaining gaps need the project owner's own action (filling in a migration checklist; deciding to open the site to crawlers), not another `/gsd-verify-work` pass.
 
 ## Current Position
 
 All plans across all 7 phases are executed (27 total, including gap-closure plan 03-05). Verification status by phase:
 
-- 01, 02, 03, 05.1: passed
-- 04: human_needed — run `/gsd-verify-work 04`
+- 01, 02, 03, 04, 05.1: passed
 - 05: gaps_found — migration checklist never filled in/committed (open since 2026-03-10)
 - 06: gaps_found — robots.txt deliberately left at Disallow (user's explicit choice, not a defect)
 
@@ -134,6 +133,7 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 06-03/04]: Deploy + DNS cutover happened 2026-05-08 outside GSD tracking; reconciled retroactively 2026-10-27 — closed the one real gap (pigments table was empty) by redeploying with the new is_trace migration then running load_initial_pigments. robots.txt deliberately left at Disallow: / per explicit user decision — not a bug, do not auto-fix.
 - [Phase ?]: [Phase 02]: Live browser UAT session (2026-10-28) re-confirmed all 5 human_needed items from 02-VERIFICATION.md (HTMX swap, century pill merge, pill removal, bookmarkable URL, back-button restore) — all passed with zero issues. 02-VERIFICATION.md updated to status: passed.
 - [Phase ?]: [Phase 03]: Live browser UAT (2026-10-28) found and fixed one real bug: lightbox overlay div was outside its Alpine x-data scope (sibling after closing tag, not descendant), so x-show had no reactive binding. Fixed in 03-05-PLAN.md (markup relocation only). All 3 human_needed items now pass; 03-VERIFICATION.md status: passed.
+- [Phase ?]: [Phase 04]: Live browser UAT (2026-10-28) confirmed all 4 human_needed items — admin publishing flow, About two-column layout, mobile nav toggle, empty-state em-dash (accepted on code evidence, not re-tested live since 11 real projects are published). Zero issues found. 04-VERIFICATION.md status: passed.
 
 ### Pending Todos
 

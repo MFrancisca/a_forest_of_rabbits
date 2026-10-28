@@ -102,7 +102,7 @@ Plans:
   4. Owner can create and publish a new article from Wagtail admin without touching code
   5. Blog page types and URL routing have backend tests using factories; all pass green
 
-**Plans**: 4 plans
+**Plans**: 4/4 plans complete
 
 Plans:
 
@@ -176,7 +176,7 @@ Note: Phase 4 depends only on Phase 1 (independent of Phases 2-3) and can be pla
 | 1. Foundation and Models | 4/4 | Complete    | 2026-03-08 |
 | 2. Pigment Filtering | 3/3 | Complete   | 2026-03-09 |
 | 3. Pigment Detail and Data | 5/5 | Complete   | 2026-03-09 |
-| 4. Editorial Content | 4/4 | Complete    | 2026-03-10 |
+| 4. Editorial Content | 4/4 | Complete   | 2026-03-10 |
 | 5. Content Migration | 3/3 | Complete   | 2026-03-10 |
 | 5.1. Google Sites Scraper | 0/4 | Complete    | 2026-03-11 |
 | 6. Production Deploy | 4/4 | In Progress|  |
