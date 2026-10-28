@@ -12,6 +12,17 @@ DEFAULT_DATA_FILE = (
     Path(__file__).resolve().parent.parent.parent / 'data' / 'initial_pigments.json'
 )
 
+# Values in a part's "parts" field that mean "a trace amount — too small to measure"
+# rather than a numeric quantity. Compared case-insensitively.
+TRACE_MARKERS = {'Δ', 'delta', 'trace'}
+
+
+def _parse_parts_quantity(value):
+    """Return (parts, is_trace) for a FormulaPart's raw "parts" value."""
+    if isinstance(value, str) and value.strip().lower() in {m.lower() for m in TRACE_MARKERS}:
+        return None, True
+    return value, False
+
 
 class Command(BaseCommand):
     help = 'Load pigment data from a JSON file (idempotent — safe to re-run)'
@@ -33,19 +44,22 @@ class Command(BaseCommand):
         with data_file.open() as f:
             data = json.load(f)
 
+        created_count = 0
         for entry in data['pigments']:
-            self._load_pigment(entry)
+            if self._load_pigment(entry):
+                created_count += 1
 
-        count = Pigment.objects.count()
+        total = Pigment.objects.count()
         self.stdout.write(self.style.SUCCESS(
-            f'Initial pigments loaded. Total: {count} pigments.'
+            f'Initial pigments loaded. {created_count} new, {total} total in database.'
         ))
 
     def _load_pigment(self, entry):
+        """Load one pigment entry; returns True if it was newly created."""
         color_fam, _ = ColorFamily.objects.get_or_create(name=entry['color_family'])
         pigment_fam, _ = PigmentFamily.objects.get_or_create(name=entry['pigment_family'])
 
-        pigment, _ = Pigment.objects.get_or_create(
+        pigment, created = Pigment.objects.get_or_create(
             name=entry['name'],
             defaults={
                 'color_family': color_fam,
@@ -72,10 +86,12 @@ class Command(BaseCommand):
                             'hex_color': part_data.get('hex_color', ''),
                         },
                     )
+                    parts_qty, is_trace = _parse_parts_quantity(part_data['parts'])
                     FormulaPart.objects.create(
                         formula=formula,
                         paint=paint,
-                        parts=part_data['parts'],
+                        parts=parts_qty,
+                        is_trace=is_trace,
                     )
 
         for ms_data in entry.get('manuscripts', []):
@@ -95,3 +111,5 @@ class Command(BaseCommand):
                     page_reference=ms_data.get('page_reference', ''),
                     notes=ms_data.get('notes', ''),
                 )
+
+        return created

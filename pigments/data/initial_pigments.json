@@ -1,86 +1,190 @@
 {
+  "_instructions": {
+    "usage": "python manage.py load_initial_pigments --data-file pigments/data/your_pigments.json",
+    "notes": [
+      "Copy this file, remove _instructions, and fill in your real data.",
+      "All fields marked REQUIRED must be present. Optional fields can be omitted.",
+      "abbreviation: short code used in formula notation (e.g. 'W' for white, 'UB' for ultramarine blue). Same color concept should use the same abbreviation across all brands.",
+      "hex_color: CSS hex color for the paint swatch, e.g. '#A3B2C1'. Leave empty string if unknown.",
+      "parts: numeric quantity — use integers where possible (3 not 3.0). Decimals allowed (1.5).",
+      "parts can also be 'Δ' (or 'delta' / 'trace') for a quantity too small to measure — a trace amount. Use this instead of a number when the recipe calls for the mathematical delta symbol.",
+      "date_start / date_end: year CE as integer, e.g. 800. Use null if unknown.",
+      "page_reference: folio, chapter, or page, e.g. 'folio 12r' or 'chapter III'. Empty string if none.",
+      "The command is idempotent — safe to re-run after database resets (uses get_or_create throughout)."
+    ]
+  },
   "pigments": [
-    {
-      "name": "Ultramarine Blue",
-      "color_family": "Blue",
-      "pigment_family": "Lapis Lazuli",
-      "description": "Lapis lazuli-derived blue, among the most prized pigments of the medieval period. Ground from the semi-precious stone, its intense colour was reserved for the most sacred figures.",
-      "formulas": [
-        {
-          "brand": "Rublev Colours",
-          "notes": "",
-          "parts": [
-            {"paint_name": "Lead White", "paint_brand": "Rublev Colours", "abbreviation": "W", "hex_color": "#F5F0E8", "parts": 3},
-            {"paint_name": "Ultramarine Blue", "paint_brand": "Rublev Colours", "abbreviation": "UB", "hex_color": "#1B3A8C", "parts": 1}
-          ]
-        },
-        {
-          "brand": "Williamsburg",
-          "notes": "Williamsburg's ultramarine is slightly warmer in tone.",
-          "parts": [
-            {"paint_name": "Flake White", "paint_brand": "Williamsburg", "abbreviation": "W", "hex_color": "#F2EDE3", "parts": 2},
-            {"paint_name": "Ultramarine Blue Deep", "paint_brand": "Williamsburg", "abbreviation": "UB", "hex_color": "#152E6E", "parts": 1}
-          ]
-        }
-      ],
-      "manuscripts": [
-        {"name": "Mappae Clavicula", "country": "Italy", "date_start": 800, "date_end": 1100, "page_reference": "folio 12r", "notes": ""}
-      ]
-    },
-    {
-      "name": "Lead White",
-      "color_family": "White",
-      "pigment_family": "Lead",
-      "description": "Basic lead carbonate, the principal white pigment of Western art from antiquity through the 19th century. Mixed into nearly every paint mixture to increase opacity and drying speed.",
-      "formulas": [
-        {
-          "brand": "Rublev Colours",
-          "notes": "",
-          "parts": [
-            {"paint_name": "Lead White", "paint_brand": "Rublev Colours", "abbreviation": "W", "hex_color": "#F5F0E8", "parts": 1}
-          ]
-        }
-      ],
-      "manuscripts": [
-        {"name": "De Arte Illuminandi", "country": "Italy", "date_start": 1300, "date_end": 1400, "page_reference": "chapter III", "notes": ""}
-      ]
-    },
     {
       "name": "Red Ochre",
       "color_family": "Red",
-      "pigment_family": "Iron Oxide",
-      "description": "Iron oxide earth pigment ranging from warm red to deep brown-red. One of the oldest pigments known, found in prehistoric cave paintings and used continuously through the medieval period.",
+      "pigment_family": "Iron Pigments",
+      "description": "Mineral powder composed from Iron Oxide (mostly Hematite) created by heating up Yellow Ochre",
       "formulas": [
         {
-          "brand": "Williamsburg",
+          "brand": "Winstor & Newton",
           "notes": "",
           "parts": [
-            {"paint_name": "Red Ochre", "paint_brand": "Williamsburg", "abbreviation": "RO", "hex_color": "#8B2500", "parts": 2},
-            {"paint_name": "Lead White", "paint_brand": "Rublev Colours", "abbreviation": "W", "hex_color": "#F5F0E8", "parts": 1}
+            {
+              "paint_name": "Burnt Sienna",
+              "paint_brand": "Winstor & Newton",
+              "abbreviation": "Br",
+              "hex_color": "",
+              "parts": 2
+            },
+            {
+              "paint_name": "Light Purple",
+              "paint_brand": "Winstor & Newton",
+              "abbreviation": "P",
+              "hex_color": "",
+              "parts": "Δ"
+            }
           ]
         }
       ],
       "manuscripts": [
-        {"name": "Mappae Clavicula", "country": "Italy", "date_start": 800, "date_end": 1100, "page_reference": "folio 7v", "notes": ""}
+        {
+          "name": "Book of Kells",
+          "country": "Ireland",
+          "date_start": 800,
+          "date_end": 1100,
+          "page_reference": "",
+          "notes": ""
+        }
       ]
     },
     {
-      "name": "Verdigris",
-      "color_family": "Green",
-      "pigment_family": "Copper",
-      "description": "Copper acetate pigment produced by exposing copper plates to acetic acid vapors. The most common green pigment in medieval manuscript illumination, prized for its brilliant transparency.",
+      "name": "Azurite",
+      "color_family": "Red",
+      "pigment_family": "Copper Pigments",
+      "description": "Mineral pigment formed by Copper Carbonate, is usually found alongside its green variant Malachite. While lightfast and stable at moment of painting, after long times the blue can turn green because the Copper Carbonate in Malachite is chemically more stable than Azurite. This process can also happen in acidic or sulfur rich environments.",
       "formulas": [
         {
-          "brand": "Rublev Colours",
+          "brand": "Winstor & Newton",
           "notes": "",
           "parts": [
-            {"paint_name": "Verdigris", "paint_brand": "Rublev Colours", "abbreviation": "VG", "hex_color": "#4A7C59", "parts": 1},
-            {"paint_name": "Lead White", "paint_brand": "Rublev Colours", "abbreviation": "W", "hex_color": "#F5F0E8", "parts": 2}
+            {
+              "paint_name": "Cerulean Blue",
+              "paint_brand": "Winstor & Newton",
+              "abbreviation": "CB",
+              "hex_color": "",
+              "parts": 2
+            },
+            {
+              "paint_name": "Ultramarine Blue",
+              "paint_brand": "Winstor & Newton",
+              "abbreviation": "UB",
+              "hex_color": "",
+              "parts": 1
+            }
           ]
         }
       ],
       "manuscripts": [
-        {"name": "De Arte Illuminandi", "country": "Italy", "date_start": 1300, "date_end": 1400, "page_reference": "", "notes": ""}
+        {
+          "name": "Book of Kells",
+          "country": "Ireland",
+          "date_start": 800,
+          "date_end": 1100,
+          "page_reference": "",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "name": "Bohemian Green",
+      "color_family": "Green Earths",
+      "pigment_family": "Green",
+      "description": "Named after the region of Bohemia where it was tradicionally extracted, this green comes from a mix of minerals rich in Glauconite creates a semi transparent olive green color.",
+      "formulas": [
+        {
+          "brand": "Winstor & Newton",
+          "notes": "",
+          "parts": [
+            {
+              "paint_name": "Vibrant Green",
+              "paint_brand": "Winstor & Newton",
+              "abbreviation": "G",
+              "hex_color": "",
+              "parts": 3
+            },
+            {
+              "paint_name": "Lake Orange Light",
+              "paint_brand": "Winstor & Newton",
+              "abbreviation": "O",
+              "hex_color": "",
+              "parts": "1"
+            },
+            {
+              "paint_name": "Zinc White",
+              "paint_brand": "Winstor & Newton",
+              "abbreviation": "W",
+              "hex_color": "",
+              "parts": "6"
+            },
+            {
+              "paint_name": "Ultramarine",
+              "paint_brand": "Winstor & Newton",
+              "abbreviation": "UB",
+              "hex_color": "",
+              "parts": "Δ"
+            }
+          ]
+        }
+      ],
+      "manuscripts": [
+        {
+          "name": "Book of Kells",
+          "country": "Ireland",
+          "date_start": 800,
+          "date_end": 1100,
+          "page_reference": "",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "name": "Yellow Ochre",
+      "color_family": "Yellow",
+      "pigment_family": "Iron Pigments",
+      "description": "Mineral powder composed from Iron Oxide (mostly Goethite) with small parts of silica and clay. it can be heated to ~400C to transform the Goethite into Hematite, converting the yellow in Red Ochre",
+      "formulas": [
+        {
+          "brand": "Winstor & Newton",
+          "notes": "",
+          "parts": [
+            {
+              "paint_name": "Cadmium Yellow Pale",
+              "paint_brand": "Winstor & Newton",
+              "abbreviation": "Y",
+              "hex_color": "",
+              "parts": 3
+            },
+            {
+              "paint_name": "Spectrum Red",
+              "paint_brand": "Winstor & Newton",
+              "abbreviation": "R",
+              "hex_color": "",
+              "parts": "Δ"
+            },
+            {
+              "paint_name": "Vibrant Green",
+              "paint_brand": "Winstor & Newton",
+              "abbreviation": "G",
+              "hex_color": "",
+              "parts": "Δ"
+            }
+          ]
+        }
+      ],
+      "manuscripts": [
+        {
+          "name": "Book of Kells",
+          "country": "Ireland",
+          "date_start": 800,
+          "date_end": 1100,
+          "page_reference": "",
+          "notes": ""
+        }
       ]
     }
   ]

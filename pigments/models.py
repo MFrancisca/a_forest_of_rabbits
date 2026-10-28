@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from modelcluster.fields import ParentalKey
 from modelcluster.models import ClusterableModel
@@ -278,19 +279,39 @@ class FormulaPart(Orderable):
         on_delete=models.PROTECT,
         related_name='formula_parts',
     )
-    parts = models.DecimalField(max_digits=5, decimal_places=2)
+    parts = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text='Quantity in parts. Leave blank and tick "trace amount" instead for a '
+                   'quantity too small to measure.',
+    )
+    is_trace = models.BooleanField(
+        default=False,
+        help_text='Trace amount (Δ) — used instead of "parts" when the quantity is too '
+                   'small to measure.',
+    )
 
     panels = [
         FieldPanel('paint'),
         FieldPanel('parts'),
+        FieldPanel('is_trace'),
     ]
 
     class Meta(Orderable.Meta):
         verbose_name = 'formula part'
         verbose_name_plural = 'formula parts'
 
+    def clean(self):
+        super().clean()
+        if self.is_trace and self.parts is not None:
+            raise ValidationError('A formula part cannot have both a parts quantity and be marked as trace.')
+        if not self.is_trace and self.parts is None:
+            raise ValidationError('A formula part needs either a parts quantity or "trace amount" ticked.')
+
     def __str__(self):
-        return f'{self.paint} × {self.parts}'
+        return f'{self.paint} × {"Δ" if self.is_trace else self.parts}'
 
 
 class PigmentManuscript(Orderable):

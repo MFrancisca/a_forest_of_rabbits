@@ -5,6 +5,8 @@ TDD RED phase: imports from pigments.factories which does not exist yet.
 Running this file before factories are written will fail with ImportError.
 """
 import pytest
+from django.core.exceptions import ValidationError
+
 from pigments.factories import (
     ColorFamilyFactory,
     PigmentFamilyFactory,
@@ -122,6 +124,31 @@ def test_formula_with_parts():
     formula = FormulaFactory()
     part = FormulaPartFactory(formula=formula)
     assert part in formula.parts.all()
+
+
+@pytest.mark.django_db
+def test_formula_part_trace_amount():
+    """A trace (Δ) part has parts=None, is_trace=True, and renders with the Δ symbol."""
+    part = FormulaPartFactory(parts=None, is_trace=True)
+    assert part.pk is not None
+    assert part.parts is None
+    assert str(part) == f'{part.paint} × Δ'
+
+
+@pytest.mark.django_db
+def test_formula_part_requires_parts_or_trace():
+    """clean() rejects a part with neither a parts quantity nor trace ticked."""
+    part = FormulaPartFactory.build(parts=None, is_trace=False)
+    with pytest.raises(ValidationError):
+        part.clean()
+
+
+@pytest.mark.django_db
+def test_formula_part_rejects_parts_and_trace_together():
+    """clean() rejects a part with both a parts quantity and trace ticked."""
+    part = FormulaPartFactory.build(parts=3, is_trace=True)
+    with pytest.raises(ValidationError):
+        part.clean()
 
 
 @pytest.mark.django_db
