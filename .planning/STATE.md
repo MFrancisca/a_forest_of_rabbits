@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 03
-current_phase_name: pigment-detail-and-data
-status: Phase 02 verification passed (UAT complete); Phase 03/04 still human_needed; Phase 05/06 gaps_found (see per-phase notes)
-stopped_at: Phase 02 UAT complete — all 5 human checks passed
-last_updated: "2026-10-28T03:12:00.000Z"
+status: Phases 01/02/03/05.1 verification passed; Phase 04 still human_needed; Phase 05/06 gaps_found (see per-phase notes)
+stopped_at: Phase 03 UAT complete — 2 passed outright, 1 gap found and fixed (lightbox Alpine scope bug)
+last_updated: "2026-10-28T12:10:00.000Z"
 progress:
   total_phases: 7
   completed_phases: 7
-  total_plans: 26
-  completed_plans: 26
+  total_plans: 27
+  completed_plans: 27
+current_phase: 04
+current_phase_name: editorial-content
 ---
 
 # Project State
@@ -21,13 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-06)
 
 **Core value:** Visitors can easily explore and access historical pigment knowledge and craft tutorials; the owner can add new content in minutes without friction.
-**Current focus:** Phase 03 — pigment-detail-and-data (next open verification item)
+**Current focus:** Phase 04 — editorial-content (next open verification item)
 
 ## Current Position
 
-All 26 plans across all 7 phases are executed. Verification status by phase:
-- 01, 02, 05.1: passed
-- 03, 04: human_needed — run `/gsd-verify-work {phase}`
+All plans across all 7 phases are executed (27 total, including gap-closure plan 03-05). Verification status by phase:
+
+- 01, 02, 03, 05.1: passed
+- 04: human_needed — run `/gsd-verify-work 04`
 - 05: gaps_found — migration checklist never filled in/committed (open since 2026-03-10)
 - 06: gaps_found — robots.txt deliberately left at Disallow (user's explicit choice, not a defect)
 
@@ -132,6 +133,7 @@ Recent decisions affecting current work:
 - [Phase 06-production-deploy]: STORAGES dict used (not DEFAULT_FILE_STORAGE/STATICFILES_STORAGE) — both removed in Django 5.1; dj_database_url.config() replaces individual POSTGRES_* vars; SECURE_SSL_REDIRECT omitted to avoid Cloudflare proxy redirect loops
 - [Phase ?]: [Phase 06-03/04]: Deploy + DNS cutover happened 2026-05-08 outside GSD tracking; reconciled retroactively 2026-10-27 — closed the one real gap (pigments table was empty) by redeploying with the new is_trace migration then running load_initial_pigments. robots.txt deliberately left at Disallow: / per explicit user decision — not a bug, do not auto-fix.
 - [Phase ?]: [Phase 02]: Live browser UAT session (2026-10-28) re-confirmed all 5 human_needed items from 02-VERIFICATION.md (HTMX swap, century pill merge, pill removal, bookmarkable URL, back-button restore) — all passed with zero issues. 02-VERIFICATION.md updated to status: passed.
+- [Phase ?]: [Phase 03]: Live browser UAT (2026-10-28) found and fixed one real bug: lightbox overlay div was outside its Alpine x-data scope (sibling after closing tag, not descendant), so x-show had no reactive binding. Fixed in 03-05-PLAN.md (markup relocation only). All 3 human_needed items now pass; 03-VERIFICATION.md status: passed.
 
 ### Pending Todos
 

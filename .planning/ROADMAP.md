@@ -78,14 +78,16 @@ Plans:
   4. At least one real pigment with a complete formula is visible in the running database
   5. Detail view and formula rendering have backend tests using factories; all pass green
 
-**Plans**: 4 plans
+**Plans**: 5/5 plans complete
 
 Plans:
 
-- [ ] 03-01-PLAN.md — Paint.abbreviation migration, Manuscript.date_display, TDD scaffold (RED): test stubs, stub view, URL route, template stub
-- [ ] 03-02-PLAN.md — Full pigment_detail view + complete pigment_detail.html template (GREEN): Alpine.js tabs, legend, lightbox, provenance table
-- [ ] 03-03-PLAN.md — load_initial_pigments management command: 4 real pigments with formulas and manuscript links
-- [ ] 03-04-PLAN.md — Browser verification: Alpine.js tab switching, reactive legend, lightbox, mobile layout
+- [x] 03-05-PLAN.md
+
+- [x] 03-01-PLAN.md — Paint.abbreviation migration, Manuscript.date_display, TDD scaffold (RED): test stubs, stub view, URL route, template stub
+- [x] 03-02-PLAN.md — Full pigment_detail view + complete pigment_detail.html template (GREEN): Alpine.js tabs, legend, lightbox, provenance table
+- [x] 03-03-PLAN.md — load_initial_pigments management command: 4 real pigments with formulas and manuscript links
+- [x] 03-04-PLAN.md — Browser verification: Alpine.js tab switching, reactive legend, lightbox, mobile layout
 
 ### Phase 4: Editorial Content
 
@@ -173,7 +175,7 @@ Note: Phase 4 depends only on Phase 1 (independent of Phases 2-3) and can be pla
 |-------|----------------|--------|-----------|
 | 1. Foundation and Models | 4/4 | Complete    | 2026-03-08 |
 | 2. Pigment Filtering | 3/3 | Complete   | 2026-03-09 |
-| 3. Pigment Detail and Data | 4/4 | Complete    | 2026-03-09 |
+| 3. Pigment Detail and Data | 5/5 | Complete   | 2026-03-09 |
 | 4. Editorial Content | 4/4 | Complete    | 2026-03-10 |
 | 5. Content Migration | 3/3 | Complete   | 2026-03-10 |
 | 5.1. Google Sites Scraper | 0/4 | Complete    | 2026-03-11 |
