@@ -122,13 +122,13 @@ Plans:
   2. Images from migrated articles display correctly (not broken links pointing to Google Sites)
   3. No content that exists on the current Google Sites is missing from the new site
 
-**Plans**: 3 plans
+**Plans**: 3/3 plans complete
 
 Plans:
 
-- [ ] 05-01-PLAN.md — Create migration guide + checklist documents (automated)
-- [ ] 05-02-PLAN.md — Owner performs content migration (human checkpoint)
-- [ ] 05-03-PLAN.md — Side-by-side review and sign-off (human checkpoint)
+- [x] 05-01-PLAN.md — Create migration guide + checklist documents (automated)
+- [x] 05-02-PLAN.md — Owner performs content migration (human checkpoint)
+- [x] 05-03-PLAN.md — Side-by-side review and sign-off (human checkpoint)
 
 ### Phase 05.1: Google Sites Scraper and Importer (INSERTED)
 
@@ -177,6 +177,6 @@ Note: Phase 4 depends only on Phase 1 (independent of Phases 2-3) and can be pla
 | 2. Pigment Filtering | 3/3 | Complete   | 2026-03-09 |
 | 3. Pigment Detail and Data | 5/5 | Complete   | 2026-03-09 |
 | 4. Editorial Content | 4/4 | Complete   | 2026-03-10 |
-| 5. Content Migration | 3/3 | Complete   | 2026-03-10 |
+| 5. Content Migration | 3/3 | Complete   | 2026-10-28 |
 | 5.1. Google Sites Scraper | 0/4 | Complete    | 2026-03-11 |
 | 6. Production Deploy | 4/4 | In Progress|  |
