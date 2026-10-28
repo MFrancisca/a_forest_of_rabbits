@@ -2,14 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Executing Phase 06
-stopped_at: Completed 06-01-PLAN.md
-last_updated: "2026-03-23T19:07:11.265Z"
+current_phase: 06
+current_phase_name: production-deploy
+status: Phase 06 executed — verification gaps_found (1 deliberately deferred item)
+stopped_at: Completed 06-04-PLAN.md (retroactive reconciliation)
+last_updated: "2026-10-28T02:44:47.878Z"
 progress:
   total_phases: 7
   completed_phases: 6
   total_plans: 26
-  completed_plans: 23
+  completed_plans: 26
 ---
 
 # Project State
@@ -23,8 +25,8 @@ See: .planning/PROJECT.md (updated 2026-03-06)
 
 ## Current Position
 
-Phase: 06 (production-deploy) — EXECUTING
-Plan: 1 of 4
+Phase: 06 (production-deploy) — EXECUTED, verification gaps_found
+Plan: 4 of 4 (06-03 and 06-04 reconciled retroactively — the real deploy/DNS cutover happened 2026-05-08, undocumented until this session)
 
 ## Performance Metrics
 
@@ -125,6 +127,7 @@ Recent decisions affecting current work:
 - [Phase 05.1-google-sites-scraper-and-importer]: create_project_page called with keyword args matching Plan 02 unit-tested signature (title, slug, body_html, category_name=) not RESEARCH.md positional signature
 - [Phase 05.1-google-sites-scraper-and-importer]: Playwright fetch and Django ORM calls split into two phases to avoid async context conflict — fetch all HTML first, then write all pages in a separate sync block
 - [Phase 06-production-deploy]: STORAGES dict used (not DEFAULT_FILE_STORAGE/STATICFILES_STORAGE) — both removed in Django 5.1; dj_database_url.config() replaces individual POSTGRES_* vars; SECURE_SSL_REDIRECT omitted to avoid Cloudflare proxy redirect loops
+- [Phase ?]: [Phase 06-03/04]: Deploy + DNS cutover happened 2026-05-08 outside GSD tracking; reconciled retroactively 2026-10-27 — closed the one real gap (pigments table was empty) by redeploying with the new is_trace migration then running load_initial_pigments. robots.txt deliberately left at Disallow: / per explicit user decision — not a bug, do not auto-fix.
 
 ### Pending Todos
 
@@ -136,6 +139,7 @@ None yet.
 - Tailwind version (v3 vs v4) undecided — must resolve before template work in Phase 1
 - `dj-database-url` missing from requirements — add before Phase 6 production settings
 - Formula UI design (per-brand comparison layout) not yet designed — needed before Phase 3 implementation
+- Phase 06: core/templates/robots.txt still serves Disallow: / in production by deliberate user choice (site not ready to be crawled). Flip to Allow: / only when the user asks.
 
 ### Quick Tasks Completed
 
@@ -145,6 +149,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-12T20:38:32.859Z
-Stopped at: Completed 06-01-PLAN.md
+Last session: 2026-10-28T02:44:47.868Z
+Stopped at: Phase 06 reconciled — 4/4 plans executed, robots.txt deliberately left Disallow for now
 Resume file: None
