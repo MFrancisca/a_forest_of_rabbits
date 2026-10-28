@@ -1,7 +1,7 @@
 -r base.txt
-pytest==8.*
-pytest-django==4.*
-pytest-cov==5.*
+pytest==9.*
+pytest-django>=4.14,<5
+pytest-cov==7.*
 factory-boy==3.*
 wagtail-factories
-pytailwindcss==0.3.0
+pytailwindcss==0.4.2
