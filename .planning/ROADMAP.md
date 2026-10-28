@@ -57,13 +57,13 @@ Plans:
   4. Pressing the browser back button after filtering returns a correctly-rendered full page (not a partial HTML fragment)
   5. Tests cover filter edge cases (empty results, combined filters, M2M joins with .distinct()) and HTMX partial/full-page response logic; all pass green
 
-**Plans**: 3 plans
+**Plans**: 3/3 plans complete
 
 Plans:
 
-- [ ] 02-01-PLAN.md — Failing test stubs (RED) + scaffold: view stub, URL route, template stubs
-- [ ] 02-02-PLAN.md — View implementation + templates (GREEN) — all 11 tests pass
-- [ ] 02-03-PLAN.md — Browser verification: HTMX swaps, pills, back button, bookmarkable URLs
+- [x] 02-01-PLAN.md — Failing test stubs (RED) + scaffold: view stub, URL route, template stubs
+- [x] 02-02-PLAN.md — View implementation + templates (GREEN) — all 11 tests pass
+- [x] 02-03-PLAN.md — Browser verification: HTMX swaps, pills, back button, bookmarkable URLs
 
 ### Phase 3: Pigment Detail and Data
 
@@ -172,7 +172,7 @@ Note: Phase 4 depends only on Phase 1 (independent of Phases 2-3) and can be pla
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation and Models | 4/4 | Complete    | 2026-03-08 |
-| 2. Pigment Filtering | 1/3 | Complete    | 2026-03-09 |
+| 2. Pigment Filtering | 3/3 | Complete   | 2026-03-09 |
 | 3. Pigment Detail and Data | 4/4 | Complete    | 2026-03-09 |
 | 4. Editorial Content | 4/4 | Complete    | 2026-03-10 |
 | 5. Content Migration | 3/3 | Complete   | 2026-03-10 |

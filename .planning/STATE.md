@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 06
-current_phase_name: production-deploy
-status: Phase 06 executed — verification gaps_found (1 deliberately deferred item)
-stopped_at: Completed 06-04-PLAN.md (retroactive reconciliation)
-last_updated: "2026-10-28T02:44:47.878Z"
+current_phase: 03
+current_phase_name: pigment-detail-and-data
+status: Phase 02 verification passed (UAT complete); Phase 03/04 still human_needed; Phase 05/06 gaps_found (see per-phase notes)
+stopped_at: Phase 02 UAT complete — all 5 human checks passed
+last_updated: "2026-10-28T03:12:00.000Z"
 progress:
   total_phases: 7
-  completed_phases: 6
+  completed_phases: 7
   total_plans: 26
   completed_plans: 26
 ---
@@ -21,12 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-06)
 
 **Core value:** Visitors can easily explore and access historical pigment knowledge and craft tutorials; the owner can add new content in minutes without friction.
-**Current focus:** Phase 06 — production-deploy
+**Current focus:** Phase 03 — pigment-detail-and-data (next open verification item)
 
 ## Current Position
 
-Phase: 06 (production-deploy) — EXECUTED, verification gaps_found
-Plan: 4 of 4 (06-03 and 06-04 reconciled retroactively — the real deploy/DNS cutover happened 2026-05-08, undocumented until this session)
+All 26 plans across all 7 phases are executed. Verification status by phase:
+- 01, 02, 05.1: passed
+- 03, 04: human_needed — run `/gsd-verify-work {phase}`
+- 05: gaps_found — migration checklist never filled in/committed (open since 2026-03-10)
+- 06: gaps_found — robots.txt deliberately left at Disallow (user's explicit choice, not a defect)
 
 ## Performance Metrics
 
@@ -128,6 +131,7 @@ Recent decisions affecting current work:
 - [Phase 05.1-google-sites-scraper-and-importer]: Playwright fetch and Django ORM calls split into two phases to avoid async context conflict — fetch all HTML first, then write all pages in a separate sync block
 - [Phase 06-production-deploy]: STORAGES dict used (not DEFAULT_FILE_STORAGE/STATICFILES_STORAGE) — both removed in Django 5.1; dj_database_url.config() replaces individual POSTGRES_* vars; SECURE_SSL_REDIRECT omitted to avoid Cloudflare proxy redirect loops
 - [Phase ?]: [Phase 06-03/04]: Deploy + DNS cutover happened 2026-05-08 outside GSD tracking; reconciled retroactively 2026-10-27 — closed the one real gap (pigments table was empty) by redeploying with the new is_trace migration then running load_initial_pigments. robots.txt deliberately left at Disallow: / per explicit user decision — not a bug, do not auto-fix.
+- [Phase ?]: [Phase 02]: Live browser UAT session (2026-10-28) re-confirmed all 5 human_needed items from 02-VERIFICATION.md (HTMX swap, century pill merge, pill removal, bookmarkable URL, back-button restore) — all passed with zero issues. 02-VERIFICATION.md updated to status: passed.
 
 ### Pending Todos
 
