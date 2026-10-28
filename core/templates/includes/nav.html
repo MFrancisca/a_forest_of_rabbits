@@ -11,14 +11,15 @@
 
     <!-- Desktop nav links (right, hidden on mobile) -->
     <ul class="hidden md:flex gap-6 items-center text-sm font-medium text-gray-600">
-      <li><a href="/" class="hover:text-gray-900 transition-colors">Home</a></li>
-      <li><a href="/pigments/" class="hover:text-gray-900 transition-colors">Pigments</a></li>
-      <li><a href="/projects/" class="hover:text-gray-900 transition-colors">Projects</a></li>
-      <li><a href="/about/" class="hover:text-gray-900 transition-colors">About</a></li>
+      <li><a href="/" class="hover:text-accent transition-colors">Home</a></li>
+      <li><a href="/pigments/" class="hover:text-accent transition-colors">Pigments</a></li>
+      <li><a href="/projects/" class="hover:text-accent transition-colors">Projects</a></li>
+      <li><a href="/classes/" class="hover:text-accent transition-colors">Classes</a></li>
+      <li><a href="/about/" class="hover:text-accent transition-colors">About</a></li>
     </ul>
 
     <!-- Hamburger button (mobile only) -->
-    <button class="md:hidden p-2 rounded text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors"
+    <button class="md:hidden p-2 rounded text-gray-600 hover:text-accent hover:bg-gray-100 transition-colors"
             @click="open = !open"
             aria-label="Toggle navigation menu">
       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -31,10 +32,11 @@
   <!-- Mobile menu (shown/hidden via Alpine.js) -->
   <div x-show="open" x-cloak class="md:hidden mt-3 border-t border-gray-100 pt-3">
     <ul class="flex flex-col gap-1 text-sm font-medium text-gray-600 px-2">
-      <li><a href="/" class="block py-2 px-3 rounded hover:bg-gray-50 hover:text-gray-900 transition-colors">Home</a></li>
-      <li><a href="/pigments/" class="block py-2 px-3 rounded hover:bg-gray-50 hover:text-gray-900 transition-colors">Pigments</a></li>
-      <li><a href="/projects/" class="block py-2 px-3 rounded hover:bg-gray-50 hover:text-gray-900 transition-colors">Projects</a></li>
-      <li><a href="/about/" class="block py-2 px-3 rounded hover:bg-gray-50 hover:text-gray-900 transition-colors">About</a></li>
+      <li><a href="/" class="block py-2 px-3 rounded hover:bg-gray-50 hover:text-accent transition-colors">Home</a></li>
+      <li><a href="/pigments/" class="block py-2 px-3 rounded hover:bg-gray-50 hover:text-accent transition-colors">Pigments</a></li>
+      <li><a href="/projects/" class="block py-2 px-3 rounded hover:bg-gray-50 hover:text-accent transition-colors">Projects</a></li>
+      <li><a href="/classes/" class="block py-2 px-3 rounded hover:bg-gray-50 hover:text-accent transition-colors">Classes</a></li>
+      <li><a href="/about/" class="block py-2 px-3 rounded hover:bg-gray-50 hover:text-accent transition-colors">About</a></li>
     </ul>
   </div>
 

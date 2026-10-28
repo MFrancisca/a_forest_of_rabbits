@@ -50,7 +50,7 @@ X_FRAME_OPTIONS = 'SAMEORIGIN'
 SECURE_CONTENT_TYPE_NOSNIFF = True
 
 # Wagtail
-WAGTAILADMIN_BASE_URL = 'https://www.aforestofrabbits.art'
+WAGTAILADMIN_BASE_URL = os.environ.get('WAGTAILADMIN_BASE_URL', 'https://www.aforestofrabbits.art')
 
 # Logging — errors to console (Railway captures stdout/stderr)
 LOGGING = {

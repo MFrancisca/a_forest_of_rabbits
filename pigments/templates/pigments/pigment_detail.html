@@ -12,7 +12,7 @@
 
   {# 1. Heading + taxonomy tags #}
   <div class="mb-6">
-    <h1 class="text-3xl font-semibold text-stone-800 mb-2">{{ pigment.name }}</h1>
+    <h1 class="font-display text-4xl text-accent mb-2">{{ pigment.name }}</h1>
     <div class="flex flex-wrap gap-2">
       {% if pigment.color_family %}
       <span class="px-2 py-1 text-xs rounded-full bg-stone-100 text-stone-600">
@@ -77,8 +77,19 @@
           <p class="text-2xl font-mono tracking-wide text-stone-800 mb-2">
             {% for part in formula.parts.all %}{% if part.is_trace %}Δ{% else %}{{ part.parts|floatformat:"-2" }}{% endif %}{{ part.paint.abbreviation }}{% if not forloop.last %} + {% endif %}{% endfor %}
           </p>
+          {# Notes accordion — chevron-toggle pattern carried over from the old site #}
           {% if formula.notes %}
-          <p class="text-sm text-stone-500 mt-2">{{ formula.notes }}</p>
+          <div class="mt-4" x-data="{ notesOpen: false }">
+            <button type="button" @click="notesOpen = !notesOpen"
+                    class="flex items-center justify-between w-full text-left py-2 border-b border-stone-200">
+              <span class="font-display text-accent text-lg">Notes</span>
+              <svg class="w-4 h-4 text-accent transition-transform" :class="notesOpen ? 'rotate-180' : ''"
+                   fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </button>
+            <p x-show="notesOpen" x-cloak class="text-sm text-stone-500 pt-2">{{ formula.notes }}</p>
+          </div>
           {% endif %}
 
           {# Mobile-only legend (below notation, inside tab panel) #}
@@ -123,20 +134,32 @@
   </div>
   {% endif %}
 
-  {# 5. Additional images strip (2+ images only) #}
+  {# 5. Additional images carousel (2+ images only) — dot-pagination pattern carried over from the old site #}
   {% if additional_images %}
-  <div class="mb-8">
-    <div class="flex gap-3 overflow-x-auto pb-2">
+  <div class="mb-8" x-data="{ slide: 0 }">
+    <div class="relative">
       {% for img in additional_images %}
       {% if img.image %}
-      {% image img.image fill-200x150 as strip_rendition %}
-      <img src="{{ strip_rendition.url }}"
+      {% image img.image fill-800x600 as carousel_rendition %}
+      <img x-show="slide === {{ forloop.counter0 }}" x-cloak
+           src="{{ carousel_rendition.url }}"
            alt="{{ img.alt_text|default:pigment.name }}"
-           class="w-36 h-28 object-cover rounded flex-shrink-0 cursor-pointer shadow-sm"
-           @click="lightboxOpen = true; lightboxSrc = '{{ strip_rendition.url }}'" />
+           class="w-full max-h-96 object-cover rounded-lg cursor-pointer shadow-sm"
+           @click="lightboxOpen = true; lightboxSrc = '{{ carousel_rendition.url }}'" />
       {% endif %}
       {% endfor %}
     </div>
+    {% if additional_images|length > 1 %}
+    <div class="flex justify-center gap-2 mt-3">
+      {% for img in additional_images %}
+      <button type="button"
+              @click="slide = {{ forloop.counter0 }}"
+              :class="slide === {{ forloop.counter0 }} ? 'bg-accent' : 'bg-stone-300'"
+              class="w-2.5 h-2.5 rounded-full transition-colors"
+              aria-label="Show image {{ forloop.counter }}"></button>
+      {% endfor %}
+    </div>
+    {% endif %}
   </div>
   {% endif %}
 

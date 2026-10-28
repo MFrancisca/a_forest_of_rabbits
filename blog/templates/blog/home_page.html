@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags wagtailimages_tags %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-12">
+
+  {# Intro — bio photo + copy #}
+  <div class="md:flex md:gap-8 mb-12">
+    {% if page.profile_photo %}
+    <div class="md:w-1/3 mb-6 md:mb-0 flex-shrink-0">
+      {% image page.profile_photo fill-400x400 as photo %}
+      <img src="{{ photo.url }}" alt="{{ photo.alt }}" class="rounded-lg w-full">
+    </div>
+    {% endif %}
+    <div class="md:flex-1">
+      <h1 class="font-display text-5xl text-accent mb-4">{{ page.title }}</h1>
+      <div class="prose prose-stone max-w-none">
+        {{ page.intro|richtext }}
+      </div>
+    </div>
+  </div>
+
+  {# Quick access — flagship sections #}
+  <div class="mb-10">
+    <h2 class="text-sm font-semibold uppercase tracking-wider text-stone-400 mb-4">Explore</h2>
+    <div class="grid sm:grid-cols-3 gap-4">
+      <a href="/pigments/"
+         class="block p-5 rounded-lg border border-stone-200 shadow-sm hover:border-accent hover:shadow transition-all">
+        <span class="font-display text-xl text-accent">Pigment Database</span>
+        <p class="text-sm text-stone-600 mt-1">A filterable reference of pigments used in medieval manuscripts.</p>
+      </a>
+      <a href="/projects/"
+         class="block p-5 rounded-lg border border-stone-200 shadow-sm hover:border-accent hover:shadow transition-all">
+        <span class="font-display text-xl text-accent">Projects</span>
+        <p class="text-sm text-stone-600 mt-1">Craft tutorials, research notes, and documented work.</p>
+      </a>
+      <a href="/classes/"
+         class="block p-5 rounded-lg border border-stone-200 shadow-sm hover:border-accent hover:shadow transition-all">
+        <span class="font-display text-xl text-accent">Classes</span>
+        <p class="text-sm text-stone-600 mt-1">Handouts from classes I've given or attended.</p>
+      </a>
+    </div>
+  </div>
+
+  {# Browse by category — quick links into the existing Projects categories #}
+  {% if categories %}
+  <div>
+    <h2 class="text-sm font-semibold uppercase tracking-wider text-stone-400 mb-4">Browse by topic</h2>
+    <div class="flex flex-wrap gap-2">
+      {% for category in categories %}
+      <a href="/projects/?category={{ category.id }}"
+         class="px-3 py-1.5 text-sm rounded-full bg-stone-100 text-stone-700 hover:bg-accent hover:text-white transition-colors">
+        {{ category.name }}
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

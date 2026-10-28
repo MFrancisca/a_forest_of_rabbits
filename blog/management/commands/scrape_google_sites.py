@@ -96,10 +96,11 @@ def create_project_page(title, slug, body_html, date=None, category_name=None):
         title=title,
         slug=slug,
         date=date,
-        category=category,
-        body=body_html,
+        body=[{'type': 'rich_text', 'value': {'title': '', 'text': body_html}}],
     )
     index.add_child(instance=page)
+    if category:
+        page.categories.set([category])
     page.save_revision().publish()
     return 'created'
 

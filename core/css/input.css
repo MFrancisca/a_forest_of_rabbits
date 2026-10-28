@@ -1,0 +1,19 @@
+/* Build: .venv/bin/tailwindcss -i core/css/input.css -o core/static/css/output.css --minify */
+
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@source "../templates/**/*.html";
+@source "../../pigments/templates/**/*.html";
+@source "../../blog/templates/**/*.html";
+
+/* Una Nueva Esperanza — Tailwind v4 @theme customizations */
+/* Palette and display face carried over from the old Forest of Rabbits site
+   (sampled from https://sites.google.com/view/forestofrabbits/home) */
+@theme {
+  --color-plum: #4f3868;
+  --color-accent: #741f8a;
+  --font-display: "Alice", "Palatino Linotype", Georgia, serif;
+}
+
+[x-cloak] { display: none !important; }

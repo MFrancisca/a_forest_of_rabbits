@@ -1,9 +1,16 @@
 """
 Test settings — uses SQLite in-memory database so tests run without PostgreSQL.
 """
+import tempfile
+
 from .base import *  # noqa: F401, F403
 
 DEBUG = True
+
+# Isolate uploaded test files (e.g. wagtail_factories.ImageFactory) from the
+# real media/ directory — avoids polluting it and sidesteps permission issues
+# when media/ is root-owned from prior Docker writes.
+MEDIA_ROOT = tempfile.mkdtemp()
 
 SECRET_KEY = 'insecure-test-secret-key-for-testing-only'
 

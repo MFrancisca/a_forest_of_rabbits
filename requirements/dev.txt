@@ -4,3 +4,4 @@ pytest-django==4.*
 pytest-cov==5.*
 factory-boy==3.*
 wagtail-factories
+pytailwindcss==0.3.0

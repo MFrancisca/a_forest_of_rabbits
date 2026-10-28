@@ -3,16 +3,50 @@
 
 {% block content %}
 <article class="max-w-3xl mx-auto px-4 py-8">
-  <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ page.title }}</h1>
+  <h1 class="font-display text-4xl text-accent mb-2">{{ page.title }}</h1>
 
   <div class="flex items-center gap-3 mb-6">
     <span class="text-sm text-gray-500">{{ page.date|date:"j M Y" }}</span>
-    {% if page.category %}
+    {% for category in page.categories.all %}
     <span class="inline-block text-xs font-medium px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">
-      {{ page.category }}
+      {{ category }}
     </span>
-    {% endif %}
+    {% endfor %}
   </div>
+
+  {# Technical Information accordion — chevron-toggle pattern carried over from the old site #}
+  {% if page.technical_info %}
+  <div class="mb-8" x-data="{ techOpen: false }">
+    <button type="button" @click="techOpen = !techOpen"
+            class="flex items-center justify-between w-full text-left py-2 border-b border-stone-200">
+      <span class="font-display text-accent text-lg">Technical Information</span>
+      <svg class="w-4 h-4 text-accent transition-transform" :class="techOpen ? 'rotate-180' : ''"
+           fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+      </svg>
+    </button>
+    <div x-show="techOpen" x-cloak class="pt-4">
+      {% for block in page.technical_info %}
+        {% if block.block_type == 'freeform' %}
+        <div class="prose prose-gray max-w-none">{{ block.value }}</div>
+        {% elif block.block_type == 'scribal_details' %}
+        <dl class="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-3 text-sm">
+          <div><dt class="font-semibold text-gray-700">Size</dt><dd class="text-gray-600">{{ block.value.size }}</dd></div>
+          <div><dt class="font-semibold text-gray-700">Reference</dt><dd class="text-gray-600">{{ block.value.reference }}</dd></div>
+          <div><dt class="font-semibold text-gray-700">Surface</dt><dd class="text-gray-600">{{ block.value.surface }}</dd></div>
+          <div><dt class="font-semibold text-gray-700">Colors</dt><dd class="text-gray-600">{{ block.value.colors }}</dd></div>
+          <div><dt class="font-semibold text-gray-700">Nib</dt><dd class="text-gray-600">{{ block.value.nib }}</dd></div>
+          <div><dt class="font-semibold text-gray-700">Ink</dt><dd class="text-gray-600">{{ block.value.ink }}</dd></div>
+          <div><dt class="font-semibold text-gray-700">Hand</dt><dd class="text-gray-600">{{ block.value.hand }}</dd></div>
+          {% if block.value.gilding %}
+          <div><dt class="font-semibold text-gray-700">Gilding</dt><dd class="text-gray-600">{{ block.value.gilding }}</dd></div>
+          {% endif %}
+        </dl>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
 
   {% if page.cover_image %}
   <div class="mb-8">
@@ -21,8 +55,51 @@
   </div>
   {% endif %}
 
-  <div class="prose prose-gray max-w-none">
-    {{ page.body|richtext }}
-  </div>
+  {% for block in page.body %}
+    {% if block.block_type == 'rich_text' %}
+    <div class="mb-8">
+      {% if block.value.title %}
+      <h2 class="font-display text-2xl text-accent mb-3">{{ block.value.title }}</h2>
+      {% endif %}
+      <div class="prose prose-gray max-w-none">{{ block.value.text }}</div>
+    </div>
+
+    {% elif block.block_type == 'image' %}
+    <div class="mb-8">
+      {% image block.value.image fill-800x600 as img %}
+      <img src="{{ img.url }}" alt="{{ block.value.image.default_alt_text }}" class="w-full rounded-lg">
+      {% if block.value.caption %}
+      <p class="text-sm text-stone-500 mt-2">{{ block.value.caption }}</p>
+      {% endif %}
+    </div>
+
+    {% elif block.block_type == 'carousel' %}
+    <div class="mb-8" x-data="{ slide: 0 }">
+      <div class="relative">
+        {% for item in block.value %}
+        {% image item.image fill-800x600 as img %}
+        <img x-show="slide === {{ forloop.counter0 }}" x-cloak
+             src="{{ img.url }}"
+             alt="{{ item.caption|default:item.image.default_alt_text }}"
+             class="w-full max-h-96 object-cover rounded-lg shadow-sm">
+        {% if item.caption %}
+        <p x-show="slide === {{ forloop.counter0 }}" x-cloak class="text-sm text-stone-500 mt-2">{{ item.caption }}</p>
+        {% endif %}
+        {% endfor %}
+      </div>
+      {% if block.value|length > 1 %}
+      <div class="flex justify-center gap-2 mt-3">
+        {% for item in block.value %}
+        <button type="button"
+                @click="slide = {{ forloop.counter0 }}"
+                :class="slide === {{ forloop.counter0 }} ? 'bg-accent' : 'bg-stone-300'"
+                class="w-2.5 h-2.5 rounded-full transition-colors"
+                aria-label="Show image {{ forloop.counter }}"></button>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
+  {% endfor %}
 </article>
 {% endblock %}

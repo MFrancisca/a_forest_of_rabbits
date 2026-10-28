@@ -2,7 +2,7 @@ import factory
 import factory.fuzzy
 from factory.django import DjangoModelFactory
 import wagtail_factories
-from blog.models import Category, ProjectsIndexPage, ProjectPage, AboutPage
+from blog.models import Category, ProjectsIndexPage, ProjectPage, AboutPage, HomePage
 
 
 class CategoryFactory(DjangoModelFactory):
@@ -24,11 +24,17 @@ class ProjectPageFactory(wagtail_factories.PageFactory):
     title = factory.Sequence(lambda n: f'Project {n}')
     date = factory.Faker('date_object')
     excerpt = factory.Sequence(lambda n: f'Excerpt for project {n}')
-    body = factory.Sequence(lambda n: f'<p>Body content for project {n}</p>')
-    category = factory.SubFactory(CategoryFactory)
+    body = factory.LazyAttribute(lambda o: [
+        {'type': 'rich_text', 'value': {'title': '', 'text': f'<p>Body content for {o.title}</p>'}},
+    ])
 
     class Meta:
         model = ProjectPage
+
+    @factory.post_generation
+    def categories(self, create, extracted, **kwargs):
+        if create and extracted:
+            self.categories.set(extracted)
 
 
 class AboutPageFactory(wagtail_factories.PageFactory):
@@ -38,3 +44,12 @@ class AboutPageFactory(wagtail_factories.PageFactory):
 
     class Meta:
         model = AboutPage
+
+
+class HomePageFactory(wagtail_factories.PageFactory):
+    title = 'A Forest of Rabbits'
+    slug = factory.Sequence(lambda n: f'home-{n}')
+    intro = '<p>Welcome to my forest.</p>'
+
+    class Meta:
+        model = HomePage
