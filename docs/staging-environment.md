@@ -14,13 +14,31 @@ variable *names*, which you then edit per step 3 below.
 
 ## 2. Provision an independent Postgres
 
-If duplicating the environment didn't create a Postgres plugin scoped to
-`staging`, add one explicitly: inside the `staging` environment, **+ New** →
-Database → PostgreSQL.
+**Gotcha confirmed in practice:** Railway's "duplicate from production" does
+*not* give the new environment its own database. It creates a `Postgres`
+service instance in `staging` that looks separate in the dashboard, but is
+wired to the exact same data volume production's `Postgres` uses (same
+volume ID — verifiable via `railway status --json`, comparing each
+environment's `volumeInstances`). If you leave the duplicated service's
+`DATABASE_URL` as-is, staging and production silently share one live
+database. There is no warning for this in the UI.
 
-Confirm staging's web service's `DATABASE_URL` variable is a Railway
-reference (`${{Postgres.DATABASE_URL}}`) pointing at *this* staging Postgres
-instance — never production's.
+Fix: inside the `staging` environment, add a genuinely new database —
+**+ New** → Database → PostgreSQL. This provisions its own volume. Then
+explicitly point staging's web service `DATABASE_URL` at *this* new
+Postgres's connection string (as a live reference, e.g.
+`${{Postgres-xxxx.DATABASE_URL}}`, using whatever name Railway assigned
+it) — not at the duplicated `Postgres` entry.
+
+Once confirmed, remove the duplicated `Postgres` entry from `staging` —
+but do it from the dashboard, not blind via CLI, and watch for a volume
+named `postgres-volume` that may then show as "orphaned" in staging's view.
+It isn't actually orphaned: it's the same volume production still has
+mounted (`serviceId` just shows empty from staging's side after you remove
+staging's pointer to it). **Do not delete that volume** — deleting it
+deletes production's actual database storage. This dangling reference is a
+Railway-side artifact of the duplicate bug above; if it doesn't clear on its
+own, raise it with Railway support rather than deleting it yourself.
 
 ## 3. Set staging's service variables
 
@@ -31,7 +49,7 @@ instance — never production's.
 | `ALLOWED_HOSTS` | Staging's `*.up.railway.app` hostname (Settings → Networking → Public Networking, once the service exists) |
 | `WAGTAILADMIN_BASE_URL` | `https://<staging-hostname>.up.railway.app` |
 | `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` / `AWS_STORAGE_BUCKET_NAME` / `AWS_S3_ENDPOINT_URL` | Copied verbatim from production — staging and production intentionally share one R2 bucket, so promoted content's image references keep working with no file-copy step. Note: deleting/replacing an image in staging's Wagtail admin affects the same file production uses. |
-| `DATABASE_URL` | Leave as the Railway-injected reference to staging's own Postgres — do not hand-set. |
+| `DATABASE_URL` | A live reference to the *new, independent* Postgres from step 2 (e.g. `${{Postgres-xxxx.DATABASE_URL}}`) — not the duplicated `Postgres` entry. See step 2's gotcha before trusting whatever this got set to by default. |
 
 ## 4. Flip auto-deploy (the step most likely to be missed)
 
@@ -45,6 +63,10 @@ step is what actually makes staging the default deploy target.
   manual "Deploy" button, or `railway up --environment production` /
   `railway redeploy --environment production`. This is a deliberate change
   from today's behavior (production currently auto-deploys on every push).
+
+This toggle is dashboard-only — confirmed against Railway's own docs and
+the CLI's `environment edit --service-config` dot-path schema, neither
+exposes it. Don't waste time guessing a CLI/API field for it.
 
 ## 5. Verify
 
