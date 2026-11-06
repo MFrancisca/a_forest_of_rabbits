@@ -26,12 +26,33 @@ class RichTextWithTitleBlock(StructBlock):
 
 
 class ImageWithCaptionBlock(StructBlock):
+    title = CharBlock(required=False, label='Block title', help_text='Optional — rendered as a section header')
     image = ImageChooserBlock()
     caption = CharBlock(required=False)
 
     class Meta:
         icon = 'image'
         label = 'Image'
+
+
+class CarouselImageBlock(StructBlock):
+    """A single carousel slide — no title; the carousel itself carries one."""
+
+    image = ImageChooserBlock()
+    caption = CharBlock(required=False)
+
+    class Meta:
+        icon = 'image'
+        label = 'Slide'
+
+
+class CarouselBlock(StructBlock):
+    title = CharBlock(required=False, label='Block title', help_text='Optional — rendered as a section header')
+    images = ListBlock(CarouselImageBlock())
+
+    class Meta:
+        icon = 'image'
+        label = 'Carousel'
 
 
 class ScribalDetailsBlock(StructBlock):
@@ -115,7 +136,7 @@ class ProjectPage(Page):
     body = StreamField(
         [
             ('rich_text', RichTextWithTitleBlock()),
-            ('carousel', ListBlock(ImageWithCaptionBlock(), icon='image')),
+            ('carousel', CarouselBlock()),
             ('image', ImageWithCaptionBlock()),
         ],
         blank=True,
@@ -170,8 +191,8 @@ class ProjectPage(Page):
         for block in self.body:
             if block.block_type == 'image':
                 return block.value['image']
-            if block.block_type == 'carousel' and len(block.value):
-                return block.value[0]['image']
+            if block.block_type == 'carousel' and len(block.value['images']):
+                return block.value['images'][0]['image']
             if block.block_type == 'rich_text':
                 from wagtail.images.models import Image
                 for tag in LEGACY_EMBED_RE.findall(block.value['text'].source):

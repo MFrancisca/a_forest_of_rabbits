@@ -66,6 +66,9 @@
 
     {% elif block.block_type == 'image' %}
     <div class="mb-8">
+      {% if block.value.title %}
+      <h2 class="font-display text-2xl text-accent mb-3">{{ block.value.title }}</h2>
+      {% endif %}
       {% image block.value.image fill-800x600 as img %}
       <img src="{{ img.url }}" alt="{{ block.value.image.default_alt_text }}" class="w-full rounded-lg">
       {% if block.value.caption %}
@@ -75,8 +78,11 @@
 
     {% elif block.block_type == 'carousel' %}
     <div class="mb-8" x-data="{ slide: 0 }">
+      {% if block.value.title %}
+      <h2 class="font-display text-2xl text-accent mb-3">{{ block.value.title }}</h2>
+      {% endif %}
       <div class="relative">
-        {% for item in block.value %}
+        {% for item in block.value.images %}
         {% image item.image fill-800x600 as img %}
         <img x-show="slide === {{ forloop.counter0 }}" x-cloak
              src="{{ img.url }}"
@@ -87,9 +93,9 @@
         {% endif %}
         {% endfor %}
       </div>
-      {% if block.value|length > 1 %}
+      {% if block.value.images|length > 1 %}
       <div class="flex justify-center gap-2 mt-3">
-        {% for item in block.value %}
+        {% for item in block.value.images %}
         <button type="button"
                 @click="slide = {{ forloop.counter0 }}"
                 :class="slide === {{ forloop.counter0 }} ? 'bg-accent' : 'bg-stone-300'"

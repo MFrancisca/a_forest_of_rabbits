@@ -132,7 +132,7 @@ class Command(BaseCommand):
                         else:
                             present.append(item)
                     if len(present) >= 2:
-                        new_body.append({'type': 'carousel', 'value': present})
+                        new_body.append({'type': 'carousel', 'value': {'title': '', 'images': present}})
                     elif len(present) == 1:
                         new_body.append({'type': 'image', 'value': present[0]})
 

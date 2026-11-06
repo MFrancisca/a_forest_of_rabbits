@@ -288,14 +288,18 @@ def test_project_body_carousel_renders_dots_for_multiple_images(client, projects
         live=True,
         body=[{
             'type': 'carousel',
-            'value': [
-                {'image': image_a.id, 'caption': 'First angle'},
-                {'image': image_b.id, 'caption': 'Second angle'},
-            ],
+            'value': {
+                'title': 'Different angles',
+                'images': [
+                    {'image': image_a.id, 'caption': 'First angle'},
+                    {'image': image_b.id, 'caption': 'Second angle'},
+                ],
+            },
         }],
     )
     response = client.get(project.url)
     content = response.content.decode()
+    assert 'Different angles' in content
     assert 'First angle' in content
     assert 'Second angle' in content
     assert content.count('aria-label="Show image') == 2
@@ -307,7 +311,7 @@ def test_project_body_carousel_omits_dots_for_single_image(client, projects_inde
     project = ProjectPageFactory(
         parent=projects_index,
         live=True,
-        body=[{'type': 'carousel', 'value': [{'image': image.id, 'caption': 'Only angle'}]}],
+        body=[{'type': 'carousel', 'value': {'images': [{'image': image.id, 'caption': 'Only angle'}]}}],
     )
     response = client.get(project.url)
     assert b'aria-label="Show image' not in response.content
@@ -343,7 +347,7 @@ def test_thumbnail_falls_back_to_first_carousel_image(projects_index):
     project = ProjectPageFactory(
         parent=projects_index,
         cover_image=None,
-        body=[{'type': 'carousel', 'value': [{'image': image.id, 'caption': ''}]}],
+        body=[{'type': 'carousel', 'value': {'images': [{'image': image.id, 'caption': ''}]}}],
     )
     assert project.thumbnail == image
 
