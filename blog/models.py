@@ -2,6 +2,7 @@ import re
 
 from django import forms
 from django.db import models
+from modelcluster.fields import ParentalManyToManyField
 from wagtail.models import Page
 from wagtail.fields import RichTextField, StreamField
 from wagtail.admin.panels import FieldPanel
@@ -120,7 +121,10 @@ class ProjectPage(Page):
     """Individual project / tutorial article."""
 
     date = models.DateField()
-    categories = models.ManyToManyField(
+    # ParentalManyToManyField (not models.ManyToManyField) so the selection is
+    # stored in page revisions — Wagtail publishes from the revision, and a
+    # plain M2M there silently reverts edits made in the admin.
+    categories = ParentalManyToManyField(
         'blog.Category',
         blank=True,
         related_name='project_pages',
