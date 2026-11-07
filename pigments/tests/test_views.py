@@ -37,9 +37,9 @@ def test_pigment_list_returns_200():
 
 @pytest.mark.django_db
 def test_unfiltered_list_shows_all():
-    PigmentFactory()
-    PigmentFactory()
-    PigmentFactory()
+    PigmentFactory(with_formula=True)
+    PigmentFactory(with_formula=True)
+    PigmentFactory(with_formula=True)
     client = Client()
     url = reverse("pigments:list")
     response = client.get(url)
@@ -54,8 +54,8 @@ def test_unfiltered_list_shows_all():
 def test_color_family_filter():
     color_a = ColorFamilyFactory()
     color_b = ColorFamilyFactory()
-    pigment_a = PigmentFactory(color_family=color_a)
-    PigmentFactory(color_family=color_b)
+    pigment_a = PigmentFactory(with_formula=True, color_family=color_a)
+    PigmentFactory(with_formula=True, color_family=color_b)
     client = Client()
     url = reverse("pigments:list")
     response = client.get(url, {"color": color_a.pk})
@@ -73,9 +73,9 @@ def test_multivalue_or_within_dimension():
     color_a = ColorFamilyFactory()
     color_b = ColorFamilyFactory()
     color_c = ColorFamilyFactory()
-    p_a = PigmentFactory(color_family=color_a)
-    p_b = PigmentFactory(color_family=color_b)
-    PigmentFactory(color_family=color_c)
+    p_a = PigmentFactory(with_formula=True, color_family=color_a)
+    p_b = PigmentFactory(with_formula=True, color_family=color_b)
+    PigmentFactory(with_formula=True, color_family=color_c)
     client = Client()
     url = reverse("pigments:list")
     response = client.get(url, {"color": [color_a.pk, color_b.pk]})
@@ -100,15 +100,15 @@ def test_and_across_dimensions():
     manuscript_b = ManuscriptFactory(country=country_b)
 
     # Only this pigment matches both color_x AND country_a
-    p_match = PigmentFactory(color_family=color_x)
+    p_match = PigmentFactory(with_formula=True, color_family=color_x)
     PigmentManuscriptFactory(pigment=p_match, manuscript=manuscript_a)
 
     # Matches color_x but not country_a
-    p_color_only = PigmentFactory(color_family=color_x)
+    p_color_only = PigmentFactory(with_formula=True, color_family=color_x)
     PigmentManuscriptFactory(pigment=p_color_only, manuscript=manuscript_b)
 
     # Matches country_a but not color_x
-    p_country_only = PigmentFactory(color_family=color_y)
+    p_country_only = PigmentFactory(with_formula=True, color_family=color_y)
     PigmentManuscriptFactory(pigment=p_country_only, manuscript=manuscript_a)
 
     client = Client()
@@ -126,12 +126,12 @@ def test_and_across_dimensions():
 @pytest.mark.django_db
 def test_century_overlap_filter():
     manuscript = ManuscriptFactory(date_start=820, date_end=870)
-    pigment = PigmentFactory()
+    pigment = PigmentFactory(with_formula=True)
     PigmentManuscriptFactory(pigment=pigment, manuscript=manuscript)
 
     # Pigment in a manuscript outside the century range — should not appear
     outside_manuscript = ManuscriptFactory(date_start=1000, date_end=1100)
-    other_pigment = PigmentFactory()
+    other_pigment = PigmentFactory(with_formula=True)
     PigmentManuscriptFactory(pigment=other_pigment, manuscript=outside_manuscript)
 
     client = Client()
@@ -148,7 +148,7 @@ def test_century_overlap_filter():
 
 @pytest.mark.django_db
 def test_empty_results_filter():
-    PigmentFactory()
+    PigmentFactory(with_formula=True)
     client = Client()
     url = reverse("pigments:list")
     response = client.get(url, {"color": 99999})
@@ -165,7 +165,7 @@ def test_combined_filter_m2m_no_duplicates():
     country = CountryFactory()
     manuscript_1 = ManuscriptFactory(country=country)
     manuscript_2 = ManuscriptFactory(country=country)
-    pigment = PigmentFactory()
+    pigment = PigmentFactory(with_formula=True)
     PigmentManuscriptFactory(pigment=pigment, manuscript=manuscript_1)
     PigmentManuscriptFactory(pigment=pigment, manuscript=manuscript_2)
 
@@ -290,7 +290,10 @@ def test_detail_context_has_formulas():
 
 @pytest.mark.django_db
 def test_manuscript_filter_shows_manuscript_names():
-    ManuscriptFactory(name='Lindisfarne Gospels')
+    PigmentManuscriptFactory(
+        pigment=PigmentFactory(with_formula=True),
+        manuscript=ManuscriptFactory(name='Lindisfarne Gospels'),
+    )
     client = Client()
     response = client.get(reverse('pigments:list'))
     assert 'Lindisfarne Gospels' in response.content.decode()
@@ -301,6 +304,9 @@ def test_selected_filters_are_checked_on_full_page_load():
     import re
     picked = ManuscriptFactory(name='Book of Durrow')
     other = ManuscriptFactory(name='Voynich Manuscript')
+    # Only manuscripts linked to a listed pigment appear as filter options.
+    for ms in (picked, other):
+        PigmentManuscriptFactory(pigment=PigmentFactory(with_formula=True), manuscript=ms)
     client = Client()
     response = client.get(reverse('pigments:list'), {'manuscript': picked.id})
     html = response.content.decode()
@@ -333,3 +339,66 @@ def test_detail_shows_link_source_and_references():
     assert 'https://arxiv.org/abs/1404.6414' in html
     assert 'Table 1' in html
     assert f'https://doi.org/{general.doi}' in html
+
+
+# ---------------------------------------------------------------------------
+# Only pigments with formulas are listed
+# ---------------------------------------------------------------------------
+
+@pytest.mark.django_db
+def test_list_hides_pigments_without_formulas():
+    with_formula = PigmentFactory(with_formula=True)
+    without_formula = PigmentFactory()
+    response = Client().get(reverse("pigments:list"))
+    pigments = list(response.context["pigments"])
+    assert with_formula in pigments
+    assert without_formula not in pigments
+    assert response.context["filtered_count"] == 1
+    assert response.context["total_count"] == 1
+
+
+@pytest.mark.django_db
+def test_list_shows_pigment_with_several_formulas_once():
+    pigment = PigmentFactory(with_formula=True)
+    FormulaFactory(pigment=pigment)
+    response = Client().get(reverse("pigments:list"))
+    assert list(response.context["pigments"]) == [pigment]
+
+
+@pytest.mark.django_db
+def test_filters_also_hide_pigments_without_formulas():
+    color = ColorFamilyFactory()
+    listed = PigmentFactory(with_formula=True, color_family=color)
+    PigmentFactory(color_family=color)
+    response = Client().get(reverse("pigments:list"), {"color": color.pk})
+    assert list(response.context["pigments"]) == [listed]
+
+
+@pytest.mark.django_db
+def test_detail_still_works_for_pigment_without_formulas():
+    pigment = PigmentFactory()
+    response = Client().get(reverse("pigments:detail", args=[pigment.pk]))
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_filter_options_only_include_listed_pigments():
+    color_listed, color_hidden = ColorFamilyFactory(), ColorFamilyFactory()
+    country_listed, country_hidden = CountryFactory(), CountryFactory()
+    ms_listed = ManuscriptFactory(country=country_listed, date_start=800, date_end=850)
+    ms_hidden = ManuscriptFactory(country=country_hidden, date_start=1400, date_end=1450)
+
+    listed = PigmentFactory(with_formula=True, color_family=color_listed)
+    hidden = PigmentFactory(color_family=color_hidden)
+    PigmentManuscriptFactory(pigment=listed, manuscript=ms_listed)
+    PigmentManuscriptFactory(pigment=hidden, manuscript=ms_hidden)
+    # A second link to the same manuscript must not duplicate options.
+    PigmentManuscriptFactory(pigment=PigmentFactory(with_formula=True, color_family=color_listed), manuscript=ms_listed)
+
+    ctx = Client().get(reverse("pigments:list")).context
+    assert list(ctx["color_families"]) == [color_listed]
+    assert listed.pigment_family in ctx["pigment_families"]
+    assert hidden.pigment_family not in ctx["pigment_families"]
+    assert list(ctx["countries"]) == [country_listed]
+    assert list(ctx["manuscripts"]) == [ms_listed]
+    assert [b["start"] for b in ctx["century_buckets"]] == [800]

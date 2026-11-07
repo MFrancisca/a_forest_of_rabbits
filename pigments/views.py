@@ -1,9 +1,10 @@
 from django.shortcuts import render, get_object_or_404
-from django.db.models import Q
+from django.db.models import Exists, OuterRef, Q
 
 from pigments.models import (
     ColorFamily,
     Country,
+    Formula,
     Manuscript,
     Pigment,
     PigmentFamily,
@@ -23,13 +24,16 @@ def century_label(c_start):
     return f"{ordinal} century"
 
 
-def get_century_buckets():
+def get_century_buckets(manuscripts=None):
     """
     Return a list of century bucket dicts for the filter UI.
-    Only includes centuries that have at least one manuscript overlapping that range.
+    Only includes centuries that have at least one manuscript (from
+    `manuscripts`, default all) overlapping that range.
     Example: [{"start": 800, "label": "9th century"}, ...]
     """
-    manuscripts = Manuscript.objects.exclude(
+    if manuscripts is None:
+        manuscripts = Manuscript.objects.all()
+    manuscripts = manuscripts.exclude(
         date_start__isnull=True, date_end__isnull=True
     ).values_list("date_start", "date_end")
 
@@ -51,13 +55,36 @@ def get_century_buckets():
     return buckets
 
 
+def listed_pigments():
+    """Pigments shown on the list page: only those with at least one formula.
+
+    Exists() rather than a join so pigments with several formulas aren't duplicated.
+    Pigments without formulas stay reachable at their detail URL.
+    """
+    return Pigment.objects.filter(Exists(Formula.objects.filter(pigment=OuterRef("pk"))))
+
+
+def filter_options():
+    """Sidebar options, limited to those matching at least one listed pigment,
+    so no option leads to an empty result."""
+    listed = listed_pigments()
+    manuscripts = Manuscript.objects.filter(pigment_links__pigment__in=listed).distinct()
+    return {
+        "color_families": ColorFamily.objects.filter(pigments__in=listed).distinct(),
+        "pigment_families": PigmentFamily.objects.filter(pigments__in=listed).distinct(),
+        "countries": Country.objects.filter(manuscripts__in=manuscripts).distinct(),
+        "manuscripts": manuscripts,
+        "century_buckets": get_century_buckets(manuscripts),
+    }
+
+
 def build_filtered_queryset(params):
     """
     Build a filtered and deduplicated Pigment queryset from GET params.
     Filtering logic: OR within a dimension, AND across dimensions.
     Always returns .distinct() to prevent M2M join duplicates.
     """
-    qs = Pigment.objects.select_related("color_family", "pigment_family").all()
+    qs = listed_pigments().select_related("color_family", "pigment_family")
 
     # Color family — OR within dimension via __in
     color_ids = params.getlist("color")
@@ -180,13 +207,9 @@ def pigment_list(request):
     context = {
         "pigments": qs,
         "filtered_count": qs.count(),
-        "total_count": Pigment.objects.count(),
+        "total_count": listed_pigments().count(),
         "is_filtered": bool(color_ids or pfam_ids or country_ids or manuscript_ids or centuries),
-        "color_families": ColorFamily.objects.all(),
-        "pigment_families": PigmentFamily.objects.all(),
-        "countries": Country.objects.all(),
-        "manuscripts": Manuscript.objects.all(),
-        "century_buckets": get_century_buckets(),
+        **filter_options(),
         "active_pills": build_active_pills(params),
         # Selected values per filter, so templates can tick the right checkboxes
         # (templates can't call params.getlist(key) themselves).

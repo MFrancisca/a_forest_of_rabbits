@@ -78,6 +78,12 @@ class PigmentFactory(DjangoModelFactory):
     color_family = factory.SubFactory(ColorFamilyFactory)
     pigment_family = factory.SubFactory(PigmentFamilyFactory)
 
+    class Params:
+        # The list view only shows pigments that have a formula.
+        with_formula = factory.Trait(
+            formula=factory.RelatedFactory('pigments.factories.FormulaFactory', factory_related_name='pigment'),
+        )
+
 
 class FormulaFactory(DjangoModelFactory):
     class Meta:
