@@ -119,9 +119,14 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--staging-url',
+            '--staging-url', '--source-url',
+            dest='staging_url',
             default=os.environ.get('STAGING_DATABASE_PUBLIC_URL'),
-            help="Staging's public Postgres URL (default: $STAGING_DATABASE_PUBLIC_URL)",
+            help=(
+                "Postgres URL of the database to copy content FROM (default: "
+                "$STAGING_DATABASE_PUBLIC_URL). Normally staging; --source-url reads better "
+                "for other directions, e.g. local -> staging (docs/sync-local-to-staging.md)."
+            ),
         )
         parser.add_argument(
             '--fixture-path',
@@ -188,7 +193,9 @@ class Command(BaseCommand):
 
         if not noinput:
             self.stdout.write(self.style.WARNING(
-                "\nThis will load staging content into this run's default database ('default').\n"
+                f"\nThis will load content from {raw_config.get('HOST')}/{raw_config.get('NAME')} into\n"
+                f"this run's default database: {settings.DATABASES['default'].get('HOST')}/"
+                f"{settings.DATABASES['default'].get('NAME')}.\n"
                 "This assumes 'default' has already been flushed and its Wagtail root page,\n"
                 "locale, and root collection restored — see\n"
                 "docs/promote-staging-to-production.md. It does not merge page trees, it\n"

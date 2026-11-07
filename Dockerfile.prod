@@ -31,4 +31,4 @@ RUN useradd -m appuser && chown -R appuser /app
 USER appuser
 
 # Shell form so && and $PORT are expanded at runtime (not exec form)
-CMD ["sh", "-c", "python manage.py migrate --no-input && gunicorn config.wsgi --workers 2 --bind 0.0.0.0:$PORT --error-logfile=- --access-logfile=- --log-level debug"]
+CMD ["sh", "-c", "python manage.py migrate --no-input && python manage.py create_site_skeleton && gunicorn config.wsgi --workers 2 --bind 0.0.0.0:$PORT --error-logfile=- --access-logfile=- --log-level debug"]

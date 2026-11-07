@@ -23,6 +23,7 @@ staticfiles/
 media/
 *.sqlite3
 staging_sync_fixture.json
+local_sync_fixture.json
 
 # macOS
 .DS_Store
