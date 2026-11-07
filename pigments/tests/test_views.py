@@ -286,3 +286,50 @@ def test_detail_context_has_formulas():
     url = reverse('pigments:detail', kwargs={'pk': pigment.pk})
     response = client.get(url)
     assert 'formulas' in response.context
+
+
+@pytest.mark.django_db
+def test_manuscript_filter_shows_manuscript_names():
+    ManuscriptFactory(name='Lindisfarne Gospels')
+    client = Client()
+    response = client.get(reverse('pigments:list'))
+    assert 'Lindisfarne Gospels' in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_selected_filters_are_checked_on_full_page_load():
+    import re
+    picked = ManuscriptFactory(name='Book of Durrow')
+    other = ManuscriptFactory(name='Voynich Manuscript')
+    client = Client()
+    response = client.get(reverse('pigments:list'), {'manuscript': picked.id})
+    html = response.content.decode()
+
+    def is_checked(name, value):
+        tag = re.search(rf'<input[^>]*name="{name}"[^>]*value="{value}"[^>]*>', html)
+        return tag is not None and 'checked' in tag.group(0)
+
+    assert is_checked('manuscript', picked.id)
+    assert not is_checked('manuscript', other.id)
+
+
+@pytest.mark.django_db
+def test_detail_shows_link_source_and_references():
+    from pigments.factories import SourceFactory
+    pigment = PigmentFactory()
+    cited = SourceFactory(authors='Bicchieri, M.', year=2014, title='Codex Rossanensis study', doi='',
+                          url='https://arxiv.org/abs/1404.6414')
+    general = SourceFactory(title='General pigment reference')
+    PigmentManuscriptFactory(pigment=pigment, source=cited, source_detail='Table 1')
+    PigmentManuscriptFactory(pigment=pigment, source=cited)  # cited twice → listed once
+    pigment.sources.add(general)
+    pigment.save()
+
+    response = Client().get(reverse('pigments:detail', kwargs={'pk': pigment.pk}))
+    html = response.content.decode()
+
+    assert response.context['references'] == [cited, general]
+    assert 'Bicchieri 2014' in html
+    assert 'https://arxiv.org/abs/1404.6414' in html
+    assert 'Table 1' in html
+    assert f'https://doi.org/{general.doi}' in html

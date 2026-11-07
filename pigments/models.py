@@ -1,6 +1,8 @@
+import re
+
 from django.core.exceptions import ValidationError
 from django.db import models
-from modelcluster.fields import ParentalKey
+from modelcluster.fields import ParentalKey, ParentalManyToManyField
 from modelcluster.models import ClusterableModel
 from wagtail.models import Orderable
 from wagtail.snippets.models import register_snippet
@@ -175,6 +177,111 @@ class Manuscript(models.Model):
         return self.name
 
 
+@register_snippet
+class Source(models.Model):
+    """
+    A citable reference: a paper, book, technical report or website.
+    Shared between pigments, so one paper is entered once and cited many times.
+    """
+
+    KIND_PAPER = 'paper'
+    KIND_BOOK = 'book'
+    KIND_REPORT = 'report'
+    KIND_WEBSITE = 'website'
+    KIND_CHOICES = [
+        (KIND_PAPER, 'Paper'),
+        (KIND_BOOK, 'Book'),
+        (KIND_REPORT, 'Report'),
+        (KIND_WEBSITE, 'Website'),
+    ]
+
+    kind = models.CharField(max_length=10, choices=KIND_CHOICES, default=KIND_PAPER)
+    authors = models.CharField(
+        max_length=500,
+        blank=True,
+        help_text='e.g. "Bioletti, S., Leahy, R., Fields, J."',
+    )
+    title = models.CharField(max_length=500)
+    publication = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text='Journal, publisher, institution or website name, with volume/pages if any',
+    )
+    year = models.PositiveSmallIntegerField(null=True, blank=True)
+    doi = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text='Bare DOI, e.g. 10.1002/jrs.2231 (no https://doi.org/)',
+    )
+    url = models.URLField(
+        max_length=500,
+        blank=True,
+        help_text='Link to the paper or page. Leave blank to link via the DOI.',
+    )
+
+    panels = [
+        FieldPanel('kind'),
+        FieldPanel('authors'),
+        FieldPanel('title'),
+        FieldPanel('publication'),
+        FieldPanel('year'),
+        FieldPanel('doi'),
+        FieldPanel('url'),
+    ]
+
+    class Meta:
+        ordering = ['authors', 'year', 'title']
+        verbose_name = 'source'
+        verbose_name_plural = 'sources'
+
+    @property
+    def link(self):
+        """Best URL for this source: explicit URL first, else the DOI resolver."""
+        if self.url:
+            return self.url
+        if self.doi:
+            return f'https://doi.org/{self.doi}'
+        return ''
+
+    @property
+    def short_label(self):
+        """Compact in-table label, e.g. 'Bioletti et al. 2009' or 'Trinity College Dublin Library'."""
+        if self.authors:
+            # "Surname, I. J." pairs; an organisation name with no initials is used whole.
+            surnames = [
+                m.strip() for m in re.findall(r'([^,&]+?),\s*[A-Z]\.', self.authors)
+            ] or [self.authors.strip()]
+            if len(surnames) == 1:
+                lead = surnames[0]
+            elif len(surnames) == 2:
+                lead = f'{surnames[0]} & {surnames[1]}'
+            else:
+                lead = f'{surnames[0]} et al.'
+        else:
+            lead = self.publication or self.title
+        return f'{lead} {self.year}' if self.year else lead
+
+    @property
+    def citation(self):
+        """Plain-text citation, e.g. 'Bioletti, S. et al. (2009). Title. Journal.'"""
+        parts = []
+        if self.authors:
+            parts.append(self.authors.rstrip('.') + '.')
+        if self.year:
+            parts.append(f'({self.year}).')
+        for text in (self.title, self.publication):
+            if text:
+                # Don't add a full stop after a title ending in ? or !
+                parts.append(text if text[-1] in '.?!' else text + '.')
+        return ' '.join(parts)
+
+    def __str__(self):
+        lead = self.authors.split(',')[0].strip() if self.authors else self.publication
+        bits = [b for b in (lead, str(self.year) if self.year else '') if b]
+        prefix = f'{", ".join(bits)}: ' if bits else ''
+        return f'{prefix}{self.title}'[:120]
+
+
 # ---------------------------------------------------------------------------
 # Core pigment model — ClusterableModel for nested inline admin editing
 # ---------------------------------------------------------------------------
@@ -202,12 +309,19 @@ class Pigment(ClusterableModel):
         related_name='pigments',
     )
     description = models.TextField(blank=True)
+    sources = ParentalManyToManyField(
+        'Source',
+        blank=True,
+        related_name='pigments',
+        help_text='General references for this pigment (not tied to a manuscript).',
+    )
 
     panels = [
         FieldPanel('name'),
         FieldPanel('color_family'),
         FieldPanel('pigment_family'),
         FieldPanel('description'),
+        FieldPanel('sources'),
         InlinePanel('formulas', label='Formulas'),
         InlinePanel('manuscript_links', label='Manuscript Links'),
         InlinePanel('images', label='Images'),
@@ -332,11 +446,26 @@ class PigmentManuscript(Orderable):
     )
     page_reference = models.CharField(max_length=100, blank=True)
     notes = models.TextField(blank=True)
+    source = models.ForeignKey(
+        Source,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name='manuscript_links',
+        help_text='The publication that identified this pigment in this manuscript.',
+    )
+    source_detail = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text='Where in the source, e.g. "Table 1" or "p. 1046".',
+    )
 
     panels = [
         FieldPanel('manuscript'),
         FieldPanel('page_reference'),
         FieldPanel('notes'),
+        FieldPanel('source'),
+        FieldPanel('source_detail'),
     ]
 
     class Meta(Orderable.Meta):

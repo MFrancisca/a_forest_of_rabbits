@@ -17,20 +17,12 @@
     <div class="flex flex-wrap gap-2 mb-4">
 
       <!-- Color Family dropdown -->
-      <div x-data="{
-            open: false,
-            selected: {{ active_filters.getlist|default:'[]' }}
-          }"
-           class="relative">
+      <div x-data="{ open: false }" class="relative">
         <button @click="open = !open"
                 @click.outside="open = false"
                 type="button"
                 class="inline-flex items-center gap-1 border border-stone-300 rounded px-3 py-1 text-sm bg-white hover:bg-stone-50">
           Color Family
-          {% with active_filters.getlist as cf_vals %}
-            {% with active_filters|dictsort:"0" as _ %}
-            {% endwith %}
-          {% endwith %}
         </button>
         <div x-show="open"
              x-cloak
@@ -41,7 +33,7 @@
                    name="color"
                    value="{{ cf.id }}"
                    class="filter-select"
-                   {% if cf.id|stringformat:"s" in active_filters.getlist %}checked{% endif %}>
+                   {% if cf.id|stringformat:"s" in selected.color %}checked{% endif %}>
             {{ cf.name }}
           </label>
           {% empty %}
@@ -67,7 +59,7 @@
                    name="pfam"
                    value="{{ pf.id }}"
                    class="filter-select"
-                   {% if pf.id|stringformat:"s" in active_filters.getlist %}checked{% endif %}>
+                   {% if pf.id|stringformat:"s" in selected.pfam %}checked{% endif %}>
             {{ pf.name }}
           </label>
           {% empty %}
@@ -93,7 +85,7 @@
                    name="country"
                    value="{{ country.id }}"
                    class="filter-select"
-                   {% if country.id|stringformat:"s" in active_filters.getlist %}checked{% endif %}>
+                   {% if country.id|stringformat:"s" in selected.country %}checked{% endif %}>
             {{ country.name }}
           </label>
           {% empty %}
@@ -119,8 +111,8 @@
                    name="manuscript"
                    value="{{ ms.id }}"
                    class="filter-select"
-                   {% if ms.id|stringformat:"s" in active_filters.getlist %}checked{% endif %}>
-            {{ ms.title }}
+                   {% if ms.id|stringformat:"s" in selected.manuscript %}checked{% endif %}>
+            {{ ms.name }}
           </label>
           {% empty %}
           <p class="text-sm text-stone-400 px-1">No options</p>
@@ -145,7 +137,7 @@
                    name="century"
                    value="{{ bucket.start }}"
                    class="filter-select"
-                   {% if bucket.start|stringformat:"s" in active_filters.getlist %}checked{% endif %}>
+                   {% if bucket.start|stringformat:"s" in selected.century %}checked{% endif %}>
             {{ bucket.label }}
           </label>
           {% empty %}

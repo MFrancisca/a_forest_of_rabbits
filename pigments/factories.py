@@ -20,6 +20,7 @@ from pigments.models import (
     FormulaPart,
     PigmentManuscript,
     PigmentImage,
+    Source,
 )
 
 
@@ -93,6 +94,17 @@ class FormulaPartFactory(DjangoModelFactory):
     formula = factory.SubFactory(FormulaFactory)
     paint = factory.SubFactory(PaintFactory)
     parts = factory.Sequence(lambda n: round(1.0 + n * 0.5, 2))
+
+
+class SourceFactory(DjangoModelFactory):
+    class Meta:
+        model = Source
+
+    authors = factory.Sequence(lambda n: f'Author{n}, A. & Coauthor{n}, B.')
+    title = factory.Sequence(lambda n: f'Pigment study {n}')
+    publication = 'Journal of Raman Spectroscopy'
+    year = 2009
+    doi = factory.Sequence(lambda n: f'10.1000/test.{n}')
 
 
 class PigmentManuscriptFactory(DjangoModelFactory):

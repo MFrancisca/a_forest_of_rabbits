@@ -215,3 +215,56 @@ def test_manuscript_date_display_neither():
     """Manuscript with no dates renders em-dash."""
     manuscript = ManuscriptFactory(date_start=None, date_end=None)
     assert manuscript.date_display == '\u2014'
+
+
+# ---------------------------------------------------------------------------
+# Source
+# ---------------------------------------------------------------------------
+
+@pytest.mark.django_db
+def test_source_link_prefers_url_then_doi():
+    from pigments.factories import SourceFactory
+    assert SourceFactory(doi='10.1002/jrs.2231', url='').link == 'https://doi.org/10.1002/jrs.2231'
+    assert SourceFactory(doi='10.1002/jrs.2231', url='https://example.org/p').link == 'https://example.org/p'
+    assert SourceFactory(doi='', url='').link == ''
+
+
+@pytest.mark.parametrize('authors,expected', [
+    ('Bicchieri, M.', 'Bicchieri 2014'),
+    ('Brown, K. L. & Clark, R. J. H.', 'Brown & Clark 2014'),
+    ('Bioletti, S., Leahy, R., Fields, J., Meehan, B. & Blau, W.', 'Bioletti et al. 2014'),
+    ('McCrone Associates', 'McCrone Associates 2014'),
+])
+def test_source_short_label(authors, expected):
+    from pigments.models import Source
+    assert Source(authors=authors, title='T', year=2014).short_label == expected
+
+
+def test_source_short_label_without_authors_uses_publication():
+    from pigments.models import Source
+    assert Source(title='What colour is that?', publication='Trinity College Dublin Library').short_label \
+        == 'Trinity College Dublin Library'
+
+
+def test_source_citation():
+    from pigments.models import Source
+    s = Source(authors='Brown, K. L. & Clark, R. J. H.', year=2004, title='The Lindisfarne Gospels',
+               publication='Journal of Raman Spectroscopy 35(1), 4–12')
+    assert s.citation == ('Brown, K. L. & Clark, R. J. H. (2004). The Lindisfarne Gospels. '
+                          'Journal of Raman Spectroscopy 35(1), 4–12.')
+
+
+@pytest.mark.django_db
+def test_pigment_general_sources():
+    from pigments.factories import SourceFactory
+    pigment = PigmentFactory()
+    source = SourceFactory()
+    pigment.sources.add(source)
+    pigment.save()
+    assert list(source.pigments.all()) == [pigment]
+
+
+def test_source_citation_no_double_punctuation():
+    from pigments.models import Source
+    assert Source(title='What colour is that?', publication='Trinity College Dublin Library').citation \
+        == 'What colour is that? Trinity College Dublin Library.'

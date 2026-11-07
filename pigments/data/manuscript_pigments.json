@@ -1,0 +1,774 @@
+{
+  "_instructions": {
+    "usage": "python manage.py load_initial_pigments --data-file pigments/data/manuscript_pigments.json",
+    "notes": [
+      "Pigment-to-manuscript links taken from published technical analyses.",
+      "'sources' (top level) defines each reference once under a short key. A manuscript entry cites one with 'source': '<key>' and optional 'source_detail' (e.g. 'Table 1'). A pigment's own 'sources' list holds general references by key.",
+      "There are no formulas here because those are your own paint recipes; add them in the admin.",
+      "Names match existing pigments (Red Ochre, Azurite, Yellow Ochre), so their manuscript links are added to them instead of creating duplicates.",
+      "Re-running fills in a missing source on links that already exist; it never replaces a source that is already set."
+    ]
+  },
+  "sources": {
+    "bioletti2009": {
+      "kind": "paper",
+      "authors": "Bioletti, S., Leahy, R., Fields, J., Meehan, B. & Blau, W.",
+      "title": "The examination of the Book of Kells using micro-Raman spectroscopy",
+      "publication": "Journal of Raman Spectroscopy 40(8), 1043–1049",
+      "year": 2009,
+      "doi": "10.1002/jrs.2231",
+      "url": ""
+    },
+    "brownclark2004": {
+      "kind": "paper",
+      "authors": "Brown, K. L. & Clark, R. J. H.",
+      "title": "The Lindisfarne Gospels and two other 8th century Anglo-Saxon/Insular manuscripts: pigment identification by Raman microscopy",
+      "publication": "Journal of Raman Spectroscopy 35(1), 4–12",
+      "year": 2004,
+      "doi": "10.1002/jrs.1110",
+      "url": ""
+    },
+    "rsc_monks": {
+      "kind": "website",
+      "authors": "",
+      "title": "The monks' tales (Education in Chemistry)",
+      "publication": "Royal Society of Chemistry",
+      "year": null,
+      "doi": "",
+      "url": "https://edu.rsc.org/feature/the-monks-tales/3007345.article"
+    },
+    "beeby_durham": {
+      "kind": "website",
+      "authors": "Beeby, A.",
+      "title": "Durham Cathedral Library manuscripts: pigment analysis",
+      "publication": "Durham University",
+      "year": null,
+      "doi": "",
+      "url": "https://andrewbeeby.webspace.durham.ac.uk/?p=26"
+    },
+    "tcd_colour": {
+      "kind": "website",
+      "authors": "",
+      "title": "What colour is that?",
+      "publication": "Trinity College Dublin Library",
+      "year": null,
+      "doi": "",
+      "url": "https://www.tcd.ie/library/exhibitions/preservation-conservation/whatcolouristhat.php"
+    },
+    "facsimiles_durrow": {
+      "kind": "website",
+      "authors": "",
+      "title": "Book of Durrow",
+      "publication": "Facsimile Finder",
+      "year": null,
+      "doi": "",
+      "url": "https://www.facsimiles.com/facsimiles/book-of-durrow"
+    },
+    "bicchieri2014": {
+      "kind": "paper",
+      "authors": "Bicchieri, M.",
+      "title": "The purple Codex Rossanensis: spectroscopic characterization and first evidence of the use of the elderberry lake in a 6th century manuscript",
+      "publication": "arXiv:1404.6414",
+      "year": 2014,
+      "doi": "",
+      "url": "https://arxiv.org/abs/1404.6414"
+    },
+    "mccrone2009": {
+      "kind": "report",
+      "authors": "McCrone Associates",
+      "title": "Materials Analysis of the Voynich Manuscript",
+      "publication": "Report for the Beinecke Rare Book & Manuscript Library, Yale University",
+      "year": 2009,
+      "doi": "",
+      "url": "https://ic.unicamp.br/~stolfi/voynich/VoynichNinja/mccrone-report/post1.txt"
+    },
+    "villafana2021": {
+      "kind": "paper",
+      "authors": "Villafana, T. E., Haude, M. E. & Satorius, A.",
+      "title": "An analytical study of the Huexotzinco Codex using X-ray fluorescence, fiber optic reflectance spectroscopy, and portable Fourier-transform infrared spectroscopy",
+      "publication": "Heritage Science 9, 54",
+      "year": 2021,
+      "doi": "10.1186/s40494-021-00524-1",
+      "url": ""
+    }
+  },
+  "pigments": [
+    {
+      "name": "Orpiment",
+      "color_family": "Yellow",
+      "pigment_family": "Arsenic Pigments",
+      "description": "Arsenic sulphide (As2S3), a brilliant and poisonous yellow. It is the dominant yellow of the Insular manuscripts and was mixed with indigo to make the green called vergaut.",
+      "manuscripts": [
+        {
+          "name": "Book of Kells",
+          "country": "Ireland",
+          "date_start": 800,
+          "date_end": 1100,
+          "page_reference": "e.g. folio 129v",
+          "notes": "Yellow.",
+          "source": "bioletti2009",
+          "source_detail": ""
+        },
+        {
+          "name": "Book of Durrow",
+          "country": "Ireland",
+          "date_start": 650,
+          "date_end": 700,
+          "page_reference": "",
+          "notes": "Yellow.",
+          "source": "tcd_colour",
+          "source_detail": ""
+        },
+        {
+          "name": "Book of Armagh",
+          "country": "Ireland",
+          "date_start": 807,
+          "date_end": 846,
+          "page_reference": "",
+          "notes": "Yellow.",
+          "source": "tcd_colour",
+          "source_detail": ""
+        },
+        {
+          "name": "Lindisfarne Gospels",
+          "country": "England",
+          "date_start": 715,
+          "date_end": 720,
+          "page_reference": "",
+          "notes": "Yellow. Details from the RSC summary of this paper ('The monks' tales').",
+          "source": "brownclark2004",
+          "source_detail": ""
+        },
+        {
+          "name": "Durham Gospels",
+          "country": "England",
+          "date_start": 680,
+          "date_end": 720,
+          "page_reference": "",
+          "notes": "Yellow, used extensively. Also reported by Beeby, Durham University.",
+          "source": "rsc_monks",
+          "source_detail": ""
+        },
+        {
+          "name": "Codex Rossanensis",
+          "country": "Byzantine Empire",
+          "date_start": 500,
+          "date_end": 600,
+          "page_reference": "pp. 3, 241",
+          "notes": "Yellow, found only on these 2 pages. Everywhere else the yellow is goethite.",
+          "source": "bicchieri2014",
+          "source_detail": "Table 1"
+        }
+      ],
+      "sources": []
+    },
+    {
+      "name": "Red Lead",
+      "color_family": "Red",
+      "pigment_family": "Lead Pigments",
+      "description": "Lead tetroxide (Pb3O4), also called minium. A bright orange-red made by roasting lead white, and the standard red of early medieval manuscripts.",
+      "manuscripts": [
+        {
+          "name": "Book of Kells",
+          "country": "Ireland",
+          "date_start": 800,
+          "date_end": 1100,
+          "page_reference": "",
+          "notes": "Red-orange.",
+          "source": "bioletti2009",
+          "source_detail": ""
+        },
+        {
+          "name": "Lindisfarne Gospels",
+          "country": "England",
+          "date_start": 715,
+          "date_end": 720,
+          "page_reference": "",
+          "notes": "Orange and red. Details from the RSC summary of this paper ('The monks' tales').",
+          "source": "brownclark2004",
+          "source_detail": ""
+        },
+        {
+          "name": "Durham Gospels",
+          "country": "England",
+          "date_start": 680,
+          "date_end": 720,
+          "page_reference": "",
+          "notes": "Orange and red, mixed with massicot. Also reported by Beeby, Durham University.",
+          "source": "rsc_monks",
+          "source_detail": ""
+        },
+        {
+          "name": "Book of Durrow",
+          "country": "Ireland",
+          "date_start": 650,
+          "date_end": 700,
+          "page_reference": "",
+          "notes": "Red. Reported only on a facsimile dealer's page; not independently verified.",
+          "source": "facsimiles_durrow",
+          "source_detail": ""
+        },
+        {
+          "name": "Codex Rossanensis",
+          "country": "Byzantine Empire",
+          "date_start": 500,
+          "date_end": 600,
+          "page_reference": "",
+          "notes": "Main red. Mixed with goethite for orange and with lead white for pink.",
+          "source": "bicchieri2014",
+          "source_detail": "Table 1"
+        }
+      ],
+      "sources": []
+    },
+    {
+      "name": "Massicot",
+      "color_family": "Yellow",
+      "pigment_family": "Lead Pigments",
+      "description": "Lead monoxide (PbO), a pale yellow. It often occurs alongside red lead as a by-product of making it.",
+      "manuscripts": [
+        {
+          "name": "Durham Gospels",
+          "country": "England",
+          "date_start": 680,
+          "date_end": 720,
+          "page_reference": "",
+          "notes": "Mixed with red lead in the oranges and reds.",
+          "source": "rsc_monks",
+          "source_detail": ""
+        }
+      ],
+      "sources": []
+    },
+    {
+      "name": "Indigo",
+      "color_family": "Blue",
+      "pigment_family": "Organic Dyes & Lakes",
+      "description": "Plant-derived blue; in Insular manuscripts it most likely comes from woad (Isatis tinctoria), and it is chemically identical to indigo from Indigofera. Raman analysis showed it, not lapis lazuli, is the blue of Kells and Lindisfarne.",
+      "manuscripts": [
+        {
+          "name": "Book of Kells",
+          "country": "Ireland",
+          "date_start": 800,
+          "date_end": 1100,
+          "page_reference": "e.g. folio 129v",
+          "notes": "Blue.",
+          "source": "bioletti2009",
+          "source_detail": ""
+        },
+        {
+          "name": "Book of Armagh",
+          "country": "Ireland",
+          "date_start": 807,
+          "date_end": 846,
+          "page_reference": "",
+          "notes": "Blue.",
+          "source": "tcd_colour",
+          "source_detail": ""
+        },
+        {
+          "name": "Lindisfarne Gospels",
+          "country": "England",
+          "date_start": 715,
+          "date_end": 720,
+          "page_reference": "",
+          "notes": "The only blue used. It overturns the 1960 identification as lazurite.",
+          "source": "brownclark2004",
+          "source_detail": ""
+        },
+        {
+          "name": "Codex Rossanensis",
+          "country": "Byzantine Empire",
+          "date_start": 500,
+          "date_end": 600,
+          "page_reference": "",
+          "notes": "Blue. Also mixed with goethite for greens.",
+          "source": "bicchieri2014",
+          "source_detail": "Table 1"
+        }
+      ],
+      "sources": []
+    },
+    {
+      "name": "Vergaut",
+      "color_family": "Green",
+      "pigment_family": "Mixtures",
+      "description": "Not a single pigment: a green made by mixing indigo with orpiment, typical of the Insular palette.",
+      "manuscripts": [
+        {
+          "name": "Book of Kells",
+          "country": "Ireland",
+          "date_start": 800,
+          "date_end": 1100,
+          "page_reference": "e.g. folio 129v",
+          "notes": "Green.",
+          "source": "bioletti2009",
+          "source_detail": ""
+        },
+        {
+          "name": "Lindisfarne Gospels",
+          "country": "England",
+          "date_start": 715,
+          "date_end": 720,
+          "page_reference": "",
+          "notes": "Green, alongside verdigris. Details from the RSC summary of this paper ('The monks' tales').",
+          "source": "brownclark2004",
+          "source_detail": ""
+        },
+        {
+          "name": "Codex Rossanensis",
+          "country": "Byzantine Empire",
+          "date_start": 500,
+          "date_end": 600,
+          "page_reference": "pp. 3, 241",
+          "notes": "Dark, brilliant green on 2 pages only.",
+          "source": "bicchieri2014",
+          "source_detail": "Table 1"
+        }
+      ],
+      "sources": []
+    },
+    {
+      "name": "Verdigris",
+      "color_family": "Green",
+      "pigment_family": "Copper Pigments",
+      "description": "Copper acetate, a synthetic blue-green made by exposing copper to vinegar fumes. It can eat through parchment over time.",
+      "manuscripts": [
+        {
+          "name": "Lindisfarne Gospels",
+          "country": "England",
+          "date_start": 715,
+          "date_end": 720,
+          "page_reference": "",
+          "notes": "Green, alongside vergaut.",
+          "source": "rsc_monks",
+          "source_detail": ""
+        },
+        {
+          "name": "Durham Gospels",
+          "country": "England",
+          "date_start": 680,
+          "date_end": 720,
+          "page_reference": "",
+          "notes": "Green, used instead of vergaut. Beeby's Durham University page says only 'copper-derived green'.",
+          "source": "rsc_monks",
+          "source_detail": ""
+        },
+        {
+          "name": "Book of Durrow",
+          "country": "Ireland",
+          "date_start": 650,
+          "date_end": 700,
+          "page_reference": "",
+          "notes": "Green ('copper acetate'). Reported only on a facsimile dealer's page; not independently verified.",
+          "source": "facsimiles_durrow",
+          "source_detail": ""
+        }
+      ],
+      "sources": []
+    },
+    {
+      "name": "Copper Resinate",
+      "color_family": "Green",
+      "pigment_family": "Copper Pigments",
+      "description": "A transparent green made by dissolving copper salts in resin or oil. McCrone reported the Voynich greens as a copper and copper-chlorine resinate.",
+      "manuscripts": [
+        {
+          "name": "Voynich Manuscript",
+          "country": "Unknown",
+          "date_start": 1404,
+          "date_end": 1438,
+          "page_reference": "ff. 26r, 47r, 78r",
+          "notes": "Bright and dull greens. Contains a copper organic complex, with atacamite possible on f26r and probable on f47r and f78r.",
+          "source": "mccrone2009",
+          "source_detail": "Table 1"
+        }
+      ],
+      "sources": []
+    },
+    {
+      "name": "Azurite",
+      "color_family": "Blue",
+      "pigment_family": "Copper Pigments",
+      "description": "Basic copper carbonate.",
+      "manuscripts": [
+        {
+          "name": "Voynich Manuscript",
+          "country": "Unknown",
+          "date_start": 1404,
+          "date_end": 1438,
+          "page_reference": "ff. 26r, 78r",
+          "notes": "Blue flower (f26r) and blue water (f78r), with minor cuprite. Report wording: 'unambiguously identified as ground azurite'.",
+          "source": "mccrone2009",
+          "source_detail": "Table 1"
+        }
+      ],
+      "sources": []
+    },
+    {
+      "name": "Red Ochre",
+      "color_family": "Red",
+      "pigment_family": "Iron Pigments",
+      "description": "Iron oxide (hematite).",
+      "manuscripts": [
+        {
+          "name": "Voynich Manuscript",
+          "country": "Unknown",
+          "date_start": 1404,
+          "date_end": 1438,
+          "page_reference": "ff. 26r, 47r",
+          "notes": "Red-brown plant roots. Hematite with lead compounds, and possibly palmierite on f47r.",
+          "source": "mccrone2009",
+          "source_detail": "Table 1"
+        }
+      ],
+      "sources": []
+    },
+    {
+      "name": "Yellow Ochre",
+      "color_family": "Yellow",
+      "pigment_family": "Iron Pigments",
+      "description": "Iron oxide-hydroxide (goethite).",
+      "manuscripts": [
+        {
+          "name": "Codex Rossanensis",
+          "country": "Byzantine Empire",
+          "date_start": 500,
+          "date_end": 600,
+          "page_reference": "",
+          "notes": "Identified as goethite. The main yellow throughout, also mixed with lapis lazuli or indigo for greens and with red lead for orange.",
+          "source": "bicchieri2014",
+          "source_detail": "Table 1"
+        }
+      ],
+      "sources": []
+    },
+    {
+      "name": "Ultramarine Blue",
+      "color_family": "Blue",
+      "pigment_family": "Lapis Lazuli",
+      "description": "Natural ultramarine ground from lapis lazuli (the blue mineral is lazurite). In this period the only source was Afghanistan, so finding it implies long-distance trade.",
+      "manuscripts": [
+        {
+          "name": "Codex Rossanensis",
+          "country": "Byzantine Empire",
+          "date_start": 500,
+          "date_end": 600,
+          "page_reference": "",
+          "notes": "Blue. Also mixed with goethite for greens and with red pigments or pink lake for violets.",
+          "source": "bicchieri2014",
+          "source_detail": "Table 1"
+        },
+        {
+          "name": "Symeon of Durham, Libellus de exordio",
+          "country": "England",
+          "date_start": 1100,
+          "date_end": 1130,
+          "page_reference": "Durham Cathedral Library Cosin V.II.6",
+          "notes": "Blue highlight. Also reported by the RSC's 'The monks' tales'.",
+          "source": "beeby_durham",
+          "source_detail": ""
+        }
+      ],
+      "sources": []
+    },
+    {
+      "name": "Vermilion",
+      "color_family": "Red",
+      "pigment_family": "Mercury Pigments",
+      "description": "Mercury sulphide (HgS). 'Cinnabar' is the natural mineral and 'vermilion' usually the synthetic form. It was more expensive than red lead.",
+      "manuscripts": [
+        {
+          "name": "Codex Rossanensis",
+          "country": "Byzantine Empire",
+          "date_start": 500,
+          "date_end": 600,
+          "page_reference": "p. 241",
+          "notes": "Natural cinnabar, used once: for the name 'Markos'.",
+          "source": "bicchieri2014",
+          "source_detail": "Table 1"
+        },
+        {
+          "name": "Symeon of Durham, Libellus de exordio",
+          "country": "England",
+          "date_start": 1100,
+          "date_end": 1130,
+          "page_reference": "Durham Cathedral Library Cosin V.II.6",
+          "notes": "Red.",
+          "source": "rsc_monks",
+          "source_detail": ""
+        }
+      ],
+      "sources": []
+    },
+    {
+      "name": "Elderberry Lake",
+      "color_family": "Pink",
+      "pigment_family": "Organic Dyes & Lakes",
+      "description": "A pink-violet lake pigment made from elderberry (Sambucus nigra). The Codex Rossanensis is the first experimental evidence of its use in a 6th-century manuscript.",
+      "manuscripts": [
+        {
+          "name": "Codex Rossanensis",
+          "country": "Byzantine Empire",
+          "date_start": 500,
+          "date_end": 600,
+          "page_reference": "",
+          "notes": "Pink. Also mixed with lapis lazuli for violet.",
+          "source": "bicchieri2014",
+          "source_detail": "Table 1"
+        }
+      ],
+      "sources": []
+    },
+    {
+      "name": "Orchil",
+      "color_family": "Purple",
+      "pigment_family": "Organic Dyes & Lakes",
+      "description": "A purple dye from lichens (Roccella species); its colouring compounds are orceins. It was a cheaper substitute for shellfish (Tyrian) purple.",
+      "manuscripts": [
+        {
+          "name": "Codex Rossanensis",
+          "country": "Byzantine Empire",
+          "date_start": 500,
+          "date_end": 600,
+          "page_reference": "",
+          "notes": "Purple dye of the parchment itself.",
+          "source": "bicchieri2014",
+          "source_detail": "Table 1"
+        },
+        {
+          "name": "Book of Kells",
+          "country": "Ireland",
+          "date_start": 800,
+          "date_end": 1100,
+          "page_reference": "",
+          "notes": "The purple is discussed as orcein; the abstract does not say how firm the identification is.",
+          "source": "bioletti2009",
+          "source_detail": ""
+        }
+      ],
+      "sources": []
+    },
+    {
+      "name": "Lead White",
+      "color_family": "White",
+      "pigment_family": "Lead Pigments",
+      "description": "Basic lead carbonate. It can darken over time.",
+      "manuscripts": [
+        {
+          "name": "Lindisfarne Gospels",
+          "country": "England",
+          "date_start": 715,
+          "date_end": 720,
+          "page_reference": "",
+          "notes": "White, pink and beige, with chalk.",
+          "source": "rsc_monks",
+          "source_detail": ""
+        },
+        {
+          "name": "Codex Rossanensis",
+          "country": "Byzantine Empire",
+          "date_start": 500,
+          "date_end": 600,
+          "page_reference": "",
+          "notes": "The only white, also used to lighten other colours. It has darkened in the Canon Table miniature.",
+          "source": "bicchieri2014",
+          "source_detail": "Table 1"
+        }
+      ],
+      "sources": []
+    },
+    {
+      "name": "Chalk",
+      "color_family": "White",
+      "pigment_family": "Calcium Pigments",
+      "description": "Calcium carbonate (CaCO3).",
+      "manuscripts": [
+        {
+          "name": "Lindisfarne Gospels",
+          "country": "England",
+          "date_start": 715,
+          "date_end": 720,
+          "page_reference": "",
+          "notes": "White, and in pinks and beiges with lead white.",
+          "source": "rsc_monks",
+          "source_detail": ""
+        }
+      ],
+      "sources": []
+    },
+    {
+      "name": "Gypsum",
+      "color_family": "White",
+      "pigment_family": "Calcium Pigments",
+      "description": "Calcium sulphate (CaSO4·2H2O).",
+      "manuscripts": [
+        {
+          "name": "Book of Kells",
+          "country": "Ireland",
+          "date_start": 800,
+          "date_end": 1100,
+          "page_reference": "",
+          "notes": "White. Also reported by Trinity College Dublin Library.",
+          "source": "bioletti2009",
+          "source_detail": ""
+        },
+        {
+          "name": "Huexotzinco Codex",
+          "country": "Mexico",
+          "date_start": 1531,
+          "date_end": 1531,
+          "page_reference": "Paintings I, IV, VI",
+          "notes": "White.",
+          "source": "villafana2021",
+          "source_detail": ""
+        }
+      ],
+      "sources": []
+    },
+    {
+      "name": "Carbon Black",
+      "color_family": "Black",
+      "pigment_family": "Carbon Pigments",
+      "description": "Soot or lamp black: nearly pure carbon.",
+      "manuscripts": [
+        {
+          "name": "Book of Kells",
+          "country": "Ireland",
+          "date_start": 800,
+          "date_end": 1100,
+          "page_reference": "",
+          "notes": "Black, in one area of design. Also reported by Trinity College Dublin Library.",
+          "source": "bioletti2009",
+          "source_detail": ""
+        },
+        {
+          "name": "Codex Rossanensis",
+          "country": "Byzantine Empire",
+          "date_start": 500,
+          "date_end": 600,
+          "page_reference": "",
+          "notes": "Black paint and original black inks.",
+          "source": "bicchieri2014",
+          "source_detail": "Table 1"
+        }
+      ],
+      "sources": []
+    },
+    {
+      "name": "Iron Gall Ink",
+      "color_family": "Black",
+      "pigment_family": "Inks",
+      "description": "Ink made from oak galls and iron sulphate (vitriol) in gum. It turns brown, and can corrode the support, as it ages.",
+      "manuscripts": [
+        {
+          "name": "Book of Kells",
+          "country": "Ireland",
+          "date_start": 800,
+          "date_end": 1100,
+          "page_reference": "",
+          "notes": "Main ink. Also reported by Trinity College Dublin Library.",
+          "source": "bioletti2009",
+          "source_detail": ""
+        },
+        {
+          "name": "Voynich Manuscript",
+          "country": "Unknown",
+          "date_start": 1404,
+          "date_end": 1438,
+          "page_reference": "ff. 1r, 8v, 26r, 47r, 70v, 78r, 116v",
+          "notes": "Text and drawing inks. Critics argue the instruments could not positively identify iron gall.",
+          "source": "mccrone2009",
+          "source_detail": "Table 1"
+        },
+        {
+          "name": "Book of Durrow",
+          "country": "Ireland",
+          "date_start": 650,
+          "date_end": 700,
+          "page_reference": "",
+          "notes": "Black and brown inks. Reported only on a facsimile dealer's page; not independently verified.",
+          "source": "facsimiles_durrow",
+          "source_detail": ""
+        }
+      ],
+      "sources": []
+    },
+    {
+      "name": "Maya Blue",
+      "color_family": "Blue",
+      "pigment_family": "Hybrid Pigments",
+      "description": "Indigo locked into a clay mineral (palygorskite and/or sepiolite) by heating, which makes it extremely stable. It is often called the first nanocomposite material in history.",
+      "manuscripts": [
+        {
+          "name": "Huexotzinco Codex",
+          "country": "Mexico",
+          "date_start": 1531,
+          "date_end": 1531,
+          "page_reference": "Paintings III, V",
+          "notes": "Made with a mix of palygorskite and sepiolite. The same combination is otherwise known only on the Codex Borgia.",
+          "source": "villafana2021",
+          "source_detail": ""
+        }
+      ],
+      "sources": []
+    },
+    {
+      "name": "Maya Yellow",
+      "color_family": "Yellow",
+      "pigment_family": "Hybrid Pigments",
+      "description": "An organic yellow dye fixed onto a mineral support, made like Maya blue.",
+      "manuscripts": [
+        {
+          "name": "Huexotzinco Codex",
+          "country": "Mexico",
+          "date_start": 1531,
+          "date_end": 1531,
+          "page_reference": "Paintings III, V",
+          "notes": "The mineral support is proposed to be tizatl, a siliceous aquatic alga.",
+          "source": "villafana2021",
+          "source_detail": ""
+        }
+      ],
+      "sources": []
+    },
+    {
+      "name": "Cochineal Lake",
+      "color_family": "Red",
+      "pigment_family": "Organic Dyes & Lakes",
+      "description": "A crimson lake made from the dye of the cochineal insect (Dactylopius coccus) precipitated with alum.",
+      "manuscripts": [
+        {
+          "name": "Huexotzinco Codex",
+          "country": "Mexico",
+          "date_start": 1531,
+          "date_end": 1531,
+          "page_reference": "Paintings I-V, VII, VIII",
+          "notes": "Alum-based cochineal lake, found on all seven coloured paintings.",
+          "source": "villafana2021",
+          "source_detail": ""
+        }
+      ],
+      "sources": []
+    },
+    {
+      "name": "Orange Kaolinite",
+      "color_family": "Orange",
+      "pigment_family": "Earth Pigments",
+      "description": "An orange clay (kaolinite) used as a pigment. Its use points to colonial rather than pre-Hispanic practice.",
+      "manuscripts": [
+        {
+          "name": "Huexotzinco Codex",
+          "country": "Mexico",
+          "date_start": 1531,
+          "date_end": 1531,
+          "page_reference": "",
+          "notes": "Orange.",
+          "source": "villafana2021",
+          "source_detail": ""
+        }
+      ],
+      "sources": []
+    }
+  ]
+}

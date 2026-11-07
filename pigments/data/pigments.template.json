@@ -9,8 +9,20 @@
       "parts: numeric quantity — use integers where possible (3 not 3.0). Decimals allowed (1.5).",
       "date_start / date_end: year CE as integer, e.g. 800. Use null if unknown.",
       "page_reference: folio, chapter, or page, e.g. 'folio 12r' or 'chapter III'. Empty string if none.",
-      "The command is idempotent — safe to re-run after database resets (uses get_or_create throughout)."
+      "The command is idempotent — safe to re-run after database resets (uses get_or_create throughout).",
+      "sources: define each reference once in the top-level 'sources' map under a short key (kind: paper/book/report/website). Cite one from a manuscript entry with 'source': '<key>' plus an optional 'source_detail' such as 'Table 1', and list general references for a pigment in its own 'sources' list. An unknown key stops the load with an error."
     ]
+  },
+  "sources": {
+    "example2009": {
+      "kind": "paper",
+      "authors": "Surname, A. & Other, B.",
+      "title": "REQUIRED — title of the paper, book or page",
+      "publication": "e.g. Journal of Raman Spectroscopy 40(8), 1043–1049",
+      "year": 2009,
+      "doi": "e.g. 10.1002/jrs.2231 (empty string if none)",
+      "url": "Optional — leave empty to link via the DOI"
+    }
   },
   "pigments": [
     {
@@ -47,8 +59,13 @@
           "date_start": 800,
           "date_end": 1100,
           "page_reference": "e.g. folio 12r",
-          "notes": "Optional — any notes about this manuscript reference."
+          "notes": "Optional — any notes about this manuscript reference.",
+          "source": "example2009",
+          "source_detail": "Optional — e.g. Table 1"
         }
+      ],
+      "sources": [
+        "example2009"
       ]
     }
   ]

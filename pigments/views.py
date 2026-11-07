@@ -188,7 +188,15 @@ def pigment_list(request):
         "manuscripts": Manuscript.objects.all(),
         "century_buckets": get_century_buckets(),
         "active_pills": build_active_pills(params),
-        "active_filters": params,
+        # Selected values per filter, so templates can tick the right checkboxes
+        # (templates can't call params.getlist(key) themselves).
+        "selected": {
+            "color": color_ids,
+            "pfam": pfam_ids,
+            "country": country_ids,
+            "manuscript": manuscript_ids,
+            "century": centuries,
+        },
     }
 
     if is_htmx and not is_history_restore:
@@ -203,9 +211,18 @@ def pigment_detail(request, pk):
         'parts__paint'
     ).all()
     images = list(pigment.images.select_related('image').all())
-    manuscript_links = pigment.manuscript_links.select_related(
-        'manuscript__country'
-    ).all()
+    manuscript_links = list(pigment.manuscript_links.select_related(
+        'manuscript__country', 'source'
+    ).all())
+
+    # Bibliography: sources cited on manuscript links first (in table order),
+    # then the pigment's general references, each listed once.
+    references = []
+    seen = set()
+    for source in [l.source for l in manuscript_links if l.source] + list(pigment.sources.all()):
+        if source.pk not in seen:
+            seen.add(source.pk)
+            references.append(source)
     context = {
         'pigment': pigment,
         'formulas': formulas,
@@ -213,5 +230,6 @@ def pigment_detail(request, pk):
         'featured_image': images[0] if images else None,
         'additional_images': images[1:] if len(images) > 1 else [],
         'manuscript_links': manuscript_links,
+        'references': references,
     }
     return render(request, 'pigments/pigment_detail.html', context)
