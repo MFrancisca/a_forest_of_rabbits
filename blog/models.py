@@ -62,9 +62,9 @@ class ScribalDetailsBlock(StructBlock):
     reference = CharBlock(required=True, help_text='Source manuscript referenced')
     surface = CharBlock(required=True, help_text='e.g. vellum, stonehenge paper')
     colors = CharBlock(required=True)
-    nib = CharBlock(required=True)
-    ink = CharBlock(required=True)
-    hand = CharBlock(required=True, help_text='Calligraphy script/hand used, e.g. Insular Minuscule')
+    nib = CharBlock(required=False)
+    ink = CharBlock(required=False)
+    hand = CharBlock(required=False, help_text='Calligraphy script/hand used, e.g. Insular Minuscule')
     gilding = CharBlock(required=False)
 
     class Meta:
