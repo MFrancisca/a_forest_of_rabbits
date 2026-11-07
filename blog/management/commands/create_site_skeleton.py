@@ -24,12 +24,14 @@ class Command(BaseCommand):
         # page.url (verified: /home/projects/ still resolves to /projects/).
         home = HomePage.objects.first()
         if not home:
+            # Wagtail's own placeholder also uses slug 'home' — rename it out of
+            # the way first so the new HomePage can take that slug.
             placeholder = root.get_children().filter(
                 title=DEFAULT_WAGTAIL_PLACEHOLDER_TITLE,
             ).first()
-            if placeholder:
-                placeholder.delete()
-                self.stdout.write('Removed default Wagtail placeholder page.')
+            if placeholder and placeholder.slug == 'home':
+                placeholder.slug = 'wagtail-placeholder'
+                placeholder.save()
 
             home = HomePage(
                 title='A Forest of Rabbits',
@@ -42,11 +44,23 @@ class Command(BaseCommand):
         else:
             self.stdout.write('HomePage already exists — skipping.')
 
+        # Point the default Site at HomePage *before* deleting the placeholder:
+        # Site.root_page is on_delete=CASCADE, so deleting the page a Site still
+        # points at silently deletes the Site too (every URL then 404s).
         site = Site.objects.filter(is_default_site=True).first()
-        if site and site.root_page_id != home.id:
+        if not site:
+            # Default site matches any hostname, so localhost:80 is fine here.
+            Site.objects.create(hostname='localhost', port=80, root_page=home, is_default_site=True)
+            self.stdout.write(self.style.SUCCESS('Created default Site pointing at HomePage'))
+        elif site.root_page_id != home.id:
             site.root_page = home
             site.save()
             self.stdout.write(self.style.SUCCESS('Pointed default Site.root_page at HomePage'))
+
+        placeholder = root.get_children().filter(title=DEFAULT_WAGTAIL_PLACEHOLDER_TITLE).first()
+        if placeholder and not placeholder.sites_rooted_here.exists():
+            placeholder.delete()
+            self.stdout.write('Removed default Wagtail placeholder page.')
 
         index = ProjectsIndexPage.objects.first()
         if not index:
