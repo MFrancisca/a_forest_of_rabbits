@@ -14,9 +14,17 @@ copied.
 
 ## 0. Before you start
 
+- **Rebuild the local image first: `docker compose build web`.** Every
+  command below runs local code against staging. A stale image (e.g. still on
+  Wagtail 7.3 after the 8.0 upgrade) fails in confusing ways: `flush` can't
+  truncate tables it has no model for (`wagtailadmin_formstate`), and saving
+  pages fails on search-index columns it doesn't know (`title_text`).
 - **The schemas must match.** Commit and push any pending migrations, then
   wait for staging's deploy to finish so staging has applied them. Locally,
   `docker compose exec web python manage.py migrate` too.
+- **Staging's Postgres needs public access.** Railway → staging → its
+  Postgres → Settings → Networking → TCP Proxy. `railway connect` doesn't get
+  around this: it uses the same proxy. You can turn the proxy off afterwards.
 - **Don't push to `master` while you're doing this.** Every staging deploy
   runs `create_site_skeleton`. If one lands between the flush (step 2) and
   the sync (step 4), it creates a fresh HomePage that will collide with
