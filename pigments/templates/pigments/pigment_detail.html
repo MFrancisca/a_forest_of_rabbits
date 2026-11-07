@@ -74,6 +74,18 @@
       <div class="flex-1">
         {% for formula in formulas %}
         <div x-show="activeTab === {{ forloop.counter0 }}" x-cloak>
+          {# Optional formula image on the left; notation + notes beside it #}
+          <div class="flex flex-col sm:flex-row sm:items-center gap-6">
+          {% if formula.image %}
+          {% image formula.image max-320x320 as formula_rendition %}
+          {% image formula.image max-1600x1600 as formula_full %}
+          <img src="{{ formula_rendition.url }}"
+               alt="{{ pigment.name }} — {{ formula.brand.name }} formula"
+               width="{{ formula_rendition.width }}" height="{{ formula_rendition.height }}"
+               class="formula-image w-40 h-auto self-center flex-shrink-0 rounded-lg shadow-sm cursor-pointer"
+               @click="lightboxOpen = true; lightboxSrc = '{{ formula_full.url }}'" />
+          {% endif %}
+          <div class="flex-1 min-w-0">
           <p class="text-2xl font-mono tracking-wide text-stone-800 mb-2">
             {% for part in formula.parts.all %}{% if part.is_trace %}Δ{% else %}{{ part.parts|floatformat:"-2" }}{% endif %}{{ part.paint.abbreviation }}{% if not forloop.last %} + {% endif %}{% endfor %}
           </p>
@@ -91,6 +103,8 @@
             <p x-show="notesOpen" x-cloak class="text-sm text-stone-500 pt-2">{{ formula.notes }}</p>
           </div>
           {% endif %}
+          </div>
+          </div>
 
           {# Mobile-only legend (below notation, inside tab panel) #}
           <div class="mt-4 lg:hidden">

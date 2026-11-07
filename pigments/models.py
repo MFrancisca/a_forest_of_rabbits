@@ -357,10 +357,19 @@ class Formula(ClusterableModel, Orderable):
         on_delete=models.PROTECT,
         related_name='formulas',
     )
+    image = models.ForeignKey(
+        'wagtailimages.Image',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='+',
+        help_text='Optional — e.g. a paint-out of this formula. Shown to the left of the formula.',
+    )
     notes = models.TextField(blank=True)
 
     panels = [
         FieldPanel('brand'),
+        FieldPanel('image'),
         FieldPanel('notes'),
         InlinePanel('parts', label='Formula Parts'),
     ]

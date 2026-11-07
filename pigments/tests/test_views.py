@@ -402,3 +402,20 @@ def test_filter_options_only_include_listed_pigments():
     assert list(ctx["countries"]) == [country_listed]
     assert list(ctx["manuscripts"]) == [ms_listed]
     assert [b["start"] for b in ctx["century_buckets"]] == [800]
+
+
+@pytest.mark.django_db
+def test_detail_shows_formula_image_when_set():
+    import wagtail_factories
+    pigment = PigmentFactory()
+    FormulaFactory(pigment=pigment, image=wagtail_factories.ImageFactory())
+    html = Client().get(reverse('pigments:detail', args=[pigment.pk])).content.decode()
+    assert 'class="formula-image' in html
+
+
+@pytest.mark.django_db
+def test_detail_has_no_formula_image_when_unset():
+    pigment = PigmentFactory()
+    FormulaFactory(pigment=pigment)
+    html = Client().get(reverse('pigments:detail', args=[pigment.pk])).content.decode()
+    assert 'class="formula-image' not in html
