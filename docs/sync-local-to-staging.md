@@ -21,7 +21,11 @@ copied.
   pages fails on search-index columns it doesn't know (`title_text`).
 - **The schemas must match.** Commit and push any pending migrations, then
   wait for staging's deploy to finish so staging has applied them. Locally,
-  `docker compose exec web python manage.py migrate` too.
+  `docker compose exec web python manage.py migrate` too. If that fails with
+  `relation "blog_category" already exists`, the local database predates the
+  blog migration squash. Run
+  `docker compose exec web python manage.py migrate blog 0001_squashed_0012_remove_projectpage_category_legacy --fake`
+  once, then `migrate` again.
 - **Staging's Postgres needs public access.** Railway → staging → its
   Postgres → Settings → Networking → TCP Proxy. `railway connect` doesn't get
   around this: it uses the same proxy. You can turn the proxy off afterwards.

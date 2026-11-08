@@ -2,10 +2,9 @@
 Management command: split_project_body_streamfield
 
 One-time: every ProjectPage.body currently holds its entire original content
-as a single 'rich_text' block (a leftover of the data migration that moved
-content out of the old body_legacy RichTextField — see
-blog/migrations/0007_copy_body_legacy_to_body.py). This command re-parses
-that block's HTML and splits it into multiple blocks:
+as a single 'rich_text' block (a leftover of the one-off data migration,
+since removed, that moved content out of the old body_legacy RichTextField).
+This command re-parses that block's HTML and splits it into multiple blocks:
 
 - Every paragraph/heading/list becomes its own 'rich_text' block.
 - A single standalone image embed becomes an 'image' block.

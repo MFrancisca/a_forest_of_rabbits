@@ -1,7 +1,7 @@
 import pytest
 import wagtail_factories
 from django.test import Client
-from blog.models import Category, ProjectsIndexPage, ProjectPage, AboutPage
+from blog.models import ProjectsIndexPage, ProjectPage, AboutPage
 from blog.factories import CategoryFactory, ProjectPageFactory
 
 
@@ -87,7 +87,7 @@ def test_index_filters_by_category(client, projects_index):
 def test_project_can_have_multiple_categories(projects_index):
     """A project can be assigned more than one category."""
     armor = CategoryFactory(name='Armor')
-    collab = Category.objects.get(name='Collaborations')
+    collab = CategoryFactory(name='Collaborations')
     project = ProjectPageFactory(parent=projects_index, categories=[armor, collab])
     assert set(project.categories.all()) == {armor, collab}
 
@@ -96,7 +96,7 @@ def test_index_filter_matches_project_with_multiple_categories(client, projects_
     """Filtering by one of a project's several categories still matches it,
     and the project doesn't appear twice in the results."""
     armor = CategoryFactory(name='Armor')
-    collab = Category.objects.get(name='Collaborations')
+    collab = CategoryFactory(name='Collaborations')
     project = ProjectPageFactory(parent=projects_index, categories=[armor, collab], live=True)
 
     response = client.get(projects_index.url, {'category': collab.id})
@@ -108,7 +108,7 @@ def test_index_filter_matches_project_with_multiple_categories(client, projects_
 def test_project_detail_renders_multiple_category_pills(client, projects_index):
     """The detail page renders one pill per assigned category."""
     armor = CategoryFactory(name='Armor')
-    collab = Category.objects.get(name='Collaborations')
+    collab = CategoryFactory(name='Collaborations')
     project = ProjectPageFactory(parent=projects_index, categories=[armor, collab], live=True)
 
     response = client.get(project.url)
