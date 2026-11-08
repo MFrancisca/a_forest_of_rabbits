@@ -91,6 +91,10 @@ class Command(BaseCommand):
         classes = ProjectPage.objects.filter(slug='classes').first()
         if classes and classes.get_parent().id != home.id:
             classes.move(home, pos='last-child')
+            # move() rewrites the tree in SQL but leaves this instance's path
+            # stale — publishing it as-is would write the old path back and
+            # silently undo the move. Reload first.
+            classes = ProjectPage.objects.get(pk=classes.pk)
             if classes.categories.exists():
                 classes.categories.clear()
                 classes.save_revision().publish()

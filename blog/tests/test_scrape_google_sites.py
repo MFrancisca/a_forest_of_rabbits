@@ -125,3 +125,18 @@ def test_update_about_page(about_page):
     page = AboutPage.objects.get(pk=about_page.pk)
     page.refresh_from_db()
     assert "We are an art collective." in page.body
+
+
+def test_extract_body_html_escapes_text():
+    """get_text() returns unescaped text; it must be re-escaped before being
+    wrapped in tags, or source text like '<script>' becomes live markup."""
+    html = (
+        '<html><body>'
+        '<h2>Tools &amp; materials</h2>'
+        '<p>1 &lt; 2 &amp; &lt;script&gt;alert(1)&lt;/script&gt;</p>'
+        '</body></html>'
+    )
+    result = extract_body_html(html, slug='x')
+    assert '<h2>Tools &amp; materials</h2>' in result
+    assert '<p>1 &lt; 2 &amp; &lt;script&gt;alert(1)&lt;/script&gt;</p>' in result
+    assert '<script>' not in result

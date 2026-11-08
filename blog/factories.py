@@ -30,11 +30,14 @@ class ProjectPageFactory(wagtail_factories.PageFactory):
 
     class Meta:
         model = ProjectPage
+        skip_postgeneration_save = True
 
     @factory.post_generation
     def categories(self, create, extracted, **kwargs):
         if create and extracted:
+            # ParentalManyToManyField only writes the relation on save().
             self.categories.set(extracted)
+            self.save()
 
 
 class AboutPageFactory(wagtail_factories.PageFactory):

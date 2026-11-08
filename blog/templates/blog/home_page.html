@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 {% load wagtailcore_tags wagtailimages_tags %}
 
+{% block title %}{{ page.seo_title|default:'A Forest of Rabbits' }}{% endblock %}
+
 {% block content %}
 <div class="max-w-4xl mx-auto px-4 py-12">
 

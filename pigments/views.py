@@ -39,8 +39,9 @@ def get_century_buckets(manuscripts=None):
 
     occupied = set()
     for start, end in manuscripts:
-        if start is None or end is None:
-            continue
+        # A single known date ("c.800") is treated as that one year.
+        start = start if start is not None else end
+        end = end if end is not None else start
         first_century = (start // 100) * 100
         last_century = (end // 100) * 100
         c = first_century
@@ -53,6 +54,29 @@ def get_century_buckets(manuscripts=None):
         buckets.append({"start": c_start, "label": century_label(c_start)})
 
     return buckets
+
+
+FILTER_PARAMS = ("color", "pfam", "country", "manuscript", "century")
+MAX_DB_INT = 2**63 - 1  # BigAutoField range; larger values can't match any row
+
+
+def int_values(params, key):
+    """Values of a multi-valued GET param that parse as integers, as canonical
+    strings (e.g. "007" -> "7").
+
+    Anything else (``?color=abc``, an empty ``?color=``, a 30-digit number) is
+    dropped rather than passed to the ORM, where it would raise ValueError /
+    OverflowError and turn a mistyped or crawled URL into a 500.
+    """
+    values = []
+    for raw in params.getlist(key):
+        try:
+            value = int(raw)
+        except ValueError:
+            continue
+        if abs(value) <= MAX_DB_INT:
+            values.append(str(value))
+    return values
 
 
 def listed_pigments():
@@ -87,37 +111,47 @@ def build_filtered_queryset(params):
     qs = listed_pigments().select_related("color_family", "pigment_family")
 
     # Color family — OR within dimension via __in
-    color_ids = params.getlist("color")
+    color_ids = int_values(params, "color")
     if color_ids:
         qs = qs.filter(color_family__id__in=color_ids)
 
     # Pigment family — OR within dimension via __in
-    pfam_ids = params.getlist("pfam")
+    pfam_ids = int_values(params, "pfam")
     if pfam_ids:
         qs = qs.filter(pigment_family__id__in=pfam_ids)
 
     # Country — joins through manuscript_links → manuscript → country
-    country_ids = params.getlist("country")
+    country_ids = int_values(params, "country")
     if country_ids:
         qs = qs.filter(manuscript_links__manuscript__country__id__in=country_ids)
 
     # Manuscript — joins through manuscript_links → manuscript
-    manuscript_ids = params.getlist("manuscript")
+    manuscript_ids = int_values(params, "manuscript")
     if manuscript_ids:
         qs = qs.filter(manuscript_links__manuscript__id__in=manuscript_ids)
 
-    # Century — range overlap: manuscript overlaps [c_start, c_start+99]
-    # A manuscript overlaps if date_start <= c_end AND date_end >= c_start
-    centuries = params.getlist("century")
+    # Century — range overlap: manuscript overlaps [c_start, c_start+99].
+    # A dated range overlaps if date_start <= c_end AND date_end >= c_start;
+    # a manuscript with only one of the two dates is treated as that one year.
+    centuries = int_values(params, "century")
     if centuries:
+        ms = "manuscript_links__manuscript__"
         century_q = Q()
         for c_start in centuries:
             c_start_int = int(c_start)
-            c_end_int = c_start_int + 99
-            century_q |= Q(
-                manuscript_links__manuscript__date_start__lte=c_end_int,
-                manuscript_links__manuscript__date_end__gte=c_start_int,
-            )
+            c_end_int = min(c_start_int + 99, MAX_DB_INT)
+            century_q |= Q(**{
+                f"{ms}date_start__lte": c_end_int,
+                f"{ms}date_end__gte": c_start_int,
+            })
+            century_q |= Q(**{
+                f"{ms}date_end__isnull": True,
+                f"{ms}date_start__range": (c_start_int, c_end_int),
+            })
+            century_q |= Q(**{
+                f"{ms}date_start__isnull": True,
+                f"{ms}date_end__range": (c_start_int, c_end_int),
+            })
         qs = qs.filter(century_q)
 
     # Always deduplicate — M2M joins produce duplicate rows
@@ -138,45 +172,39 @@ def build_active_pills(params):
         ("country", Country.objects),
         ("manuscript", Manuscript.objects),
     ]:
-        for val in params.getlist(param):
+        for val in int_values(params, param):
             try:
-                obj = queryset.get(id=int(val))
+                obj = queryset.get(id=val)
                 pills.append({"label": str(obj), "param": param, "value": val})
-            except (ValueError, queryset.model.DoesNotExist):
+            except queryset.model.DoesNotExist:
                 pass
 
     # Century pills with consecutive merge
-    raw_centuries = params.getlist("century")
-    if raw_centuries:
-        try:
-            centuries = sorted(int(c) for c in raw_centuries)
-        except ValueError:
-            centuries = []
+    centuries = sorted({int(c) for c in int_values(params, "century")})
+    if centuries:
+        groups = []
+        current_group = [centuries[0]]
+        for c in centuries[1:]:
+            if c == current_group[-1] + 100:
+                current_group.append(c)
+            else:
+                groups.append(current_group)
+                current_group = [c]
+        groups.append(current_group)
 
-        if centuries:
-            groups = []
-            current_group = [centuries[0]]
-            for c in centuries[1:]:
-                if c == current_group[-1] + 100:
-                    current_group.append(c)
-                else:
-                    groups.append(current_group)
-                    current_group = [c]
-            groups.append(current_group)
-
-            for group in groups:
-                if len(group) == 1:
-                    label = century_label(group[0])
-                else:
-                    start_label = century_label(group[0])
-                    end_label = century_label(group[-1])
-                    label = f"{start_label}\u2013{end_label}"
-                pills.append({
-                    "label": label,
-                    "param": "century",
-                    "values": [str(c) for c in group],
-                    "is_century": True,
-                })
+        for group in groups:
+            if len(group) == 1:
+                label = century_label(group[0])
+            else:
+                start_label = century_label(group[0])
+                end_label = century_label(group[-1])
+                label = f"{start_label}\u2013{end_label}"
+            pills.append({
+                "label": label,
+                "param": "century",
+                "values": [str(c) for c in group],
+                "is_century": True,
+            })
 
     return pills
 
@@ -195,12 +223,9 @@ def pigment_list(request):
 
     params = request.GET
 
-    # Determine which filter params are active
-    color_ids = params.getlist("color")
-    pfam_ids = params.getlist("pfam")
-    country_ids = params.getlist("country")
-    manuscript_ids = params.getlist("manuscript")
-    centuries = params.getlist("century")
+    # Active filter values, minus any that aren't integers (ignored by the
+    # queryset too, so they shouldn't count as "filtered" either).
+    selected = {key: int_values(params, key) for key in FILTER_PARAMS}
 
     qs = build_filtered_queryset(params)
 
@@ -208,18 +233,12 @@ def pigment_list(request):
         "pigments": qs,
         "filtered_count": qs.count(),
         "total_count": listed_pigments().count(),
-        "is_filtered": bool(color_ids or pfam_ids or country_ids or manuscript_ids or centuries),
+        "is_filtered": any(selected.values()),
         **filter_options(),
         "active_pills": build_active_pills(params),
         # Selected values per filter, so templates can tick the right checkboxes
         # (templates can't call params.getlist(key) themselves).
-        "selected": {
-            "color": color_ids,
-            "pfam": pfam_ids,
-            "country": country_ids,
-            "manuscript": manuscript_ids,
-            "century": centuries,
-        },
+        "selected": selected,
     }
 
     if is_htmx and not is_history_restore:

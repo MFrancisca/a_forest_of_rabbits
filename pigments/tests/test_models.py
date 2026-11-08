@@ -268,3 +268,51 @@ def test_source_citation_no_double_punctuation():
     from pigments.models import Source
     assert Source(title='What colour is that?', publication='Trinity College Dublin Library').citation \
         == 'What colour is that? Trinity College Dublin Library.'
+
+
+# ---------------------------------------------------------------------------
+# __str__ of the remaining models (shown in Wagtail admin choosers/listings)
+# ---------------------------------------------------------------------------
+
+from pigments.factories import SourceFactory  # noqa: E402
+
+@pytest.mark.django_db
+def test_source_str_with_authors_and_year():
+    source = SourceFactory(authors='Bioletti, S., Leahy, R.', year=2009, title='The examination')
+    assert str(source) == 'Bioletti, 2009: The examination'
+
+
+@pytest.mark.django_db
+def test_source_str_falls_back_to_publication_and_truncates():
+    source = SourceFactory(authors='', year=None, publication='TCD Library', title='x' * 200)
+    assert str(source).startswith('TCD Library: xxx')
+    assert len(str(source)) == 120
+
+
+@pytest.mark.django_db
+def test_source_str_title_only():
+    source = SourceFactory(authors='', year=None, publication='', title='Untitled note')
+    assert str(source) == 'Untitled note'
+
+
+@pytest.mark.django_db
+def test_formula_and_link_and_image_str():
+    from pigments.factories import FormulaFactory, PigmentImageFactory, PigmentManuscriptFactory
+
+    formula = FormulaFactory()
+    assert str(formula) == f'{formula.pigment} — {formula.brand}'
+
+    link = PigmentManuscriptFactory()
+    assert str(link) == f'{link.pigment} → {link.manuscript}'
+
+    assert str(PigmentImageFactory(caption='Paint-out')).endswith(' — Paint-out')
+    assert str(PigmentImageFactory(alt_text='Alt')).endswith(' — Alt')
+    assert str(PigmentImageFactory()).endswith(' — image')
+
+
+def test_manuscript_date_display_variants():
+    from pigments.models import Manuscript
+
+    assert Manuscript(date_start=800, date_end=850).date_display == 'c.800–850'
+    assert Manuscript(date_start=800).date_display == 'c.800'
+    assert Manuscript().date_display == '—'

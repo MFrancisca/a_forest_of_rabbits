@@ -64,7 +64,9 @@
       <div class="prose prose-gray max-w-none">{{ block.value.text }}</div>
     </div>
 
-    {% elif block.block_type == 'image' %}
+    {# Guard on the image: if it was deleted the value is None, and {% image ... as img %} #}
+    {# then leaves `img` holding the previous block's rendition instead of clearing it. #}
+    {% elif block.block_type == 'image' and block.value.image %}
     <div class="mb-8">
       {% if block.value.title %}
       <h2 class="font-display text-2xl text-accent mb-3">{{ block.value.title }}</h2>
@@ -83,6 +85,7 @@
       {% endif %}
       <div class="relative">
         {% for item in block.value.images %}
+        {% if item.image %}
         {% image item.image fill-800x600 as img %}
         <img x-show="slide === {{ forloop.counter0 }}" x-cloak
              src="{{ img.url }}"
@@ -90,6 +93,7 @@
              class="w-full max-h-96 object-cover rounded-lg shadow-sm">
         {% if item.caption %}
         <p x-show="slide === {{ forloop.counter0 }}" x-cloak class="text-sm text-stone-500 mt-2">{{ item.caption }}</p>
+        {% endif %}
         {% endif %}
         {% endfor %}
       </div>

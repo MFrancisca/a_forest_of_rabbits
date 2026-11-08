@@ -73,6 +73,8 @@ class ManuscriptFactory(DjangoModelFactory):
 class PigmentFactory(DjangoModelFactory):
     class Meta:
         model = Pigment
+        # The only post-generation step (with_formula) saves its own Formula.
+        skip_postgeneration_save = True
 
     name = factory.Sequence(lambda n: f'Pigment {n}')
     color_family = factory.SubFactory(ColorFamilyFactory)

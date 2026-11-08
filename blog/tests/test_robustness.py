@@ -1,0 +1,104 @@
+"""Regression tests for malformed input and dangling image references."""
+import pytest
+import wagtail_factories
+
+from blog.factories import CategoryFactory, ProjectPageFactory
+from blog.models import ProjectPage
+
+
+# ---------------------------------------------------------------------------
+# ?category= on the projects index
+# ---------------------------------------------------------------------------
+
+@pytest.mark.django_db
+@pytest.mark.parametrize('value', ['abc', '1.5', "'", ''])
+def test_index_non_integer_category_is_ignored_not_500(client, projects_index, value):
+    category = CategoryFactory()
+    ProjectPageFactory(parent=projects_index, categories=[category])
+    ProjectPageFactory(parent=projects_index)
+
+    response = client.get('/projects/', {'category': value})
+
+    assert response.status_code == 200
+    assert response.context['active_category'] is None
+    assert len(response.context['projects']) == 2
+
+
+@pytest.mark.django_db
+def test_index_unknown_category_id_shows_empty_state(client, projects_index, published_project):
+    response = client.get('/projects/', {'category': 999999})
+    assert response.status_code == 200
+    assert response.context['active_category'] is None
+    assert list(response.context['projects']) == []
+
+
+# ---------------------------------------------------------------------------
+# Images deleted after being chosen in a StreamField block
+# ---------------------------------------------------------------------------
+
+def _reload(page):
+    return ProjectPage.objects.get(pk=page.pk)
+
+
+@pytest.mark.django_db
+def test_thumbnail_skips_deleted_image_block(projects_index):
+    gone = wagtail_factories.ImageFactory()
+    kept = wagtail_factories.ImageFactory()
+    page = ProjectPageFactory(parent=projects_index, body=[
+        {'type': 'image', 'value': {'title': '', 'image': gone.pk, 'caption': ''}},
+        {'type': 'image', 'value': {'title': '', 'image': kept.pk, 'caption': ''}},
+    ])
+    gone.delete()
+
+    assert _reload(page).thumbnail == kept
+
+
+@pytest.mark.django_db
+def test_thumbnail_skips_deleted_carousel_slide(projects_index):
+    gone = wagtail_factories.ImageFactory()
+    kept = wagtail_factories.ImageFactory()
+    page = ProjectPageFactory(parent=projects_index, body=[
+        {'type': 'carousel', 'value': {'title': '', 'images': [
+            {'image': gone.pk, 'caption': ''},
+            {'image': kept.pk, 'caption': ''},
+        ]}},
+    ])
+    gone.delete()
+
+    assert _reload(page).thumbnail == kept
+
+
+@pytest.mark.django_db
+def test_thumbnail_none_when_only_image_was_deleted(projects_index):
+    gone = wagtail_factories.ImageFactory()
+    page = ProjectPageFactory(parent=projects_index, body=[
+        {'type': 'image', 'value': {'title': '', 'image': gone.pk, 'caption': ''}},
+    ])
+    gone.delete()
+
+    assert _reload(page).thumbnail is None
+
+
+@pytest.mark.django_db
+def test_deleted_image_block_does_not_repeat_previous_image(client, projects_index):
+    """{% image None ... as img %} leaves `img` untouched, so an unguarded block
+    re-rendered the previous block's rendition."""
+    shown = wagtail_factories.ImageFactory()
+    gone = wagtail_factories.ImageFactory()
+    page = ProjectPageFactory(parent=projects_index, body=[
+        {'type': 'image', 'value': {'title': '', 'image': shown.pk, 'caption': 'kept'}},
+        {'type': 'image', 'value': {'title': '', 'image': gone.pk, 'caption': 'orphan caption'}},
+        {'type': 'carousel', 'value': {'title': '', 'images': [
+            {'image': gone.pk, 'caption': 'orphan slide'},
+            {'image': shown.pk, 'caption': ''},
+        ]}},
+    ])
+    gone.delete()
+
+    html = client.get(page.url).content.decode()
+
+    assert 'orphan caption' not in html
+    assert 'orphan slide' not in html
+    # One <img> for the standalone block + one for the surviving slide.
+    assert html.count('object-cover rounded-lg shadow-sm') == 1
+    assert html.count('class="w-full rounded-lg"') == 1

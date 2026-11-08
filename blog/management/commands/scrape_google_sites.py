@@ -1,5 +1,6 @@
 """Management command to scrape Google Sites pages and import them as Wagtail pages."""
 import datetime
+import html as html_lib
 from urllib.parse import urlparse
 
 from bs4 import BeautifulSoup
@@ -53,11 +54,13 @@ def extract_body_html(html: str, slug: str) -> str:
 
     for tag in soup.find_all(['h2', 'h3', 'p', 'img']):
         if tag.name in ('h2', 'h3'):
-            body_parts.append(f'<{tag.name}>{tag.get_text(strip=True)}</{tag.name}>')
+            body_parts.append(f'<{tag.name}>{html_lib.escape(tag.get_text(strip=True))}</{tag.name}>')
         elif tag.name == 'p':
             text = tag.get_text(strip=True)
             if text:
-                body_parts.append(f'<p>{text}</p>')
+                # get_text() unescapes entities — re-escape so text like
+                # "a < b & c" can't become markup in the stored rich text.
+                body_parts.append(f'<p>{html_lib.escape(text)}</p>')
         elif tag.name == 'img':
             placeholder = f'<p>\U0001f5bc\ufe0f [IMAGE: {slug}-{img_counter}]</p>'
             body_parts.append(placeholder)

@@ -101,9 +101,14 @@ class ProjectsIndexPage(Page):
         all_projects = ProjectPage.objects.child_of(self).live()
         projects = all_projects.order_by('-date')
 
-        category_id = request.GET.get('category')
+        # Ignore a non-integer ?category= (mistyped/crawled URL) instead of
+        # letting the ORM raise ValueError, which would be a 500.
+        try:
+            category_id = int(request.GET.get('category', ''))
+        except ValueError:
+            category_id = None
         active_category = None
-        if category_id:
+        if category_id is not None:
             projects = projects.filter(categories__id=category_id).distinct()
             active_category = Category.objects.filter(id=category_id).first()
 
@@ -192,12 +197,17 @@ class ProjectPage(Page):
         if self.cover_image:
             return self.cover_image
 
+        # A chooser block whose image was since deleted holds None — skip it
+        # and keep looking rather than ending the search with no thumbnail.
         for block in self.body:
             if block.block_type == 'image':
-                return block.value['image']
-            if block.block_type == 'carousel' and len(block.value['images']):
-                return block.value['images'][0]['image']
-            if block.block_type == 'rich_text':
+                if block.value['image']:
+                    return block.value['image']
+            elif block.block_type == 'carousel':
+                for item in block.value['images']:
+                    if item['image']:
+                        return item['image']
+            elif block.block_type == 'rich_text':
                 from wagtail.images.models import Image
                 for tag in LEGACY_EMBED_RE.findall(block.value['text'].source):
                     if 'embedtype="image"' not in tag:
