@@ -67,16 +67,40 @@
     {# Guard on the image: if it was deleted the value is None, and {% image ... as img %} #}
     {# then leaves `img` holding the previous block's rendition instead of clearing it. #}
     {% elif block.block_type == 'image' and block.value.image %}
-    <div class="mb-8">
+    {% with align=block.value.alignment|default:'center' %}
+    <div class="mb-8" data-align="{{ align }}">
       {% if block.value.title %}
       <h2 class="font-display text-2xl text-accent mb-3">{{ block.value.title }}</h2>
       {% endif %}
+      {% if align == 'center' %}
       {% image block.value.image fill-800x600 as img %}
       <img src="{{ img.url }}" alt="{{ block.value.image.default_alt_text }}" class="w-full rounded-lg">
       {% if block.value.caption %}
       <p class="text-sm text-stone-500 mt-2">{{ block.value.caption }}</p>
       {% endif %}
+      {% if block.value.text %}
+      <div class="prose prose-gray max-w-none mt-4">{{ block.value.text }}</div>
+      {% endif %}
+      {% else %}
+      {# Side layout: two columns aligned to the top, so the section is as tall #}
+      {# as whichever is taller — the image or the text. Stacks on small screens. #}
+      {# The image keeps its own proportions (max-, not fill-) so nothing is cropped. #}
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+        {# col-start-2 keeps a right image in the right column even when there is no text. #}
+        <figure class="{% if align == 'right' %}md:order-2 md:col-start-2{% endif %}">
+          {% image block.value.image max-800x1200 as img %}
+          <img src="{{ img.url }}" alt="{{ block.value.image.default_alt_text }}" class="w-full h-auto rounded-lg">
+          {% if block.value.caption %}
+          <figcaption class="text-sm text-stone-500 mt-2">{{ block.value.caption }}</figcaption>
+          {% endif %}
+        </figure>
+        {% if block.value.text %}
+        <div class="prose prose-gray max-w-none" data-image-text>{{ block.value.text }}</div>
+        {% endif %}
+      </div>
+      {% endif %}
     </div>
+    {% endwith %}
 
     {% elif block.block_type == 'carousel' %}
     <div class="mb-8" x-data="{ slide: 0 }">

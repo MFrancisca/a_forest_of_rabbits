@@ -387,3 +387,58 @@ def test_index_renders_thumbnail_image(client, projects_index):
     ProjectPageFactory(parent=projects_index, cover_image=image, live=True)
     response = client.get(projects_index.url)
     assert b'<img src=' in response.content
+
+
+def _image_page(projects_index, **value):
+    image = wagtail_factories.ImageFactory(title='Aligned image')
+    return ProjectPageFactory(
+        parent=projects_index,
+        live=True,
+        body=[{'type': 'image', 'value': {'image': image.id, 'caption': '', **value}}],
+    )
+
+
+def test_image_block_defaults_to_centered_for_legacy_values(client, projects_index):
+    """Image blocks saved before alignment existed still render centered."""
+    project = _image_page(projects_index)
+    content = client.get(project.url).content.decode()
+    assert 'data-align="center"' in content
+
+
+@pytest.mark.parametrize('alignment', ['left', 'right'])
+def test_side_aligned_image_renders_text_column(client, projects_index, alignment):
+    """A left/right image renders its text in a column beside it."""
+    project = _image_page(projects_index, alignment=alignment, text='<p>Side notes here</p>')
+    content = client.get(project.url).content.decode()
+    assert f'data-align="{alignment}"' in content
+    assert 'data-image-text' in content
+    assert 'Side notes here' in content
+
+
+def test_right_aligned_image_comes_after_text_on_wide_screens(client, projects_index):
+    """Right alignment puts the image in the second grid column."""
+    project = _image_page(projects_index, alignment='right', text='<p>Side notes</p>')
+    content = client.get(project.url).content.decode()
+    assert 'md:order-2' in content
+
+
+def test_centered_image_with_text_renders_text_below(client, projects_index):
+    """Text on a centered image still renders (below the image) rather than vanishing."""
+    project = _image_page(projects_index, alignment='center', text='<p>Below the image</p>')
+    content = client.get(project.url).content.decode()
+    assert 'data-align="center"' in content
+    assert 'Below the image' in content
+
+
+def test_side_aligned_image_without_text_omits_text_column(client, projects_index):
+    project = _image_page(projects_index, alignment='left')
+    content = client.get(project.url).content.decode()
+    assert 'data-image-text' not in content
+    assert 'md:col-start-2' not in content
+
+
+def test_right_aligned_image_without_text_stays_in_right_column(client, projects_index):
+    """With no text to precede it, order alone would leave the image in column 1."""
+    project = _image_page(projects_index, alignment='right')
+    content = client.get(project.url).content.decode()
+    assert 'md:col-start-2' in content
