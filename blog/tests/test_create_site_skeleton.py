@@ -50,3 +50,55 @@ def test_is_idempotent():
 
     assert HomePage.objects.count() == 1
     assert Site.objects.filter(is_default_site=True).count() == 1
+
+
+@pytest.mark.django_db
+def test_no_root_page_reports_error_and_creates_nothing():
+    from io import StringIO
+
+    Site.objects.all().delete()
+    Page.objects.filter(depth=1).delete()
+    err = StringIO()
+
+    call_command('create_site_skeleton', stderr=err)
+
+    assert 'No root page found' in err.getvalue()
+    assert not HomePage.objects.exists()
+
+
+@pytest.mark.django_db
+def test_moves_index_and_about_under_homepage():
+    """Pages created as siblings of HomePage (the old layout) get re-parented."""
+    from blog.factories import AboutPageFactory, ProjectsIndexPageFactory
+
+    root = Page.objects.get(depth=1)
+    index = ProjectsIndexPageFactory(parent=root, slug='projects')
+    about = AboutPageFactory(parent=root, slug='about')
+
+    call_command('create_site_skeleton')
+
+    home = HomePage.objects.get()
+    assert ProjectsIndexPage.objects.get(pk=index.pk).get_parent().id == home.id
+    assert AboutPage.objects.get(pk=about.pk).get_parent().id == home.id
+    assert ProjectsIndexPage.objects.count() == 1
+    assert AboutPage.objects.count() == 1
+
+
+@pytest.mark.django_db
+def test_moves_classes_out_of_projects_and_clears_categories():
+    from blog.factories import CategoryFactory, ProjectPageFactory
+    from blog.models import ProjectPage
+
+    call_command('create_site_skeleton')
+    index = ProjectsIndexPage.objects.get()
+    classes = ProjectPageFactory(parent=index, slug='classes', categories=[CategoryFactory()])
+    classes.save_revision().publish()
+
+    call_command('create_site_skeleton')
+
+    classes = ProjectPage.objects.get(pk=classes.pk)
+    assert classes.get_parent().id == HomePage.objects.get().id
+    assert not classes.categories.exists()
+    # Published from a revision — the cleared categories must survive that.
+    assert not classes.get_latest_revision_as_object().categories.exists()
+    assert Client().get('/classes/').status_code == 200

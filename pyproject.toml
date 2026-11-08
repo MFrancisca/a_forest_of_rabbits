@@ -3,12 +3,16 @@ DJANGO_SETTINGS_MODULE = "config.settings.test"
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
-addopts = "--cov=pigments --cov=core --cov=blog --cov-report=term-missing --cov-fail-under=80"
+# --ds outranks a DJANGO_SETTINGS_MODULE env var (the web container exports
+# config.settings.dev, which would otherwise run tests against the dev Postgres
+# and write factory images into the real media/ dir). Pass --ds again to override.
+addopts = "--ds=config.settings.test --cov=pigments --cov=core --cov=blog --cov-report=term-missing --cov-fail-under=80"
 
 [tool.coverage.run]
 source = ["pigments", "core", "blog"]
 omit = [
     "*/migrations/*",
+    "*/migrations_*/*",
     "*/tests/*",
     "manage.py",
     "*/factories.py",

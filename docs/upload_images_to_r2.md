@@ -87,7 +87,6 @@ pointing at the files now stored in R2.
 | `--endpoint` | `$CLOUDFARE_ENDPOINT` | S3-compatible endpoint URL |
 | `--access-key` | `$CLOUDFARE_ACCESS_ID` | R2 access key ID |
 | `--secret-key` | `$CLOUDFARE_ACCESS_KEY` | R2 secret access key |
-| `--prefix` | `original_images/` | Key prefix inside the bucket |
 | `--dry-run` | off | Print what would be uploaded without uploading |
 | `--force-overwrite` | off | Re-upload files that already exist in R2 |
 

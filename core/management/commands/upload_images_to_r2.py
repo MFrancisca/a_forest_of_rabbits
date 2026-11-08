@@ -30,10 +30,12 @@ Usage
 
 Optional flags
 --------------
---dry-run      Print what would be uploaded without actually uploading.
---skip-existing  Skip files that already exist in the bucket (default: True).
---force-overwrite  Re-upload even if the key already exists in R2.
---prefix       Key prefix inside the bucket (default: "original_images/").
+--dry-run          Print what would be uploaded without actually uploading.
+--force-overwrite  Re-upload even if the key already exists in R2 (by default
+                   existing keys are skipped).
+
+Each object's key is the image's storage name (e.g. "original_images/foo.jpg"),
+so django-storages finds it at the same path once MEDIA points at R2.
 """
 
 import os
@@ -72,11 +74,6 @@ class Command(BaseCommand):
             help="Secret access key (default: $CLOUDFARE_ACCESS_KEY)",
         )
         parser.add_argument(
-            "--prefix",
-            default="original_images/",
-            help='Key prefix in the bucket (default: "original_images/")',
-        )
-        parser.add_argument(
             "--dry-run",
             action="store_true",
             help="Print what would be uploaded without uploading.",
@@ -92,7 +89,6 @@ class Command(BaseCommand):
         endpoint = options["endpoint"]
         access_key = options["access_key"]
         secret_key = options["secret_key"]
-        prefix = options["prefix"]
         dry_run = options["dry_run"]
         force_overwrite = options["force_overwrite"]
 

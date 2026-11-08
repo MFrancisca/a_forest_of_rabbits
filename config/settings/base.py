@@ -114,7 +114,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Wagtail settings
-WAGTAIL_SITE_NAME = 'Una Nueva Esperanza'
+WAGTAIL_SITE_NAME = 'A Forest of Rabbits'
 WAGTAILADMIN_BASE_URL = 'http://localhost:8000'
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10_000
 
