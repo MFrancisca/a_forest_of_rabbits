@@ -28,6 +28,10 @@ docker compose build web                            # rebuild after dependency/W
 - `core/static/css/output.css` is committed; rebuild and commit it when Tailwind classes change. Tailwind v4 standalone binary, no Node.
 - No linter/formatter is configured.
 
+## Workflow
+
+- When the work on a branch is done, run a code review of the changes (`/code-review --fix`) before saying it's ready to commit. Fix the bugs it finds, re-run `.venv/bin/pytest`, and report what was fixed and what was left for a decision.
+
 ## Settings & environments
 
 `config/settings/{base,dev,test,production}.py`.
