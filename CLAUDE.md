@@ -28,6 +28,15 @@ docker compose build web                            # rebuild after dependency/W
 - `core/static/css/output.css` is committed; rebuild and commit it when Tailwind classes change. Tailwind v4 standalone binary, no Node.
 - No linter/formatter is configured.
 
+## Workflow
+
+- When the work on a branch is done, run a code review of the changes (`/code-review --fix`) before saying it's ready to commit. Fix the bugs it finds, re-run `.venv/bin/pytest`, and report what was fixed and what was left for a decision.
+- Whenever a new migration is created, check whether that app's migrations can be consolidated, so the migration tree stays as small as possible. Squash with `squashmigrations` (run it in the `web` container: `*/migrations/` are root-owned). Then delete the replaced migrations and remove the squashed file's `replaces` list, but only when all of these hold:
+  - **staging and production** have both applied every migration being replaced. Deleting one before an environment has run it breaks that deploy's `migrate`. If you can't confirm, keep the replaced files and the `replaces` list, and say so.
+  - No other migration depends on the deleted names (update any `dependencies` that do).
+  - Data migrations (`RunPython`) still run where they're needed. If one no longer matters for any database, mark it `elidable=True` before squashing, and delete or rewrite tests that load it by name (e.g. `blog/tests/test_migration_0014.py`).
+  - `makemigrations --check` reports no changes and `.venv/bin/pytest` passes, since the suite runs the real migrations.
+
 ## Settings & environments
 
 `config/settings/{base,dev,test,production}.py`.

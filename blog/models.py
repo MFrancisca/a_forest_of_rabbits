@@ -6,7 +6,7 @@ from modelcluster.fields import ParentalManyToManyField
 from wagtail.models import Page
 from wagtail.fields import RichTextField, StreamField
 from wagtail.admin.panels import FieldPanel
-from wagtail.blocks import CharBlock, ListBlock, RichTextBlock, StructBlock
+from wagtail.blocks import CharBlock, ChoiceBlock, ListBlock, RichTextBlock, StructBlock
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail.snippets.models import register_snippet
 from wagtail.search import index
@@ -27,9 +27,26 @@ class RichTextWithTitleBlock(StructBlock):
 
 
 class ImageWithCaptionBlock(StructBlock):
+    """A standalone image, centered or set to one side of a text column.
+
+    `alignment` and `text` were added after content existed; StructBlock fills
+    missing keys with defaults, so older blocks render centered with no text.
+    """
+
     title = CharBlock(required=False, label='Block title', help_text='Optional — rendered as a section header')
     image = ImageChooserBlock()
     caption = CharBlock(required=False)
+    alignment = ChoiceBlock(
+        choices=[('center', 'Centered'), ('left', 'Left'), ('right', 'Right')],
+        default='center',
+        help_text='Left/Right place the image beside the Side text.',
+    )
+    text = RichTextBlock(
+        required=False,
+        features=['h2', 'h3', 'bold', 'italic', 'ol', 'ul', 'link'],
+        label='Side text',
+        help_text='Optional — shown beside a Left/Right image (below a centered one).',
+    )
 
     class Meta:
         icon = 'image'
