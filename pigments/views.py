@@ -252,7 +252,8 @@ def pigment_detail(request, pk):
     formulas = pigment.formulas.select_related('brand').prefetch_related(
         'parts__paint'
     ).all()
-    images = list(pigment.images.select_related('image').all())
+    # Skip rows whose image was deleted, so carousel indexes match what's shown.
+    images = [img for img in pigment.images.select_related('image') if img.image]
     manuscript_links = list(pigment.manuscript_links.select_related(
         'manuscript__country', 'source'
     ).all())

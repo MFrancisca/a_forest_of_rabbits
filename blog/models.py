@@ -7,7 +7,7 @@ from wagtail.models import Orderable, Page
 from wagtail.fields import RichTextField, StreamField
 from wagtail.admin.forms import WagtailAdminPageForm
 from wagtail.admin.panels import FieldPanel, InlinePanel
-from wagtail.blocks import CharBlock, ChoiceBlock, ListBlock, RichTextBlock, StructBlock
+from wagtail.blocks import CharBlock, ChoiceBlock, ListBlock, RichTextBlock, StructBlock, StructValue
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail.snippets.models import register_snippet
 from wagtail.search import index
@@ -70,6 +70,13 @@ class CarouselImageBlock(StructBlock):
         label = 'Slide'
 
 
+class CarouselValue(StructValue):
+    def slides(self):
+        """Slides whose image still exists. A deleted image leaves its slide with
+        image=None; skipping it keeps slide indexes, dots and "N of M" in sync."""
+        return [item for item in self['images'] if item['image']]
+
+
 class CarouselBlock(StructBlock):
     title = CharBlock(required=False, label='Block title', help_text='Optional — rendered as a section header')
     images = ListBlock(CarouselImageBlock())
@@ -77,6 +84,7 @@ class CarouselBlock(StructBlock):
     class Meta:
         icon = 'image'
         label = 'Carousel'
+        value_class = CarouselValue
 
 
 class ScribalDetailsBlock(StructBlock):
