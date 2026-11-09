@@ -6,7 +6,7 @@
   <h1 class="font-display text-4xl text-accent mb-2">{{ page.title }}</h1>
 
   <div class="flex items-center gap-3 mb-6">
-    <span class="text-sm text-gray-500">{{ page.date|date:"j M Y" }}</span>
+    <time datetime="{{ page.date|date:'Y-m-d' }}" class="text-sm text-gray-500">{{ page.date|date:"j M Y" }}</time>
     {% for category in page.display_categories %}
     <span class="inline-block text-xs font-medium px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">
       {{ category }}

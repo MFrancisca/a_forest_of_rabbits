@@ -128,7 +128,9 @@
           {% endif %}
           <div class="flex-1 min-w-0">
           <p class="text-2xl font-mono tracking-wide text-stone-800 mb-2">
-            {% for part in formula.parts.all %}{% if part.is_trace %}Δ{% else %}{{ part.parts|floatformat:"-2" }}{% endif %}{{ part.paint.abbreviation }}{% if not forloop.last %} + {% endif %}{% endfor %}
+            {# Screen readers hear "2 Ultramarine + trace of Lead White" instead of "2 U plus delta L"; #}
+            {# sighted users keep the compact notation, with the paint name as a hover tooltip. #}
+            {% for part in formula.parts.all %}{% if part.is_trace %}<span aria-hidden="true">Δ</span><span class="sr-only">trace of </span>{% else %}{{ part.parts|floatformat:"-2" }}{% endif %}<abbr title="{{ part.paint.name }}" aria-hidden="true">{{ part.paint.abbreviation }}</abbr><span class="sr-only"> {{ part.paint.name }}</span>{% if not forloop.last %} + {% endif %}{% endfor %}
           </p>
           {# Notes accordion #}
           {% if formula.notes %}
@@ -247,11 +249,11 @@
             <td class="py-2 pr-4 text-stone-600">{{ link.page_reference|default:"—" }}</td>
             <td class="py-2 text-stone-600">
               {% if link.source %}
-                {% if link.source.link %}
-                <a href="{{ link.source.link }}" target="_blank" rel="noopener"
-                   @click.stop
-                   title="{{ link.source.citation }}"
-                   class="underline decoration-stone-300 hover:text-accent">{{ link.source.short_label }}</a>{% else %}<span title="{{ link.source.citation }}">{{ link.source.short_label }}</span>{% endif %}{% if link.source_detail %}<span class="text-stone-500">, {{ link.source_detail }}</span>{% endif %}
+                {# Jumps to the full citation in References (which holds the external link), #}
+                {# instead of a title tooltip that keyboard and touch users can't open. #}
+                {# id: where that reference's "Back to table" link returns to. #}
+                <a id="cite-{{ link.pk }}" href="#ref-{{ link.source.pk }}" @click.stop
+                   class="underline decoration-stone-300 hover:text-accent scroll-mt-4 rounded target:bg-stone-100">{{ link.source.short_label }}</a>{% if link.source_detail %}<span class="text-stone-500">, {{ link.source_detail }}</span>{% endif %}
               {% else %}—{% endif %}
             </td>
           </tr>
@@ -275,12 +277,23 @@
     <h2 class="text-xl font-semibold text-stone-700 mb-4">References</h2>
     <ul class="space-y-2 text-sm text-stone-700">
       {% for source in references %}
-      <li class="pl-6 -indent-6">
+      {# id: target of the short labels in the Manuscript Sources table; highlighted when jumped to. #}
+      <li id="ref-{{ source.pk }}" tabindex="-1" class="pl-6 -indent-6 scroll-mt-4 rounded target:bg-stone-100">
         {{ source.citation }}
         {% if source.link %}
         <a href="{{ source.link }}" target="_blank" rel="noopener"
-           class="underline decoration-stone-300 hover:text-accent break-all">{% if source.doi and not source.url %}doi:{{ source.doi }}{% else %}{{ source.get_kind_display|lower }} link{% endif %}</a>
+           class="underline decoration-stone-300 hover:text-accent break-all">{% if source.doi and not source.url %}doi:{{ source.doi }}{% else %}{{ source.get_kind_display|lower }} link{% endif %}<span class="sr-only"> (opens in new tab)</span><svg class="inline-block w-3 h-3 ml-0.5 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5h5v5M19 5l-9 9M17 14v5H5V7h5"></path></svg></a>
         {% endif %}
+        {# Back to the table row(s) citing this source; general references have none. #}
+        {% with rows=source.citing_links %}
+        {% if rows|length == 1 %}
+        <a href="#cite-{{ rows.0.pk }}" class="ml-1 whitespace-nowrap underline decoration-stone-300 hover:text-accent"><svg class="inline-block w-3 h-3 mr-0.5 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14L4 9l5-5M4 9h11a5 5 0 010 10h-1"></path></svg>Back to table<span class="sr-only"> ({{ rows.0.manuscript.name }})</span></a>
+        {% elif rows %}
+        <span class="ml-1"><svg class="inline-block w-3 h-3 mr-0.5 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14L4 9l5-5M4 9h11a5 5 0 010 10h-1"></path></svg>Back to table:
+          {% for row in rows %}<a href="#cite-{{ row.pk }}" class="underline decoration-stone-300 hover:text-accent">{{ row.manuscript.name }}{% if row.page_reference %} ({{ row.page_reference }}){% endif %}</a>{% if not forloop.last %}, {% endif %}{% endfor %}
+        </span>
+        {% endif %}
+        {% endwith %}
       </li>
       {% endfor %}
     </ul>
