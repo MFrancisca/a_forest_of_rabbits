@@ -8,6 +8,7 @@ from pigments.models import (
     Manuscript,
     Pigment,
     PigmentFamily,
+    PigmentManuscript,
 )
 
 ORDINALS = {
@@ -282,6 +283,22 @@ def pigment_detail(request, pk):
     manuscript_links = list(pigment.manuscript_links.select_related(
         'manuscript__country', 'source'
     ).all())
+
+    # Other listed pigments in each manuscript, for the links in the row details,
+    # so visitors can move between pigments through the manuscripts they share.
+    shared = (PigmentManuscript.objects
+              .filter(manuscript__in={link.manuscript_id for link in manuscript_links},
+                      pigment__in=listed_pigments())
+              .exclude(pigment=pigment)
+              .select_related('pigment')
+              .order_by('pigment__name', 'pigment_id'))
+    by_manuscript = {}
+    for row in shared:
+        pigments = by_manuscript.setdefault(row.manuscript_id, {})
+        pigments.setdefault(row.pigment_id, row.pigment)  # a pigment can cite a manuscript twice
+    for link in manuscript_links:
+        link.other_pigments = list(by_manuscript.get(link.manuscript_id, {}).values())
+        link.has_details = bool(link.notes or link.other_pigments)
 
     # Bibliography: sources cited on manuscript links first (in table order),
     # then the pigment's general references, each listed once. citing_links:

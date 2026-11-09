@@ -232,17 +232,18 @@
           </tr>
         </thead>
         {% for link in manuscript_links %}
-        <tbody {% if link.notes %}x-data="{ expanded: false }"{% endif %}>
-          {# Rows with notes: the whole row toggles for mouse users; the button is the keyboard/screen-reader control. #}
-          <tr {% if link.notes %}@click="expanded = !expanded"{% endif %}
-              class="border-b border-line{% if link.notes %} cursor-pointer hover:bg-surface-muted{% endif %}">
+        {# Details: the link's notes and the other pigments found in the same manuscript. #}
+        <tbody {% if link.has_details %}x-data="{ expanded: false }"{% endif %}>
+          {# Rows with details: the whole row toggles for mouse users; the button is the keyboard/screen-reader control. #}
+          <tr {% if link.has_details %}@click="expanded = !expanded"{% endif %}
+              class="border-b border-line{% if link.has_details %} cursor-pointer hover:bg-surface-muted{% endif %}">
             <td class="py-2 pr-4 text-ink">
-              {% if link.notes %}
+              {% if link.has_details %}
               <button type="button" @click.stop="expanded = !expanded"
                       aria-controls="manuscript-notes-{{ link.pk }}"
                       aria-expanded="false" :aria-expanded="expanded.toString()"
                       class="inline-flex items-center gap-1 text-left hover:text-accent">
-                {{ link.manuscript.name }}<span class="sr-only"> (notes)</span>
+                {{ link.manuscript.name }}<span class="sr-only"> (details)</span>
                 <svg class="w-3.5 h-3.5 flex-shrink-0 text-ink-subtle transition-transform" :class="expanded ? 'rotate-180' : ''"
                      fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -265,10 +266,17 @@
               {% else %}—{% endif %}
             </td>
           </tr>
-          {% if link.notes %}
+          {% if link.has_details %}
           <tr id="manuscript-notes-{{ link.pk }}" x-show="expanded" x-cloak class="bg-surface-muted">
-            <td colspan="5" class="px-2 py-2 text-sm text-ink-muted italic">
-              {{ link.notes }}
+            <td colspan="5" class="px-2 py-2 text-sm text-ink-muted space-y-1">
+              {% if link.notes %}<p class="italic">{{ link.notes }}</p>{% endif %}
+              {% if link.other_pigments %}
+              <p>
+                <span class="font-semibold text-ink">Also in this manuscript:</span>
+                {% for other in link.other_pigments %}<a href="{% url 'pigments:detail' pk=other.pk %}" class="underline decoration-line-strong hover:text-accent">{{ other.name }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}
+                <span class="whitespace-nowrap">· <a href="{% url 'pigments:list' %}?manuscript={{ link.manuscript_id }}" class="underline decoration-line-strong hover:text-accent">All pigments in {{ link.manuscript.name }}</a></span>
+              </p>
+              {% endif %}
             </td>
           </tr>
           {% endif %}

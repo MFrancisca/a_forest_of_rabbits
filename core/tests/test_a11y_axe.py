@@ -118,11 +118,13 @@ def site(live_server):
     for order in range(3):
         PigmentImageFactory(pigment=pigment, image=wagtail_factories.ImageFactory(), sort_order=order,
                             alt_text=f'Azurite sample {order}')
-    PigmentManuscriptFactory(pigment=pigment, manuscript=ManuscriptFactory(name='Book of Hours', date_start=1400, date_end=1450),
+    book_of_hours = ManuscriptFactory(name='Book of Hours', date_start=1400, date_end=1450)
+    PigmentManuscriptFactory(pigment=pigment, manuscript=book_of_hours,
                              source=source, page_reference='f. 3r', notes='Faded on the margins.')
     pigment.sources.add(SourceFactory(title='General pigment reference'))
     pigment.save()
-    PigmentFactory(with_formula=True, name='Vermilion')
+    # Shares the manuscript, so the row details also show "Also in this manuscript" links.
+    PigmentManuscriptFactory(pigment=PigmentFactory(with_formula=True, name='Vermilion'), manuscript=book_of_hours)
 
     return {'url': live_server.url, 'project': project.url, 'pigment': f'/pigments/{pigment.pk}/',
             'color': pigment.color_family_id}
@@ -216,7 +218,7 @@ def test_lightbox_open(browser, site, theme):
 def test_disclosures_and_table_notes_open(browser, site, theme):
     page = _open(browser, site, site['pigment'], theme)
     page.locator('#formula-panel-0 summary').click()
-    page.get_by_role('button', name='(notes)').click()
+    page.get_by_role('button', name='(details)').click()
     page.get_by_text('Faded on the margins.').wait_for(state='visible')
     _check(page, f'pigment disclosures open ({theme})')
 

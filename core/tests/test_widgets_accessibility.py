@@ -90,7 +90,7 @@ def test_manuscript_rows_with_notes_have_a_toggle_button(client):
     assert _attr(toggle, 'aria-controls') == f'manuscript-notes-{with_notes.pk}'
     assert _attr(toggle, 'aria-expanded') == 'false'
     assert f'id="manuscript-notes-{with_notes.pk}"' in html
-    assert '<span class="sr-only"> (notes)</span>' in html
+    assert '<span class="sr-only"> (details)</span>' in html
 
 
 # --- accordions -----------------------------------------------------------------

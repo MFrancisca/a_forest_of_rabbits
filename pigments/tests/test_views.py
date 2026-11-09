@@ -434,3 +434,64 @@ def test_detail_links_back_to_the_pigment_list():
     assert 'Back to pigments' in link.group(2)
     assert html.index('id="back-to-list"') < html.index('<h1')
     assert "document.getElementById('back-to-list')" in html
+
+
+# ---------------------------------------------------------------------------
+# Manuscript details: other pigments found in the same manuscript
+# ---------------------------------------------------------------------------
+
+def _detail_html(pigment):
+    response = Client().get(reverse('pigments:detail', kwargs={'pk': pigment.pk}))
+    return response.content.decode(), response.context
+
+
+@pytest.mark.django_db
+def test_manuscript_details_link_other_pigments_in_it():
+    manuscript = ManuscriptFactory(name='Book of Kells')
+    azurite = PigmentFactory(name='Azurite', with_formula=True)
+    vermilion = PigmentFactory(name='Vermilion', with_formula=True)
+    orpiment = PigmentFactory(name='Orpiment', with_formula=True)
+    link = PigmentManuscriptFactory(pigment=azurite, manuscript=manuscript)
+    for other in (vermilion, orpiment):
+        PigmentManuscriptFactory(pigment=other, manuscript=manuscript)
+    PigmentManuscriptFactory(pigment=PigmentFactory(name='Elsewhere', with_formula=True))
+
+    html, context = _detail_html(azurite)
+
+    [row] = context['manuscript_links']
+    assert row.other_pigments == [orpiment, vermilion]  # by name, current pigment left out
+    details = html.split(f'id="manuscript-notes-{link.pk}"', 1)[1].split('</tr>', 1)[0]
+    assert 'Also in this manuscript:' in details
+    for other in (orpiment, vermilion):
+        assert f'href="{reverse("pigments:detail", kwargs={"pk": other.pk})}"' in details
+    assert 'Elsewhere' not in details
+    assert f'href="{reverse("pigments:list")}?manuscript={manuscript.pk}"' in details
+    assert 'aria-controls="manuscript-notes-' in html  # row expands even without notes
+
+
+@pytest.mark.django_db
+def test_manuscript_details_skip_unlisted_and_duplicate_pigments():
+    manuscript = ManuscriptFactory()
+    pigment = PigmentFactory(with_formula=True)
+    PigmentManuscriptFactory(pigment=pigment, manuscript=manuscript)
+    PigmentManuscriptFactory(pigment=pigment, manuscript=manuscript, page_reference='f. 9v')
+    PigmentManuscriptFactory(pigment=PigmentFactory(name='Draft', with_formula=False), manuscript=manuscript)
+    twice = PigmentFactory(name='Twice', with_formula=True)
+    for ref in ('f. 1r', 'f. 2r'):
+        PigmentManuscriptFactory(pigment=twice, manuscript=manuscript, page_reference=ref)
+
+    html, context = _detail_html(pigment)
+
+    assert all(row.other_pigments == [twice] for row in context['manuscript_links'])
+    assert 'Draft' not in html
+
+
+@pytest.mark.django_db
+def test_manuscript_row_without_notes_or_shared_pigments_does_not_expand():
+    pigment = PigmentFactory(with_formula=True)
+    PigmentManuscriptFactory(pigment=pigment, notes='')
+
+    html, _ = _detail_html(pigment)
+
+    assert 'aria-controls="manuscript-notes-' not in html
+    assert 'Also in this manuscript' not in html
