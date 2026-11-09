@@ -22,10 +22,26 @@ copied.
 - **The schemas must match.** Commit and push any pending migrations, then
   wait for staging's deploy to finish so staging has applied them. Locally,
   `docker compose exec web python manage.py migrate` too. If that fails with
-  `relation "blog_category" already exists`, the local database predates the
-  blog migration squash. Run
-  `docker compose exec web python manage.py migrate blog 0001_squashed_0012_remove_projectpage_category_legacy --fake`
-  once, then `migrate` again.
+  `relation "..." already exists`, the local database predates the migration
+  squashes (Nov 2026). `showmigrations` no longer lists the deleted
+  originals, so check what it recorded with
+  `docker compose exec web python manage.py shell -c "from django.db.migrations.recorder import MigrationRecorder as R; print(list(R.Migration.objects.filter(app__in=['blog', 'pigments']).order_by('app', 'name').values_list('app', 'name')))"`.
+  If it had applied every old migration (blog through
+  `0017_image_block_alignment`, pigments through `0005_formula_image`), mark
+  the squashes as applied once, then `migrate` again:
+  `docker compose exec web python manage.py migrate blog 0001_squashed_0017_image_block_alignment --fake`
+  and `docker compose exec web python manage.py migrate pigments 0001_squashed_0005_formula_image --fake`.
+  If it was further behind, faking would skip real schema changes. Don't
+  recreate the database: it holds the content this runbook copies. Instead,
+  with a clean working tree, replay the old chains by checking out each of
+  these commits in order and running `migrate` at each one:
+  1. `1bb0ef5`: last commit with every original migration for both apps,
+     including the old data conversions. Applies whatever is missing and
+     records the first blog squash.
+  2. `151117c`: records the pigments squash.
+  3. `9dfa4f9`: records the final blog squash.
+
+  Then check out your branch again and `migrate`.
 - **Staging's Postgres needs public access.** Railway → staging → its
   Postgres → Settings → Networking → TCP Proxy. `railway connect` doesn't get
   around this: it uses the same proxy. You can turn the proxy off afterwards.
