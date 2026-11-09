@@ -6,24 +6,12 @@
   {% for pill in active_pills %}
   <span class="inline-flex items-center gap-1 bg-stone-100 border border-stone-300 rounded-full px-3 py-1 text-sm">
     {{ pill.label }}
-    <button type="button"
-            class="text-stone-500 hover:text-stone-800 ml-1 leading-none"
-            onclick="
-              (function() {
-                {% if pill.is_century %}
-                  var values = [{% for v in pill.values %}'{{ v }}'{% if not forloop.last %},{% endif %}{% endfor %}];
-                  values.forEach(function(v) {
-                    document.querySelectorAll('input[name=century][value=&quot;' + v + '&quot;]').forEach(function(cb) { cb.checked = false; });
-                  });
-                {% else %}
-                  var param = '{{ pill.param }}';
-                  var val = '{{ pill.value }}';
-                  document.querySelectorAll('input[name=&quot;' + param + '&quot;][value=&quot;' + val + '&quot;]').forEach(function(cb) { cb.checked = false; });
-                {% endif %}
-                document.querySelector('.filter-select').dispatchEvent(new Event('change', {bubbles: true}));
-              })();
-            "
-            aria-label="Remove filter">&#x00D7;</button>
+    {# Handled by the click listener in pigment_list.html: unticks these values and refreshes. #}
+    <button type="button" data-remove-filter
+            data-param="{{ pill.param }}"
+            data-values="{% if pill.is_century %}{{ pill.values|join:' ' }}{% else %}{{ pill.value }}{% endif %}"
+            class="inline-flex items-center justify-center w-6 h-6 -my-1 -mr-1.5 text-stone-500 hover:text-stone-800 hover:bg-stone-200 leading-none rounded-full"
+            aria-label="Remove filter: {{ pill.label }}"><span aria-hidden="true">&#x00D7;</span></button>
   </span>
   {% endfor %}
   <a href="/pigments/"
@@ -31,8 +19,8 @@
 </div>
 {% endif %}
 
-{# Result count #}
-<p class="text-sm text-stone-500 mb-3">
+{# Result count. tabindex="-1" so focus can land here after the last filter pill is removed. #}
+<p id="result-count" tabindex="-1" class="text-sm text-stone-500 mb-3">
   {% if is_filtered %}
     {{ filtered_count }} of {{ total_count }} pigment{{ total_count|pluralize }}
   {% else %}

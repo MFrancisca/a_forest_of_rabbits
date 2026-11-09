@@ -102,6 +102,29 @@ def filter_options():
     }
 
 
+def filter_groups(options, selected):
+    """The filter dropdowns, in display order, as one shape the template can loop over:
+    [{"name": GET param, "label": button/legend text,
+      "options": [{"value", "label", "checked"}]}]."""
+    def group(name, label, choices):
+        return {
+            "name": name,
+            "label": label,
+            "options": [
+                {"value": value, "label": text, "checked": str(value) in selected[name]}
+                for value, text in choices
+            ],
+        }
+
+    return [
+        group("color", "Color Family", ((o.id, o.name) for o in options["color_families"])),
+        group("pfam", "Pigment Family", ((o.id, o.name) for o in options["pigment_families"])),
+        group("country", "Country", ((o.id, o.name) for o in options["countries"])),
+        group("manuscript", "Manuscript", ((o.id, o.name) for o in options["manuscripts"])),
+        group("century", "Time Period", ((b["start"], b["label"]) for b in options["century_buckets"])),
+    ]
+
+
 def build_filtered_queryset(params):
     """
     Build a filtered and deduplicated Pigment queryset from GET params.
@@ -228,16 +251,18 @@ def pigment_list(request):
     selected = {key: int_values(params, key) for key in FILTER_PARAMS}
 
     qs = build_filtered_queryset(params)
+    options = filter_options()
 
     context = {
         "pigments": qs,
         "filtered_count": qs.count(),
         "total_count": listed_pigments().count(),
         "is_filtered": any(selected.values()),
-        **filter_options(),
+        # The template renders filter_groups; the raw options and the selected
+        # values per filter stay in the context for tests that inspect them.
+        **options,
+        "filter_groups": filter_groups(options, selected),
         "active_pills": build_active_pills(params),
-        # Selected values per filter, so templates can tick the right checkboxes
-        # (templates can't call params.getlist(key) themselves).
         "selected": selected,
     }
 

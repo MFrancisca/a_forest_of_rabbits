@@ -2,152 +2,77 @@
 
 {% block title %}Pigments — A Forest of Rabbits{% endblock %}
 
+{% block extra_head %}
+{# Without JavaScript the dropdowns can't open, so show every filter group as a plain #}
+{# fieldset with a visible legend and an Apply button (the view handles plain GETs). #}
+<noscript>
+  <style>
+    .filter-toggle { display: none !important; }
+    .filter-panel { display: block !important; position: static !important; }
+    .filter-legend { position: static; width: auto; height: auto; margin: 0 0 .25rem; overflow: visible; clip: auto; white-space: normal; font-weight: 600; }
+  </style>
+</noscript>
+{% endblock %}
+
 {% block content %}
 <div class="max-w-5xl mx-auto px-4 py-8">
 
   <h1 class="font-display text-4xl text-accent mb-6">Pigments</h1>
 
   <!-- Filter bar -->
-  <form id="filter-form"
+  <form id="filter-form" role="search" aria-label="Filter pigments"
         hx-get="/pigments/"
         hx-target="#pigment-results"
         hx-push-url="true"
         hx-trigger="change from:.filter-select">
 
     <div class="flex flex-wrap gap-2 mb-4">
-
-      <!-- Color Family dropdown -->
-      <div x-data="{ open: false }" class="relative">
-        <button @click="open = !open"
-                @click.outside="open = false"
-                type="button"
-                class="inline-flex items-center gap-1 border border-stone-300 rounded px-3 py-1 text-sm bg-white hover:bg-stone-50">
-          Color Family
+      {% for group in filter_groups %}
+      {# Closes on Escape (focus back to the button), on a click outside, or when focus moves to #}
+      {# another element (e.g. Tab). A focusout with no relatedTarget (Safari clicks, which don't #}
+      {# focus buttons/checkboxes; switching windows) is left to @click.outside, otherwise clicking #}
+      {# the toggle in Safari would close the panel on focusout and reopen it on click. #}
+      <div x-data="{ open: false }" class="relative"
+           @click.outside="open = false"
+           @keydown.escape="if (open) { open = false; $refs.button.focus() }"
+           @focusout="if ($event.relatedTarget && !$el.contains($event.relatedTarget)) open = false">
+        <button type="button" x-ref="button" @click="open = !open"
+                aria-controls="filter-{{ group.name }}"
+                aria-expanded="false" :aria-expanded="open.toString()"
+                class="filter-toggle inline-flex items-center gap-1 border border-stone-300 rounded px-3 py-1 text-sm bg-white hover:bg-stone-50">
+          {{ group.label }}
+          <svg class="w-3.5 h-3.5 text-stone-500 transition-transform" :class="open ? 'rotate-180' : ''"
+               fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
         </button>
-        <div x-show="open"
-             x-cloak
-             class="absolute z-10 bg-white border border-stone-200 rounded shadow-md p-2 min-w-40 mt-1">
-          {% for cf in color_families %}
+        <fieldset id="filter-{{ group.name }}" x-show="open" x-cloak
+                  class="filter-panel absolute z-10 bg-white border border-stone-200 rounded shadow-md p-2 min-w-48 mt-1">
+          <legend class="filter-legend sr-only">{{ group.label }}</legend>
+          {% for option in group.options %}
           <label class="flex items-center gap-2 py-1 px-1 text-sm cursor-pointer hover:bg-stone-50 rounded">
             <input type="checkbox"
-                   name="color"
-                   value="{{ cf.id }}"
+                   name="{{ group.name }}"
+                   value="{{ option.value }}"
                    class="filter-select"
-                   {% if cf.id|stringformat:"s" in selected.color %}checked{% endif %}>
-            {{ cf.name }}
+                   {% if option.checked %}checked{% endif %}>
+            {{ option.label }}
           </label>
           {% empty %}
           <p class="text-sm text-stone-500 px-1">No options</p>
           {% endfor %}
-        </div>
+        </fieldset>
       </div>
+      {% endfor %}
 
-      <!-- Pigment Family dropdown -->
-      <div x-data="{ open: false }" class="relative">
-        <button @click="open = !open"
-                @click.outside="open = false"
-                type="button"
-                class="inline-flex items-center gap-1 border border-stone-300 rounded px-3 py-1 text-sm bg-white hover:bg-stone-50">
-          Pigment Family
-        </button>
-        <div x-show="open"
-             x-cloak
-             class="absolute z-10 bg-white border border-stone-200 rounded shadow-md p-2 min-w-40 mt-1">
-          {% for pf in pigment_families %}
-          <label class="flex items-center gap-2 py-1 px-1 text-sm cursor-pointer hover:bg-stone-50 rounded">
-            <input type="checkbox"
-                   name="pfam"
-                   value="{{ pf.id }}"
-                   class="filter-select"
-                   {% if pf.id|stringformat:"s" in selected.pfam %}checked{% endif %}>
-            {{ pf.name }}
-          </label>
-          {% empty %}
-          <p class="text-sm text-stone-500 px-1">No options</p>
-          {% endfor %}
-        </div>
-      </div>
-
-      <!-- Country dropdown -->
-      <div x-data="{ open: false }" class="relative">
-        <button @click="open = !open"
-                @click.outside="open = false"
-                type="button"
-                class="inline-flex items-center gap-1 border border-stone-300 rounded px-3 py-1 text-sm bg-white hover:bg-stone-50">
-          Country
-        </button>
-        <div x-show="open"
-             x-cloak
-             class="absolute z-10 bg-white border border-stone-200 rounded shadow-md p-2 min-w-40 mt-1">
-          {% for country in countries %}
-          <label class="flex items-center gap-2 py-1 px-1 text-sm cursor-pointer hover:bg-stone-50 rounded">
-            <input type="checkbox"
-                   name="country"
-                   value="{{ country.id }}"
-                   class="filter-select"
-                   {% if country.id|stringformat:"s" in selected.country %}checked{% endif %}>
-            {{ country.name }}
-          </label>
-          {% empty %}
-          <p class="text-sm text-stone-500 px-1">No options</p>
-          {% endfor %}
-        </div>
-      </div>
-
-      <!-- Manuscript dropdown -->
-      <div x-data="{ open: false }" class="relative">
-        <button @click="open = !open"
-                @click.outside="open = false"
-                type="button"
-                class="inline-flex items-center gap-1 border border-stone-300 rounded px-3 py-1 text-sm bg-white hover:bg-stone-50">
-          Manuscript
-        </button>
-        <div x-show="open"
-             x-cloak
-             class="absolute z-10 bg-white border border-stone-200 rounded shadow-md p-2 min-w-48 mt-1">
-          {% for ms in manuscripts %}
-          <label class="flex items-center gap-2 py-1 px-1 text-sm cursor-pointer hover:bg-stone-50 rounded">
-            <input type="checkbox"
-                   name="manuscript"
-                   value="{{ ms.id }}"
-                   class="filter-select"
-                   {% if ms.id|stringformat:"s" in selected.manuscript %}checked{% endif %}>
-            {{ ms.name }}
-          </label>
-          {% empty %}
-          <p class="text-sm text-stone-500 px-1">No options</p>
-          {% endfor %}
-        </div>
-      </div>
-
-      <!-- Time Period dropdown -->
-      <div x-data="{ open: false }" class="relative">
-        <button @click="open = !open"
-                @click.outside="open = false"
-                type="button"
-                class="inline-flex items-center gap-1 border border-stone-300 rounded px-3 py-1 text-sm bg-white hover:bg-stone-50">
-          Time Period
-        </button>
-        <div x-show="open"
-             x-cloak
-             class="absolute z-10 bg-white border border-stone-200 rounded shadow-md p-2 min-w-40 mt-1">
-          {% for bucket in century_buckets %}
-          <label class="flex items-center gap-2 py-1 px-1 text-sm cursor-pointer hover:bg-stone-50 rounded">
-            <input type="checkbox"
-                   name="century"
-                   value="{{ bucket.start }}"
-                   class="filter-select"
-                   {% if bucket.start|stringformat:"s" in selected.century %}checked{% endif %}>
-            {{ bucket.label }}
-          </label>
-          {% empty %}
-          <p class="text-sm text-stone-500 px-1">No options</p>
-          {% endfor %}
-        </div>
-      </div>
-
+      <noscript>
+        <button type="submit" class="self-end border border-stone-800 rounded px-3 py-1 text-sm font-medium bg-stone-800 text-white">Apply filters</button>
+      </noscript>
     </div><!-- end filter bar -->
   </form>
+
+  {# Screen-reader status, outside the swap target so it survives HTMX swaps and announces the new count. #}
+  <p id="result-status" class="sr-only" aria-live="polite"></p>
 
   <!-- Results area (HTMX swap target) — includes active pills + list -->
   <div id="pigment-results">
@@ -155,4 +80,56 @@
   </div>
 
 </div>
+
+<script>
+  (function () {
+    var form = document.getElementById('filter-form');
+    var results = document.getElementById('pigment-results');
+    var status = document.getElementById('result-status');
+    var pendingFocus = null;  // index of the removed pill, to put focus back after the swap
+
+    // Removing a filter pill: untick its checkboxes, then trigger the same change
+    // event the checkboxes fire, so HTMX refreshes the results.
+    results.addEventListener('click', function (event) {
+      var button = event.target.closest('[data-remove-filter]');
+      if (!button) return;
+      var pills = Array.prototype.slice.call(results.querySelectorAll('[data-remove-filter]'));
+      pendingFocus = pills.indexOf(button);
+      button.dataset.values.split(' ').forEach(function (value) {
+        var selector = 'input[name="' + CSS.escape(button.dataset.param) + '"][value="' + CSS.escape(value) + '"]';
+        form.querySelectorAll(selector).forEach(function (checkbox) { checkbox.checked = false; });
+      });
+      var trigger = form.querySelector('.filter-select');
+      if (trigger) {
+        trigger.dispatchEvent(new Event('change', { bubbles: true }));
+      } else {
+        form.submit();
+      }
+    });
+
+    // A failed refresh never swaps; drop the pending focus so a later, unrelated
+    // swap doesn't pull focus onto a pill.
+    document.body.addEventListener('htmx:afterRequest', function (event) {
+      if (!event.detail.successful) pendingFocus = null;
+    });
+
+    document.body.addEventListener('htmx:afterSwap', function (event) {
+      if (event.detail.target !== results) return;
+      var count = document.getElementById('result-count');
+      if (pendingFocus !== null) {
+        // Focus the pill that took the removed one's place, else the last one, else the count.
+        var pills = results.querySelectorAll('[data-remove-filter]');
+        var target = pills[Math.min(pendingFocus, pills.length - 1)];
+        pendingFocus = null;
+        if (target) {
+          target.focus();
+        } else if (count) {
+          count.focus();
+          return;  // the focused count is read out; don't announce it twice
+        }
+      }
+      status.textContent = count ? count.textContent.replace(/\s+/g, ' ').trim() : '';
+    });
+  })();
+</script>
 {% endblock %}
