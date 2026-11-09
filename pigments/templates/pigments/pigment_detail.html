@@ -8,8 +8,19 @@
 {% endblock %}
 
 {% block content %}
-<div x-data="{ lightboxOpen: false, lightboxSrc: '' }"
-     @keydown.escape.window="lightboxOpen = false"
+{# Lightbox: enlargeable images are buttons with data-full; the native <dialog> provides #}
+{# the modal role, focus trap, Escape-to-close and inert background. #}
+<div x-data="{
+       lightboxSrc: '',
+       lightboxAlt: '',
+       lightboxOpener: null,
+       openLightbox(button) {
+         this.lightboxOpener = button;
+         this.lightboxSrc = button.dataset.full;
+         this.lightboxAlt = button.querySelector('img').alt;
+         this.$refs.lightbox.showModal();
+       },
+     }"
      class="max-w-4xl mx-auto px-4 py-8">
 
   {# 1. Heading + taxonomy tags #}
@@ -37,28 +48,51 @@
   {% endif %}
 
   {# 3. Featured image #}
-  {% if featured_image and featured_image.image %}
+  {% if featured_image %}
   {% image featured_image.image fill-800x600 as feat_rendition %}
+  {% image featured_image.image max-1600x1600 as feat_full %}
   <div class="mb-8">
-    <img src="{{ feat_rendition.url }}"
-         alt="{{ featured_image.alt_text|default:pigment.name }}"
-         class="w-full max-h-96 object-cover rounded-lg cursor-pointer shadow-sm"
-         @click="lightboxOpen = true; lightboxSrc = '{{ feat_rendition.url }}'" />
+    <button type="button" class="block w-full rounded-lg cursor-zoom-in" aria-haspopup="dialog"
+            data-full="{{ feat_full.url }}" @click="openLightbox($el)">
+      <span class="sr-only">Enlarge image: </span>
+      <img src="{{ feat_rendition.url }}"
+           alt="{{ featured_image.alt_text|default:pigment.name }}"
+           class="w-full max-h-96 object-cover rounded-lg shadow-sm" />
+    </button>
     {% if featured_image.caption %}
     <p class="text-sm text-stone-500 mt-2">{{ featured_image.caption }}</p>
     {% endif %}
   </div>
   {% endif %}
 
-  {# 4. Formula section #}
+  {# 4. Formula section — ARIA tabs: one tab per brand, arrow keys move between them #}
   {% if formulas %}
-  <div class="mb-8" x-data="{ activeTab: 0 }">
+  <div class="mb-8"
+       x-data="{
+         activeTab: 0,
+         count: {{ formulas|length }},
+         select(index) {
+           this.activeTab = (index + this.count) % this.count;
+           this.$nextTick(() => this.$refs.tablist.querySelectorAll('[role=tab]')[this.activeTab].focus());
+         },
+       }">
     <h2 class="text-xl font-semibold text-stone-700 mb-4">Modern Paint Formulas</h2>
 
-    {# Brand tab buttons #}
-    <div class="flex gap-1 border-b border-stone-200 mb-4">
+    {# Brand tabs #}
+    <div role="tablist" aria-label="Paint brand" x-ref="tablist"
+         class="flex gap-1 border-b border-stone-200 mb-4"
+         @keydown.right.prevent="select(activeTab + 1)"
+         @keydown.left.prevent="select(activeTab - 1)"
+         @keydown.home.prevent="select(0)"
+         @keydown.end.prevent="select(count - 1)">
       {% for formula in formulas %}
-      <button type="button"
+      <button type="button" role="tab"
+              id="formula-tab-{{ forloop.counter0 }}"
+              aria-controls="formula-panel-{{ forloop.counter0 }}"
+              aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+              tabindex="{% if forloop.first %}0{% else %}-1{% endif %}"
+              :aria-selected="(activeTab === {{ forloop.counter0 }}).toString()"
+              :tabindex="activeTab === {{ forloop.counter0 }} ? 0 : -1"
               @click="activeTab = {{ forloop.counter0 }}"
               :class="activeTab === {{ forloop.counter0 }}
                 ? 'border-b-2 border-stone-800 font-semibold text-stone-800 -mb-px'
@@ -75,35 +109,39 @@
       {# Left: formula notation panels #}
       <div class="flex-1">
         {% for formula in formulas %}
-        <div x-show="activeTab === {{ forloop.counter0 }}" x-cloak>
+        <div id="formula-panel-{{ forloop.counter0 }}" role="tabpanel"
+             aria-labelledby="formula-tab-{{ forloop.counter0 }}" tabindex="0"
+             x-show="activeTab === {{ forloop.counter0 }}"{% if not forloop.first %} x-cloak{% endif %}>
           {# Optional formula image on the left; notation + notes beside it #}
           <div class="flex flex-col sm:flex-row sm:items-center gap-6">
           {% if formula.image %}
           {% image formula.image max-320x320 as formula_rendition %}
           {% image formula.image max-1600x1600 as formula_full %}
-          <img src="{{ formula_rendition.url }}"
-               alt="{{ pigment.name }} — {{ formula.brand.name }} formula"
-               width="{{ formula_rendition.width }}" height="{{ formula_rendition.height }}"
-               class="formula-image w-40 h-auto self-center flex-shrink-0 rounded-lg shadow-sm cursor-pointer"
-               @click="lightboxOpen = true; lightboxSrc = '{{ formula_full.url }}'" />
+          <button type="button" class="self-center flex-shrink-0 rounded-lg cursor-zoom-in" aria-haspopup="dialog"
+                  data-full="{{ formula_full.url }}" @click="openLightbox($el)">
+            <span class="sr-only">Enlarge image: </span>
+            <img src="{{ formula_rendition.url }}"
+                 alt="{{ pigment.name }} — {{ formula.brand.name }} formula"
+                 width="{{ formula_rendition.width }}" height="{{ formula_rendition.height }}"
+                 class="formula-image w-40 h-auto rounded-lg shadow-sm" />
+          </button>
           {% endif %}
           <div class="flex-1 min-w-0">
           <p class="text-2xl font-mono tracking-wide text-stone-800 mb-2">
             {% for part in formula.parts.all %}{% if part.is_trace %}Δ{% else %}{{ part.parts|floatformat:"-2" }}{% endif %}{{ part.paint.abbreviation }}{% if not forloop.last %} + {% endif %}{% endfor %}
           </p>
-          {# Notes accordion — chevron-toggle pattern carried over from the old site #}
+          {# Notes accordion — native <details>, same chevron pattern as the Projects archive #}
           {% if formula.notes %}
-          <div class="mt-4" x-data="{ notesOpen: false }">
-            <button type="button" @click="notesOpen = !notesOpen"
-                    class="flex items-center justify-between w-full text-left py-2 border-b border-stone-200">
+          <details class="mt-4 group/notes">
+            <summary class="cursor-pointer list-none [&::-webkit-details-marker]:hidden flex items-center justify-between w-full py-2 border-b border-stone-200">
               <span class="font-display text-accent text-lg">Notes</span>
-              <svg class="w-4 h-4 text-accent transition-transform" :class="notesOpen ? 'rotate-180' : ''"
-                   fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 text-accent transition-transform group-open/notes:rotate-180"
+                   fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
               </svg>
-            </button>
-            <p x-show="notesOpen" x-cloak class="text-sm text-stone-500 pt-2">{{ formula.notes }}</p>
-          </div>
+            </summary>
+            <p class="text-sm text-stone-500 pt-2">{{ formula.notes }}</p>
+          </details>
           {% endif %}
           </div>
           </div>
@@ -129,7 +167,7 @@
       <div class="hidden lg:block w-52 flex-shrink-0">
         <div class="sticky top-6">
           {% for formula in formulas %}
-          <div x-show="activeTab === {{ forloop.counter0 }}" x-cloak>
+          <div x-show="activeTab === {{ forloop.counter0 }}"{% if not forloop.first %} x-cloak{% endif %}>
             <h3 class="text-xs font-semibold uppercase tracking-wider text-stone-500 mb-3">Legend</h3>
             {% for part in formula.parts.all %}
             <div class="flex items-center gap-2 mb-2">
@@ -150,33 +188,29 @@
   </div>
   {% endif %}
 
-  {# 5. Additional images carousel (2+ images only) — dot-pagination pattern carried over from the old site #}
+  {# 5. Additional images carousel #}
   {% if additional_images %}
-  <div class="mb-8" x-data="{ slide: 0 }">
+  <section class="mb-8" x-data="{ slide: 0, count: {{ additional_images|length }} }"
+           aria-roledescription="carousel" aria-label="More images of {{ pigment.name }}">
     <div class="relative">
       {% for img in additional_images %}
-      {% if img.image %}
       {% image img.image fill-800x600 as carousel_rendition %}
-      <img x-show="slide === {{ forloop.counter0 }}" x-cloak
-           src="{{ carousel_rendition.url }}"
-           alt="{{ img.alt_text|default:pigment.name }}"
-           class="w-full max-h-96 object-cover rounded-lg cursor-pointer shadow-sm"
-           @click="lightboxOpen = true; lightboxSrc = '{{ carousel_rendition.url }}'" />
-      {% endif %}
+      {% image img.image max-1600x1600 as carousel_full %}
+      {# The first slide has no x-cloak, so it still shows without JavaScript. #}
+      <div x-show="slide === {{ forloop.counter0 }}"{% if not forloop.first %} x-cloak{% endif %}
+           role="group" aria-roledescription="slide" aria-label="{{ forloop.counter }} of {{ additional_images|length }}">
+        <button type="button" class="block w-full rounded-lg cursor-zoom-in" aria-haspopup="dialog"
+                data-full="{{ carousel_full.url }}" @click="openLightbox($el)">
+          <span class="sr-only">Enlarge image: </span>
+          <img src="{{ carousel_rendition.url }}"
+               alt="{{ img.alt_text|default:pigment.name }}"
+               class="w-full max-h-96 object-cover rounded-lg shadow-sm" />
+        </button>
+      </div>
       {% endfor %}
     </div>
-    {% if additional_images|length > 1 %}
-    <div class="flex justify-center gap-2 mt-3">
-      {% for img in additional_images %}
-      <button type="button"
-              @click="slide = {{ forloop.counter0 }}"
-              :class="slide === {{ forloop.counter0 }} ? 'bg-accent' : 'bg-stone-300'"
-              class="w-2.5 h-2.5 rounded-full transition-colors"
-              aria-label="Show image {{ forloop.counter }}"></button>
-      {% endfor %}
-    </div>
-    {% endif %}
-  </div>
+    {% include "includes/carousel_controls.html" with slides=additional_images %}
+  </section>
   {% endif %}
 
   {# 6. Manuscript provenance table #}
@@ -196,9 +230,25 @@
         </thead>
         {% for link in manuscript_links %}
         <tbody {% if link.notes %}x-data="{ expanded: false }"{% endif %}>
+          {# Rows with notes: the whole row toggles for mouse users; the button is the keyboard/screen-reader control. #}
           <tr {% if link.notes %}@click="expanded = !expanded"{% endif %}
               class="border-b border-stone-100{% if link.notes %} cursor-pointer hover:bg-stone-50{% endif %}">
-            <td class="py-2 pr-4 text-stone-800">{{ link.manuscript.name }}</td>
+            <td class="py-2 pr-4 text-stone-800">
+              {% if link.notes %}
+              <button type="button" @click.stop="expanded = !expanded"
+                      aria-controls="manuscript-notes-{{ link.pk }}"
+                      aria-expanded="false" :aria-expanded="expanded.toString()"
+                      class="inline-flex items-center gap-1 text-left hover:text-accent">
+                {{ link.manuscript.name }}<span class="sr-only"> (notes)</span>
+                <svg class="w-3.5 h-3.5 flex-shrink-0 text-stone-500 transition-transform" :class="expanded ? 'rotate-180' : ''"
+                     fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </button>
+              {% else %}
+              {{ link.manuscript.name }}
+              {% endif %}
+            </td>
             <td class="py-2 pr-4 text-stone-600">{{ link.manuscript.date_display }}</td>
             <td class="py-2 pr-4 text-stone-600">{{ link.manuscript.country.name|default:"—" }}</td>
             <td class="py-2 pr-4 text-stone-600">{{ link.page_reference|default:"—" }}</td>
@@ -213,7 +263,7 @@
             </td>
           </tr>
           {% if link.notes %}
-          <tr x-show="expanded" x-cloak class="bg-stone-50">
+          <tr id="manuscript-notes-{{ link.pk }}" x-show="expanded" x-cloak class="bg-stone-50">
             <td colspan="5" class="px-2 py-2 text-sm text-stone-600 italic">
               {{ link.notes }}
             </td>
@@ -244,15 +294,20 @@
   </div>
   {% endif %}
 
-  {# Lightbox overlay #}
-  <div x-show="lightboxOpen"
-       x-cloak
-       class="fixed inset-0 z-50 flex items-center justify-center bg-black/80"
-       @click.self="lightboxOpen = false">
-    <img :src="lightboxSrc"
-         class="max-w-full max-h-screen object-contain p-4"
-         alt="Enlarged image" />
-  </div>
+  {# Lightbox dialog. Closes on Escape (native), the Close button, or a click outside the image. #}
+  {# Focus goes to Close on open and back to the image button on close. #}
+  <dialog x-ref="lightbox" aria-label="Enlarged image"
+          class="m-0 w-screen h-screen max-w-none max-h-none p-4 bg-transparent backdrop:bg-black/80"
+          @click.self="$refs.lightbox.close()"
+          @close="lightboxOpener && lightboxOpener.focus()">
+    <button type="button" autofocus @click="$refs.lightbox.close()"
+            class="fixed top-4 right-4 z-10 rounded bg-white px-3 py-1.5 text-sm font-medium text-stone-900 shadow focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+      Close
+    </button>
+    <div class="h-full flex items-center justify-center" @click.self="$refs.lightbox.close()">
+      <img :src="lightboxSrc" :alt="lightboxAlt" class="max-w-full max-h-full object-contain" />
+    </div>
+  </dialog>
 
 </div>
 

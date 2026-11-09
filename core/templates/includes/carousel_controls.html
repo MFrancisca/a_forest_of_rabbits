@@ -1,0 +1,38 @@
+{% comment %}
+Carousel controls: previous / numbered dots / next, plus a screen-reader status.
+Include inside an element with x-data="{ slide: 0, count: <n> }" and pass `slides`
+(the list being shown). Renders nothing for a single slide.
+{% endcomment %}
+{% if slides|length > 1 %}
+{# x-cloak: without JavaScript the buttons would do nothing, so they stay hidden. #}
+<div x-cloak class="flex items-center justify-center gap-1 mt-3">
+  <button type="button" @click="slide = (slide + count - 1) % count"
+          class="p-2 rounded text-stone-600 hover:text-accent hover:bg-stone-100 transition-colors"
+          aria-label="Previous image">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+    </svg>
+  </button>
+  {% for item in slides %}
+  {# p-2 around a 10px dot gives a 26px target (WCAG 2.5.8: 24px minimum). #}
+  {# Active = filled, inactive = outline, so the state isn't shown by color alone. #}
+  <button type="button" @click="slide = {{ forloop.counter0 }}"
+          class="p-2 rounded-full"
+          aria-label="Show image {{ forloop.counter }}"
+          {% if forloop.first %}aria-current="true"{% endif %}
+          :aria-current="slide === {{ forloop.counter0 }} ? 'true' : null">
+    <span class="block w-2.5 h-2.5 rounded-full border transition-colors"
+          :class="slide === {{ forloop.counter0 }} ? 'bg-accent border-accent' : 'border-stone-500'"></span>
+  </button>
+  {% endfor %}
+  <button type="button" @click="slide = (slide + 1) % count"
+          class="p-2 rounded text-stone-600 hover:text-accent hover:bg-stone-100 transition-colors"
+          aria-label="Next image">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+    </svg>
+  </button>
+</div>
+{# Pre-filled with the initial text so Alpine's first render doesn't trigger an announcement. #}
+<p class="sr-only" aria-live="polite" x-text="'Image ' + (slide + 1) + ' of ' + count">Image 1 of {{ slides|length }}</p>
+{% endif %}

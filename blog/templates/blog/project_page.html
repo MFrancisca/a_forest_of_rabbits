@@ -16,16 +16,15 @@
 
   {# Technical Information accordion — chevron-toggle pattern carried over from the old site #}
   {% if page.technical_info %}
-  <div class="mb-8" x-data="{ techOpen: false }">
-    <button type="button" @click="techOpen = !techOpen"
-            class="flex items-center justify-between w-full text-left py-2 border-b border-stone-200">
+  <details class="mb-8 group/tech">
+    <summary class="cursor-pointer list-none [&::-webkit-details-marker]:hidden flex items-center justify-between w-full py-2 border-b border-stone-200">
       <span class="font-display text-accent text-lg">Technical Information</span>
-      <svg class="w-4 h-4 text-accent transition-transform" :class="techOpen ? 'rotate-180' : ''"
-           fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg class="w-4 h-4 text-accent transition-transform group-open/tech:rotate-180"
+           fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
       </svg>
-    </button>
-    <div x-show="techOpen" x-cloak class="pt-4">
+    </summary>
+    <div class="pt-4">
       {% for block in page.technical_info %}
         {% if block.block_type == 'freeform' %}
         <div class="prose prose-gray max-w-none">{{ block.value }}</div>
@@ -45,7 +44,7 @@
         {% endif %}
       {% endfor %}
     </div>
-  </div>
+  </details>
   {% endif %}
 
   {% if page.cover_image %}
@@ -103,36 +102,33 @@
     {% endwith %}
 
     {% elif block.block_type == 'carousel' %}
-    <div class="mb-8" x-data="{ slide: 0 }">
+    {% with slides=block.value.slides %}
+    {% if slides %}
+    <section class="mb-8" x-data="{ slide: 0, count: {{ slides|length }} }"
+             aria-roledescription="carousel"
+             {% if block.value.title %}aria-labelledby="carousel-title-{{ block.id }}"{% else %}aria-label="Image carousel"{% endif %}>
       {% if block.value.title %}
-      <h2 class="font-display text-2xl text-accent mb-3">{{ block.value.title }}</h2>
+      <h2 id="carousel-title-{{ block.id }}" class="font-display text-2xl text-accent mb-3">{{ block.value.title }}</h2>
       {% endif %}
       <div class="relative">
-        {% for item in block.value.images %}
-        {% if item.image %}
+        {% for item in slides %}
         {% image item.image fill-800x600 as img %}
-        <img x-show="slide === {{ forloop.counter0 }}" x-cloak
-             src="{{ img.url }}"
-             alt="{{ item.caption|default:item.image.default_alt_text }}"
-             class="w-full max-h-96 object-cover rounded-lg shadow-sm">
-        {% if item.caption %}
-        <p x-show="slide === {{ forloop.counter0 }}" x-cloak class="text-sm text-stone-500 mt-2">{{ item.caption }}</p>
-        {% endif %}
-        {% endif %}
+        {# The first slide has no x-cloak, so it still shows without JavaScript. #}
+        <div x-show="slide === {{ forloop.counter0 }}"{% if not forloop.first %} x-cloak{% endif %}
+             role="group" aria-roledescription="slide" aria-label="{{ forloop.counter }} of {{ slides|length }}">
+          <img src="{{ img.url }}"
+               alt="{{ item.caption|default:item.image.default_alt_text }}"
+               class="w-full max-h-96 object-cover rounded-lg shadow-sm">
+          {% if item.caption %}
+          <p class="text-sm text-stone-500 mt-2">{{ item.caption }}</p>
+          {% endif %}
+        </div>
         {% endfor %}
       </div>
-      {% if block.value.images|length > 1 %}
-      <div class="flex justify-center gap-2 mt-3">
-        {% for item in block.value.images %}
-        <button type="button"
-                @click="slide = {{ forloop.counter0 }}"
-                :class="slide === {{ forloop.counter0 }} ? 'bg-accent' : 'bg-stone-300'"
-                class="w-2.5 h-2.5 rounded-full transition-colors"
-                aria-label="Show image {{ forloop.counter }}"></button>
-        {% endfor %}
-      </div>
-      {% endif %}
-    </div>
+      {% include "includes/carousel_controls.html" with slides=slides %}
+    </section>
+    {% endif %}
+    {% endwith %}
     {% endif %}
   {% endfor %}
 </article>
