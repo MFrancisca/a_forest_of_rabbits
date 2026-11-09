@@ -7,7 +7,6 @@ import wagtail_factories
 from django.urls import reverse
 
 from blog.factories import ProjectPageFactory
-from blog.tests.conftest import projects_index, root_page, wagtail_site  # noqa: F401 (fixtures)
 from pigments.factories import (
     FormulaFactory,
     PigmentFactory,

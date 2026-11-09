@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load disclosure_tags %}
 
 {% block content %}
 {# --cols drives the large-screen grid so any number of configured columns fits #}
@@ -37,21 +38,13 @@
   {% endif %}
 
   {% if archive_projects %}
-  <details class="mt-12 group/archive">
-    <summary class="cursor-pointer list-none [&::-webkit-details-marker]:hidden flex items-center justify-between border-b border-stone-200 pb-2">
-      {# HTML allows a heading inside <summary>; it gives the archive cards (h3) a parent h2 #}
-      <h2 class="font-display text-2xl text-accent">{{ archive_category.name }}</h2>
-      <svg class="w-4 h-4 text-accent transition-transform group-open/archive:rotate-180"
-           fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-      </svg>
-    </summary>
+  {% disclosure label=archive_category.name heading=True class="mt-12" %}
     <ul class="grid gap-x-8 lg:grid-cols-[repeat(var(--cols),minmax(0,1fr))]">
       {% for project in archive_projects %}
       <li class="py-4 border-b border-gray-200">{% include "blog/includes/project_card.html" %}</li>
       {% endfor %}
     </ul>
-  </details>
+  {% enddisclosure %}
   {% endif %}
 
   {% if not columns and not other_projects and not archive_projects %}
