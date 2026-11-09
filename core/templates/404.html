@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{# Rendered by core.views.page_not_found (handler404) with `section` = the nav section #}
+{# the missing URL is under (core.navigation.section_for), or None. #}
+
+{% block title %}Page not found — A Forest of Rabbits{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 py-16">
+  <p class="text-sm font-semibold uppercase tracking-wider text-stone-500 mb-2">Error 404</p>
+  <h1 class="font-display text-4xl text-accent mb-4">Page not found</h1>
+
+  {% if section %}
+  <p class="text-stone-600 mb-6">This {{ section.item }} doesn't exist. It may have been renamed or removed.</p>
+  <a href="{{ section.href }}"
+     class="inline-flex items-center gap-2 mb-12 px-4 py-2 rounded-lg border border-accent text-accent font-medium hover:bg-accent hover:text-white transition-colors">
+    Go to {{ section.label }}
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+    </svg>
+  </a>
+  {% else %}
+  <p class="text-stone-600 mb-12">There's nothing at this address. It may have moved, or the link may be mistyped.</p>
+  {% endif %}
+
+  <h2 class="text-sm font-semibold uppercase tracking-wider text-stone-500 mb-4">Where to next</h2>
+  <ul class="grid sm:grid-cols-3 gap-4">
+    <li>
+      <a href="/" class="block h-full p-5 rounded-lg border border-stone-200 shadow-sm hover:border-accent hover:shadow transition-all">
+        <span class="font-display text-xl text-accent">Home</span>
+        <p class="text-sm text-stone-600 mt-1">Start again from the front page.</p>
+      </a>
+    </li>
+    <li>
+      <a href="/pigments/" class="block h-full p-5 rounded-lg border border-stone-200 shadow-sm hover:border-accent hover:shadow transition-all">
+        <span class="font-display text-xl text-accent">Pigment Database</span>
+        <p class="text-sm text-stone-600 mt-1">Pigments used in medieval manuscripts.</p>
+      </a>
+    </li>
+    <li>
+      <a href="/projects/" class="block h-full p-5 rounded-lg border border-stone-200 shadow-sm hover:border-accent hover:shadow transition-all">
+        <span class="font-display text-xl text-accent">Projects</span>
+        <p class="text-sm text-stone-600 mt-1">Craft tutorials, research notes, and documented work.</p>
+      </a>
+    </li>
+  </ul>
+</div>
+{% endblock %}
