@@ -23,9 +23,14 @@
 </head>
 <body class="min-h-screen flex flex-col bg-white text-gray-900">
 
+  <a href="#content"
+     class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:rounded focus:bg-white focus:text-accent focus:shadow-md focus:ring-2 focus:ring-accent">
+    Skip to content
+  </a>
+
   {% include 'includes/nav.html' %}
 
-  <main class="flex-1">
+  <main id="content" tabindex="-1" class="flex-1 focus:outline-none">
     {% block content %}{% endblock %}
   </main>
 

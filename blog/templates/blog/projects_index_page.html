@@ -24,6 +24,9 @@
   <section class="{% if columns %}mt-12{% endif %}">
     {% if columns %}
     <h2 class="font-display text-2xl text-accent border-b border-stone-200 pb-2 mb-2">Other</h2>
+    {% else %}
+    {# Not shown, but keeps the outline h1 → h2 → h3 (cards) for screen readers #}
+    <h2 class="sr-only">All projects</h2>
     {% endif %}
     <ul class="grid gap-x-8 lg:grid-cols-[repeat(var(--cols),minmax(0,1fr))]">
       {% for project in other_projects %}
@@ -36,7 +39,8 @@
   {% if archive_projects %}
   <details class="mt-12 group/archive">
     <summary class="cursor-pointer list-none [&::-webkit-details-marker]:hidden flex items-center justify-between border-b border-stone-200 pb-2">
-      <span class="font-display text-2xl text-accent">{{ archive_category.name }}</span>
+      {# HTML allows a heading inside <summary>; it gives the archive cards (h3) a parent h2 #}
+      <h2 class="font-display text-2xl text-accent">{{ archive_category.name }}</h2>
       <svg class="w-4 h-4 text-accent transition-transform group-open/archive:rotate-180"
            fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
