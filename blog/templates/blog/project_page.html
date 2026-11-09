@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load wagtailcore_tags wagtailimages_tags %}
+{% load wagtailcore_tags wagtailimages_tags disclosure_tags %}
 
 {% block content %}
 <article class="max-w-3xl mx-auto px-4 py-8">
@@ -14,16 +14,9 @@
     {% endfor %}
   </div>
 
-  {# Technical Information accordion — chevron-toggle pattern carried over from the old site #}
+  {# Technical Information accordion #}
   {% if page.technical_info %}
-  <details class="mb-8 group/tech">
-    <summary class="cursor-pointer list-none [&::-webkit-details-marker]:hidden flex items-center justify-between w-full py-2 border-b border-stone-200">
-      <span class="font-display text-accent text-lg">Technical Information</span>
-      <svg class="w-4 h-4 text-accent transition-transform group-open/tech:rotate-180"
-           fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-      </svg>
-    </summary>
+  {% disclosure label="Technical Information" class="mb-8" %}
     <div class="pt-4">
       {% for block in page.technical_info %}
         {% if block.block_type == 'freeform' %}
@@ -44,7 +37,7 @@
         {% endif %}
       {% endfor %}
     </div>
-  </details>
+  {% enddisclosure %}
   {% endif %}
 
   {% if page.cover_image %}
