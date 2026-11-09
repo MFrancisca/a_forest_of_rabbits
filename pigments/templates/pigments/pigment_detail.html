@@ -130,7 +130,7 @@
         <div class="sticky top-6">
           {% for formula in formulas %}
           <div x-show="activeTab === {{ forloop.counter0 }}" x-cloak>
-            <h3 class="text-xs font-semibold uppercase tracking-wider text-stone-400 mb-3">Legend</h3>
+            <h3 class="text-xs font-semibold uppercase tracking-wider text-stone-500 mb-3">Legend</h3>
             {% for part in formula.parts.all %}
             <div class="flex items-center gap-2 mb-2">
               {% if part.paint.hex_color %}
@@ -208,7 +208,7 @@
                 <a href="{{ link.source.link }}" target="_blank" rel="noopener"
                    @click.stop
                    title="{{ link.source.citation }}"
-                   class="underline decoration-stone-300 hover:text-accent">{{ link.source.short_label }}</a>{% else %}<span title="{{ link.source.citation }}">{{ link.source.short_label }}</span>{% endif %}{% if link.source_detail %}<span class="text-stone-400">, {{ link.source_detail }}</span>{% endif %}
+                   class="underline decoration-stone-300 hover:text-accent">{{ link.source.short_label }}</a>{% else %}<span title="{{ link.source.citation }}">{{ link.source.short_label }}</span>{% endif %}{% if link.source_detail %}<span class="text-stone-500">, {{ link.source_detail }}</span>{% endif %}
               {% else %}—{% endif %}
             </td>
           </tr>

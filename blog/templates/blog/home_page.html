@@ -24,7 +24,7 @@
 
   {# Quick access — flagship sections #}
   <div class="mb-10">
-    <h2 class="text-sm font-semibold uppercase tracking-wider text-stone-400 mb-4">Explore</h2>
+    <h2 class="text-sm font-semibold uppercase tracking-wider text-stone-500 mb-4">Explore</h2>
     <div class="grid sm:grid-cols-3 gap-4">
       <a href="/pigments/"
          class="block p-5 rounded-lg border border-stone-200 shadow-sm hover:border-accent hover:shadow transition-all">
@@ -47,7 +47,7 @@
   {# Browse by category — quick links into the existing Projects categories #}
   {% if categories %}
   <div>
-    <h2 class="text-sm font-semibold uppercase tracking-wider text-stone-400 mb-4">Browse by topic</h2>
+    <h2 class="text-sm font-semibold uppercase tracking-wider text-stone-500 mb-4">Browse by topic</h2>
     <div class="flex flex-wrap gap-2">
       {% for category in categories %}
       <a href="{% pageurl projects_index %}#category-{{ category.id }}"
