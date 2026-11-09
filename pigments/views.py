@@ -284,13 +284,18 @@ def pigment_detail(request, pk):
     ).all())
 
     # Bibliography: sources cited on manuscript links first (in table order),
-    # then the pigment's general references, each listed once.
-    references = []
-    seen = set()
-    for source in [l.source for l in manuscript_links if l.source] + list(pigment.sources.all()):
-        if source.pk not in seen:
-            seen.add(source.pk)
-            references.append(source)
+    # then the pigment's general references, each listed once. citing_links:
+    # the table rows citing each source, for the "Back to table" links.
+    references = {}
+    for link in manuscript_links:
+        if link.source:
+            source = references.setdefault(link.source_id, link.source)
+            source.citing_links = getattr(source, 'citing_links', []) + [link]
+    for source in pigment.sources.all():
+        if source.pk not in references:
+            source.citing_links = []
+            references[source.pk] = source
+    references = list(references.values())
     context = {
         'pigment': pigment,
         'formulas': formulas,
