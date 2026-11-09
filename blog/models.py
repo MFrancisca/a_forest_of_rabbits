@@ -16,8 +16,8 @@ LEGACY_EMBED_RE = re.compile(r'<embed[^>]*>')
 LEGACY_EMBED_ID_RE = re.compile(r'id="(\d+)"')
 
 # Pre-selected on new project pages, and the catch-all group on the Projects
-# index for projects that aren't in any configured column. Created by
-# migration 0018; matched by name, so renaming it in the admin turns both off.
+# index for projects that aren't in any configured column. Seeded by
+# the blog migrations; matched by name, so renaming it in the admin turns both off.
 DEFAULT_CATEGORY_NAME = 'Other'
 
 
