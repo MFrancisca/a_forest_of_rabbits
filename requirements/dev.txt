@@ -5,3 +5,4 @@ pytest-cov==7.*
 factory-boy==3.*
 wagtail-factories
 pytailwindcss==0.4.2
+axe-playwright-python==0.1.8  # axe-core 4.12 for the opt-in accessibility checks (pytest -m a11y)

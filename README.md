@@ -58,6 +58,19 @@ python3.12 -m venv .venv
 
 `pyproject.toml` forces `--ds=config.settings.test`, so tests never touch the dev database or `media/`, even inside the container.
 
+### Accessibility checks
+
+`core/tests/test_a11y_axe.py` runs [axe-core](https://github.com/dequelabs/axe-core) in headless Chromium against every key page, and against the interactive states (open filter dropdown, lightbox, expanded disclosures, mobile menu), in both light and dark mode, for WCAG 2.2 A and AA. They need a browser, so the default run skips them:
+
+```bash
+.venv/bin/playwright install chromium              # once
+.venv/bin/pytest -m a11y --no-cov                  # about 40 seconds
+```
+
+They need network access: Alpine.js and HTMX load from their CDNs, and without them the dropdown, lightbox and menu checks time out.
+
+Run them after any template, CSS or color change. A failure lists each rule, its impact, and the offending elements. If a rule genuinely can't apply, add it to `KNOWN_EXCEPTIONS` in that file with the reason rather than switching it off.
+
 ## Management commands
 
 | Command | Purpose |
