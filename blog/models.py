@@ -2,10 +2,11 @@ import re
 
 from django import forms
 from django.db import models
-from modelcluster.fields import ParentalManyToManyField
-from wagtail.models import Page
+from modelcluster.fields import ParentalKey, ParentalManyToManyField
+from wagtail.models import Orderable, Page
 from wagtail.fields import RichTextField, StreamField
-from wagtail.admin.panels import FieldPanel
+from wagtail.admin.forms import WagtailAdminPageForm
+from wagtail.admin.panels import FieldPanel, InlinePanel
 from wagtail.blocks import CharBlock, ChoiceBlock, ListBlock, RichTextBlock, StructBlock
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail.snippets.models import register_snippet
@@ -13,6 +14,11 @@ from wagtail.search import index
 
 LEGACY_EMBED_RE = re.compile(r'<embed[^>]*>')
 LEGACY_EMBED_ID_RE = re.compile(r'id="(\d+)"')
+
+# Pre-selected on new project pages, and the catch-all group on the Projects
+# index for projects that aren't in any configured column. Created by
+# migration 0018; matched by name, so renaming it in the admin turns both off.
+DEFAULT_CATEGORY_NAME = 'Other'
 
 
 class RichTextWithTitleBlock(StructBlock):
@@ -106,37 +112,122 @@ class Category(models.Model):
 
 
 class ProjectsIndexPage(Page):
-    """Index page listing all published ProjectPage children."""
+    """Index page listing published ProjectPage children, grouped into one
+    column per configured category, with an optional collapsed archive."""
+
+    archive_category = models.ForeignKey(
+        'blog.Category',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='+',
+        help_text='Projects in this category are listed only in a collapsed '
+                  'section at the bottom of the page.',
+    )
 
     subpage_types = ['blog.ProjectPage']
     parent_page_types = ['wagtailcore.Page']
 
-    content_panels = Page.content_panels
+    content_panels = Page.content_panels + [
+        InlinePanel(
+            'columns',
+            heading='Columns',
+            label='Column',
+            help_text='One column per category, in this order. Projects in none '
+                      'of these categories are listed under "Other" below them.',
+        ),
+        FieldPanel('archive_category'),
+    ]
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
-        all_projects = ProjectPage.objects.child_of(self).live()
-        projects = all_projects.order_by('-date')
-
-        # Ignore a non-integer ?category= (mistyped/crawled URL) instead of
-        # letting the ORM raise ValueError, which would be a 500.
-        try:
-            category_id = int(request.GET.get('category', ''))
-        except ValueError:
-            category_id = None
-        active_category = None
-        if category_id is not None:
-            projects = projects.filter(categories__id=category_id).distinct()
-            active_category = Category.objects.filter(id=category_id).first()
-
-        context['projects'] = projects
-        context['active_category'] = active_category
-        context['categories'] = (
-            Category.objects.filter(project_pages__in=all_projects)
-            .distinct()
-            .order_by('name')
-        )
+        context.update(self.grouped_projects())
         return context
+
+    def grouped_projects(self):
+        """Live child projects split into columns, "Other" and the archive.
+
+        A project shows in every column whose category it has; one in no
+        column goes to the default-category column if that is one, otherwise
+        to the "Other" list. Archived projects show only in the archive.
+        """
+        projects = (
+            ProjectPage.objects.child_of(self).live()
+            .order_by('-date')
+            .select_related('cover_image')
+            .prefetch_related('categories')
+        )
+        archive_id = self.archive_category_id
+
+        # Deduplicate and drop the archive category: a project can only be
+        # listed once per column, and archived projects never show in one.
+        column_categories = []
+        for column in self.columns.select_related('category'):
+            if column.category_id != archive_id and column.category not in column_categories:
+                column_categories.append(column.category)
+        groups = {category.id: [] for category in column_categories}
+        default = next(
+            (c for c in column_categories if c.name == DEFAULT_CATEGORY_NAME), None
+        )
+        column_ids = set(groups)
+
+        archive, other = [], []
+        for project in projects:
+            categories = list(project.categories.all())
+            category_ids = [c.id for c in categories]
+            archived = archive_id in category_ids
+            # The column (or the archive heading) already says which category
+            # a project is in, so the card only tags the others (e.g.
+            # Collaborations). Archived cards sit under no column, so they
+            # keep their column categories as tags.
+            hidden_tag_ids = {archive_id} if archived else column_ids
+            project.tag_categories = [
+                c for c in categories
+                if c.id not in hidden_tag_ids and c.name != DEFAULT_CATEGORY_NAME
+            ]
+            if archived:
+                archive.append(project)
+                continue
+            matched = [cid for cid in groups if cid in category_ids]
+            for cid in matched:
+                groups[cid].append(project)
+            if not matched:
+                (groups[default.id] if default else other).append(project)
+
+        return {
+            'columns': [
+                (category, groups[category.id])
+                for category in column_categories
+                if groups[category.id]
+            ],
+            'other_projects': other,
+            'archive_category': self.archive_category if archive else None,
+            'archive_projects': archive,
+        }
+
+
+class ProjectsIndexColumn(Orderable):
+    """One category shown as a column on the Projects index."""
+
+    page = ParentalKey(
+        'blog.ProjectsIndexPage', on_delete=models.CASCADE, related_name='columns'
+    )
+    category = models.ForeignKey(
+        'blog.Category', on_delete=models.CASCADE, related_name='+'
+    )
+
+    panels = [FieldPanel('category')]
+
+
+class ProjectPageForm(WagtailAdminPageForm):
+    """Pre-selects the default category on a new project page."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance.pk is None and not self.initial.get('categories'):
+            default = Category.objects.filter(name=DEFAULT_CATEGORY_NAME).first()
+            if default:
+                self.initial['categories'] = [default.pk]
 
 
 class ProjectPage(Page):
@@ -188,6 +279,8 @@ class ProjectPage(Page):
     parent_page_types = ['blog.ProjectsIndexPage', 'wagtailcore.Page']
     subpage_types = []
 
+    base_form_class = ProjectPageForm
+
     content_panels = Page.content_panels + [
         FieldPanel('date'),
         FieldPanel('categories', widget=forms.CheckboxSelectMultiple),
@@ -201,6 +294,11 @@ class ProjectPage(Page):
         index.SearchField('body'),
         index.SearchField('excerpt'),
     ]
+
+    @property
+    def display_categories(self):
+        """Categories worth showing as tags: the default one says nothing."""
+        return [c for c in self.categories.all() if c.name != DEFAULT_CATEGORY_NAME]
 
     @property
     def thumbnail(self):
@@ -280,14 +378,12 @@ class HomePage(Page):
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
-        projects_index = ProjectsIndexPage.objects.first()
-        if projects_index:
-            live_projects = ProjectPage.objects.child_of(projects_index).live()
-            context['categories'] = (
-                Category.objects.filter(project_pages__in=live_projects)
-                .distinct()
-                .order_by('name')
-            )
-        else:
-            context['categories'] = Category.objects.none()
+        projects_index = ProjectsIndexPage.objects.live().first()
+        context['projects_index'] = projects_index
+        # Quick links jump to the index's columns, so only those that are
+        # actually shown (configured and non-empty) get one.
+        context['categories'] = (
+            [category for category, _ in projects_index.grouped_projects()['columns']]
+            if projects_index else []
+        )
         return context

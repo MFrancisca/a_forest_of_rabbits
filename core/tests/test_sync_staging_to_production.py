@@ -19,6 +19,7 @@ from django.db import connections
 from wagtail.models import Page
 
 from blog.factories import CategoryFactory, ProjectPageFactory, ProjectsIndexPageFactory
+from blog.models import ProjectsIndexColumn
 from core.management.commands.sync_staging_to_production import Command
 from pigments.factories import FormulaPartFactory
 
@@ -45,8 +46,9 @@ def content(db):
     projects_index = ProjectsIndexPageFactory(parent=Page.objects.get(depth=1))
     category = CategoryFactory(name='Armor')
     page = ProjectPageFactory(parent=projects_index, categories=[category])
+    ProjectsIndexColumn.objects.create(page=projects_index, category=category)
     part = FormulaPartFactory()
-    return SimpleNamespace(page=page, category=category, part=part)
+    return SimpleNamespace(page=page, category=category, part=part, index=projects_index)
 
 
 def _run(tmp_path, **options):
@@ -83,7 +85,7 @@ def test_dry_run_dumps_content_and_writes_fixture(staging_is_default, content, t
     records = json.loads(fixture.read_text())
     models = {r['model'] for r in records}
     assert {'wagtailcore.page', 'blog.projectpage', 'blog.category',
-            'pigments.formulapart', 'pigments.pigment'} <= models
+            'blog.projectsindexcolumn', 'pigments.formulapart', 'pigments.pigment'} <= models
     assert '[DRY RUN]' in out
 
     pages = [r for r in records if r['model'] == 'wagtailcore.page']
@@ -102,6 +104,7 @@ def test_load_replaces_rows_in_target(staging_is_default, content, tmp_path):
     assert 'Loaded staging content' in out
     content.page.refresh_from_db()
     assert list(content.page.categories.all()) == [content.category]
+    assert [c.category for c in content.index.columns.all()] == [content.category]
 
 
 def test_interactive_cancel_does_not_load(staging_is_default, content, tmp_path):
