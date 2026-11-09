@@ -34,7 +34,8 @@ Models included
 ----------------
 wagtailcore.page (depth >= 2 only — the root page, depth=1, is excluded so it never
 collides with the target's freshly-recreated root), blog.homepage,
-blog.projectsindexpage, blog.projectpage, blog.aboutpage, blog.category, the full
+blog.projectsindexpage, blog.projectpage, blog.aboutpage, blog.category,
+blog.projectsindexcolumn, the full
 pigments app, wagtailimages.image.
 
 Dumped by plain PK (no --natural-foreign/--natural-primary): the target is always
@@ -98,6 +99,7 @@ FULL_MODEL_LABELS = [
     'blog.projectpage',
     'blog.aboutpage',
     'blog.category',
+    'blog.projectsindexcolumn',
     'pigments',
     'wagtailimages.image',
 ]

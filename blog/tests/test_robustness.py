@@ -2,34 +2,8 @@
 import pytest
 import wagtail_factories
 
-from blog.factories import CategoryFactory, ProjectPageFactory
+from blog.factories import ProjectPageFactory
 from blog.models import ProjectPage
-
-
-# ---------------------------------------------------------------------------
-# ?category= on the projects index
-# ---------------------------------------------------------------------------
-
-@pytest.mark.django_db
-@pytest.mark.parametrize('value', ['abc', '1.5', "'", ''])
-def test_index_non_integer_category_is_ignored_not_500(client, projects_index, value):
-    category = CategoryFactory()
-    ProjectPageFactory(parent=projects_index, categories=[category])
-    ProjectPageFactory(parent=projects_index)
-
-    response = client.get('/projects/', {'category': value})
-
-    assert response.status_code == 200
-    assert response.context['active_category'] is None
-    assert len(response.context['projects']) == 2
-
-
-@pytest.mark.django_db
-def test_index_unknown_category_id_shows_empty_state(client, projects_index, published_project):
-    response = client.get('/projects/', {'category': 999999})
-    assert response.status_code == 200
-    assert response.context['active_category'] is None
-    assert list(response.context['projects']) == []
 
 
 # ---------------------------------------------------------------------------

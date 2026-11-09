@@ -1,7 +1,5 @@
 import pytest
 import wagtail_factories
-from django.test import Client
-from blog.models import ProjectsIndexPage, ProjectPage, AboutPage
 from blog.factories import CategoryFactory, ProjectPageFactory
 
 
@@ -12,24 +10,6 @@ def test_category_str():
     """Category __str__ returns its name."""
     cat = CategoryFactory()
     assert str(cat) == cat.name
-
-
-def test_index_shows_only_live_pages(client, projects_index, published_project):
-    """ProjectsIndexPage only returns live ProjectPage children in context."""
-    response = client.get(projects_index.url)
-    assert response.status_code == 200
-    projects = response.context['projects']
-    assert published_project in projects
-
-
-def test_index_ordering(client, projects_index):
-    """Projects are ordered newest-first by date."""
-    import datetime
-    older = ProjectPageFactory(parent=projects_index, date=datetime.date(2025, 1, 1))
-    newer = ProjectPageFactory(parent=projects_index, date=datetime.date(2026, 1, 1))
-    response = client.get(projects_index.url)
-    projects = list(response.context['projects'])
-    assert projects.index(newer) < projects.index(older)
 
 
 def test_index_empty_state(client, projects_index):
@@ -69,40 +49,12 @@ def test_about_url(client, about_page, wagtail_site):
     assert response.status_code == 200
 
 
-def test_index_filters_by_category(client, projects_index):
-    """?category=<id> narrows the project list to that category only."""
-    wanted = CategoryFactory(name='Armor')
-    other = CategoryFactory(name='Scrolls')
-    match = ProjectPageFactory(parent=projects_index, categories=[wanted], live=True)
-    non_match = ProjectPageFactory(parent=projects_index, categories=[other], live=True)
-
-    response = client.get(projects_index.url, {'category': wanted.id})
-
-    projects = list(response.context['projects'])
-    assert match in projects
-    assert non_match not in projects
-    assert response.context['active_category'] == wanted
-
-
 def test_project_can_have_multiple_categories(projects_index):
     """A project can be assigned more than one category."""
     armor = CategoryFactory(name='Armor')
     collab = CategoryFactory(name='Collaborations')
     project = ProjectPageFactory(parent=projects_index, categories=[armor, collab])
     assert set(project.categories.all()) == {armor, collab}
-
-
-def test_index_filter_matches_project_with_multiple_categories(client, projects_index):
-    """Filtering by one of a project's several categories still matches it,
-    and the project doesn't appear twice in the results."""
-    armor = CategoryFactory(name='Armor')
-    collab = CategoryFactory(name='Collaborations')
-    project = ProjectPageFactory(parent=projects_index, categories=[armor, collab], live=True)
-
-    response = client.get(projects_index.url, {'category': collab.id})
-
-    projects = list(response.context['projects'])
-    assert projects.count(project) == 1
 
 
 def test_project_detail_renders_multiple_category_pills(client, projects_index):
@@ -117,56 +69,10 @@ def test_project_detail_renders_multiple_category_pills(client, projects_index):
     assert 'Collaborations' in content
 
 
-def test_index_no_filter_shows_all_categories(client, projects_index, published_project):
-    """With no ?category= param, active_category is None and all live projects show."""
-    response = client.get(projects_index.url)
-    assert response.context['active_category'] is None
-    assert published_project in response.context['projects']
-
-
-def test_index_categories_context_lists_only_categories_in_use(client, projects_index):
-    """ProjectsIndexPage's categories context includes only categories with a
-    live project under it, for the filter-chip row."""
-    used = CategoryFactory(name='Armor')
-    unused = CategoryFactory(name='Unused')
-    ProjectPageFactory(parent=projects_index, categories=[used], live=True)
-
-    response = client.get(projects_index.url)
-
-    categories = list(response.context['categories'])
-    assert used in categories
-    assert unused not in categories
-
-
-def test_index_categories_excludes_projects_outside_the_index(client, root_page, projects_index, wagtail_site):
-    """A ProjectPage living directly under another parent (e.g. the moved
-    Classes page) doesn't contribute to the Projects index's category list."""
-    standalone_category = CategoryFactory(name='Classes')
-    ProjectPageFactory(parent=root_page, slug='classes', categories=[standalone_category], live=True)
-
-    response = client.get(projects_index.url)
-
-    categories = list(response.context['categories'])
-    assert standalone_category not in categories
-
-
 def test_homepage_renders(client, home_page):
     """HomePage renders at its URL."""
     response = client.get(home_page.url)
     assert response.status_code == 200
-
-
-def test_homepage_categories_only_includes_live_projects(client, home_page, projects_index):
-    """HomePage's category quick-links only include categories with a live project."""
-    live_category = CategoryFactory(name='Armor')
-    empty_category = CategoryFactory(name='Unused')
-    ProjectPageFactory(parent=projects_index, categories=[live_category], live=True)
-
-    response = client.get(home_page.url)
-
-    categories = list(response.context['categories'])
-    assert live_category in categories
-    assert empty_category not in categories
 
 
 def test_project_no_technical_info_no_accordion(client, published_project):

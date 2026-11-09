@@ -1,0 +1,28 @@
+{% load wagtailcore_tags wagtailimages_tags %}
+<a href="{% pageurl project %}" class="group flex items-start gap-3">
+  {% with thumb=project.thumbnail %}
+  {% if thumb %}
+  {% image thumb fill-160x160 as thumb_rendition %}
+  <img src="{{ thumb_rendition.url }}" alt=""
+       class="w-16 h-16 object-cover rounded-lg flex-shrink-0 bg-stone-100">
+  {% else %}
+  <div class="w-16 h-16 rounded-lg bg-stone-100 flex-shrink-0"></div>
+  {% endif %}
+  {% endwith %}
+  <div class="flex-1 min-w-0">
+    <h3 class="font-semibold text-gray-900 group-hover:text-amber-700 transition-colors leading-snug">
+      {{ project.title }}
+    </h3>
+    <div class="flex items-center gap-2 flex-wrap mt-1">
+      <span class="text-sm text-gray-500">{{ project.date|date:"M Y" }}</span>
+      {% for category in project.tag_categories %}
+      <span class="inline-block text-xs font-medium px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">
+        {{ category }}
+      </span>
+      {% endfor %}
+    </div>
+    {% if project.excerpt %}
+    <p class="text-gray-600 text-sm leading-relaxed mt-1 line-clamp-3">{{ project.excerpt }}</p>
+    {% endif %}
+  </div>
+</a>
