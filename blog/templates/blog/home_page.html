@@ -16,7 +16,7 @@
     {% endif %}
     <div class="md:flex-1">
       <h1 class="font-display text-5xl text-accent mb-4">{{ page.title }}</h1>
-      <div class="prose prose-stone max-w-none">
+      <div class="prose prose-site max-w-none">
         {{ page.intro|richtext }}
       </div>
     </div>
@@ -24,22 +24,22 @@
 
   {# Quick access — flagship sections #}
   <div class="mb-10">
-    <h2 class="text-sm font-semibold uppercase tracking-wider text-stone-500 mb-4">Explore</h2>
+    <h2 class="text-sm font-semibold uppercase tracking-wider text-ink-subtle mb-4">Explore</h2>
     <div class="grid sm:grid-cols-3 gap-4">
       <a href="/pigments/"
-         class="block p-5 rounded-lg border border-stone-200 shadow-sm hover:border-accent hover:shadow transition-all">
+         class="block p-5 rounded-lg border border-line shadow-sm hover:border-accent hover:shadow transition-all">
         <span class="font-display text-xl text-accent">Pigment Database</span>
-        <p class="text-sm text-stone-600 mt-1">A filterable reference of pigments used in medieval manuscripts.</p>
+        <p class="text-sm text-ink-muted mt-1">A filterable reference of pigments used in medieval manuscripts.</p>
       </a>
       <a href="/projects/"
-         class="block p-5 rounded-lg border border-stone-200 shadow-sm hover:border-accent hover:shadow transition-all">
+         class="block p-5 rounded-lg border border-line shadow-sm hover:border-accent hover:shadow transition-all">
         <span class="font-display text-xl text-accent">Projects</span>
-        <p class="text-sm text-stone-600 mt-1">Craft tutorials, research notes, and documented work.</p>
+        <p class="text-sm text-ink-muted mt-1">Craft tutorials, research notes, and documented work.</p>
       </a>
       <a href="/classes/"
-         class="block p-5 rounded-lg border border-stone-200 shadow-sm hover:border-accent hover:shadow transition-all">
+         class="block p-5 rounded-lg border border-line shadow-sm hover:border-accent hover:shadow transition-all">
         <span class="font-display text-xl text-accent">Classes</span>
-        <p class="text-sm text-stone-600 mt-1">Handouts from classes I've given or attended.</p>
+        <p class="text-sm text-ink-muted mt-1">Handouts from classes I've given or attended.</p>
       </a>
     </div>
   </div>
@@ -47,11 +47,11 @@
   {# Browse by category — quick links into the existing Projects categories #}
   {% if categories %}
   <div>
-    <h2 class="text-sm font-semibold uppercase tracking-wider text-stone-500 mb-4">Browse by topic</h2>
+    <h2 class="text-sm font-semibold uppercase tracking-wider text-ink-subtle mb-4">Browse by topic</h2>
     <div class="flex flex-wrap gap-2">
       {% for category in categories %}
       <a href="{% pageurl projects_index %}#category-{{ category.id }}"
-         class="px-3 py-1.5 text-sm rounded-full bg-stone-100 text-stone-700 hover:bg-accent hover:text-white transition-colors">
+         class="px-3 py-1.5 text-sm rounded-full bg-surface-muted text-ink-muted hover:bg-accent hover:text-on-accent transition-colors">
         {{ category.name }}
       </a>
       {% endfor %}

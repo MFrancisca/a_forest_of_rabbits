@@ -2,7 +2,7 @@
 {# Safari draws its own marker unless [&::-webkit-details-marker]:hidden; list-none hides it elsewhere. #}
 {# The chevron keys off its own <details> ([open]>summary>svg), not a group ancestor, so nested disclosures rotate independently. #}
 <details{% if extra_class %} class="{{ extra_class }}"{% endif %}>
-  <summary class="cursor-pointer list-none [&::-webkit-details-marker]:hidden flex items-center justify-between w-full border-b border-stone-200 {% if heading %}pb-2{% else %}py-2{% endif %}">
+  <summary class="cursor-pointer list-none [&::-webkit-details-marker]:hidden flex items-center justify-between w-full border-b border-line {% if heading %}pb-2{% else %}py-2{% endif %}">
     {% if heading %}
     {# HTML allows a heading inside <summary>; it gives h3s in the content a parent h2 #}
     <h2 class="font-display text-2xl text-accent">{{ label }}</h2>

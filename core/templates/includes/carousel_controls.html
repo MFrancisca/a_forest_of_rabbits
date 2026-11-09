@@ -7,7 +7,7 @@ Include inside an element with x-data="{ slide: 0, count: <n> }" and pass `slide
 {# x-cloak: without JavaScript the buttons would do nothing, so they stay hidden. #}
 <div x-cloak class="flex items-center justify-center gap-1 mt-3">
   <button type="button" @click="slide = (slide + count - 1) % count"
-          class="p-2 rounded text-stone-600 hover:text-accent hover:bg-stone-100 transition-colors"
+          class="p-2 rounded text-ink-muted hover:text-accent hover:bg-surface-muted transition-colors"
           aria-label="Previous image">
     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
@@ -22,11 +22,11 @@ Include inside an element with x-data="{ slide: 0, count: <n> }" and pass `slide
           {% if forloop.first %}aria-current="true"{% endif %}
           :aria-current="slide === {{ forloop.counter0 }} ? 'true' : null">
     <span class="block w-2.5 h-2.5 rounded-full border transition-colors"
-          :class="slide === {{ forloop.counter0 }} ? 'bg-accent border-accent' : 'border-stone-500'"></span>
+          :class="slide === {{ forloop.counter0 }} ? 'bg-accent border-accent' : 'border-ink-subtle'"></span>
   </button>
   {% endfor %}
   <button type="button" @click="slide = (slide + 1) % count"
-          class="p-2 rounded text-stone-600 hover:text-accent hover:bg-stone-100 transition-colors"
+          class="p-2 rounded text-ink-muted hover:text-accent hover:bg-surface-muted transition-colors"
           aria-label="Next image">
     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>

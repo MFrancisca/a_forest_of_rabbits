@@ -10,8 +10,8 @@
   <div class="grid gap-x-8 gap-y-10 lg:grid-cols-[repeat(var(--cols),minmax(0,1fr))]">
     {% for category, projects in columns %}
     <section id="category-{{ category.id }}" class="scroll-mt-8">
-      <h2 class="font-display text-2xl text-accent border-b border-stone-200 pb-2 mb-2">{{ category.name }}</h2>
-      <ul class="divide-y divide-gray-200">
+      <h2 class="font-display text-2xl text-accent border-b border-line pb-2 mb-2">{{ category.name }}</h2>
+      <ul class="divide-y divide-line">
         {% for project in projects %}
         <li class="py-4">{% include "blog/includes/project_card.html" %}</li>
         {% endfor %}
@@ -24,14 +24,14 @@
   {% if other_projects %}
   <section class="{% if columns %}mt-12{% endif %}">
     {% if columns %}
-    <h2 class="font-display text-2xl text-accent border-b border-stone-200 pb-2 mb-2">Other</h2>
+    <h2 class="font-display text-2xl text-accent border-b border-line pb-2 mb-2">Other</h2>
     {% else %}
     {# Not shown, but keeps the outline h1 → h2 → h3 (cards) for screen readers #}
     <h2 class="sr-only">All projects</h2>
     {% endif %}
     <ul class="grid gap-x-8 lg:grid-cols-[repeat(var(--cols),minmax(0,1fr))]">
       {% for project in other_projects %}
-      <li class="py-4 border-b border-gray-200">{% include "blog/includes/project_card.html" %}</li>
+      <li class="py-4 border-b border-line">{% include "blog/includes/project_card.html" %}</li>
       {% endfor %}
     </ul>
   </section>
@@ -41,14 +41,14 @@
   {% disclosure label=archive_category.name heading=True class="mt-12" %}
     <ul class="grid gap-x-8 lg:grid-cols-[repeat(var(--cols),minmax(0,1fr))]">
       {% for project in archive_projects %}
-      <li class="py-4 border-b border-gray-200">{% include "blog/includes/project_card.html" %}</li>
+      <li class="py-4 border-b border-line">{% include "blog/includes/project_card.html" %}</li>
       {% endfor %}
     </ul>
   {% enddisclosure %}
   {% endif %}
 
   {% if not columns and not other_projects and not archive_projects %}
-  <p class="text-gray-500">No projects published yet — check back soon.</p>
+  <p class="text-ink-subtle">No projects published yet — check back soon.</p>
   {% endif %}
 </div>
 {% endblock %}

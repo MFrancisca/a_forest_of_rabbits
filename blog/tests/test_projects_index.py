@@ -202,7 +202,7 @@ def test_detail_page_hides_default_category_tag(client, projects_index, other):
     armor = CategoryFactory(name='Armor')
     project = ProjectPageFactory(parent=projects_index, categories=[armor, other])
 
-    pills = client.get(project.url).content.decode().count('rounded-full bg-amber-100')
+    pills = client.get(project.url).content.decode().count('rounded-full bg-tag')
     assert pills == 1
     assert project.display_categories == [armor]
 

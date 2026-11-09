@@ -5,6 +5,8 @@ All 11 tests are collected with no import errors.
 They fail with assertion errors (not ImportError/ModuleNotFoundError).
 Plan 02-02 (GREEN) will implement the view to make these pass.
 """
+import re
+
 import pytest
 from django.test import Client
 from django.urls import reverse
@@ -419,3 +421,16 @@ def test_detail_has_no_formula_image_when_unset():
     FormulaFactory(pigment=pigment)
     html = Client().get(reverse('pigments:detail', args=[pigment.pk])).content.decode()
     assert 'class="formula-image' not in html
+
+
+@pytest.mark.django_db
+def test_detail_links_back_to_the_pigment_list():
+    """A plain link to the list; a script upgrades it to the filtered list the visitor came from."""
+    pigment = PigmentFactory()
+    html = Client().get(reverse('pigments:detail', kwargs={'pk': pigment.pk})).content.decode()
+    link = re.search(r'<a href="([^"]+)" id="back-to-list"[^>]*>(.*?)</a>', html, re.S)
+    assert link, 'back-to-list link not found'
+    assert link.group(1) == reverse('pigments:list')
+    assert 'Back to pigments' in link.group(2)
+    assert html.index('id="back-to-list"') < html.index('<h1')
+    assert "document.getElementById('back-to-list')" in html

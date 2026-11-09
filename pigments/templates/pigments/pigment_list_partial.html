@@ -4,23 +4,23 @@
 {% if active_pills %}
 <div class="flex flex-wrap items-center gap-2 mb-4">
   {% for pill in active_pills %}
-  <span class="inline-flex items-center gap-1 bg-stone-100 border border-stone-300 rounded-full px-3 py-1 text-sm">
+  <span class="inline-flex items-center gap-1 bg-surface-muted border border-line-strong rounded-full px-3 py-1 text-sm">
     {{ pill.label }}
     {# Handled by the click listener in pigment_list.html: unticks these values and refreshes. #}
     <button type="button" data-remove-filter
             data-param="{{ pill.param }}"
             data-values="{% if pill.is_century %}{{ pill.values|join:' ' }}{% else %}{{ pill.value }}{% endif %}"
-            class="inline-flex items-center justify-center w-6 h-6 -my-1 -mr-1.5 text-stone-500 hover:text-stone-800 hover:bg-stone-200 leading-none rounded-full"
+            class="inline-flex items-center justify-center w-6 h-6 -my-1 -mr-1.5 text-ink-subtle hover:text-ink hover:bg-line leading-none rounded-full"
             aria-label="Remove filter: {{ pill.label }}"><span aria-hidden="true">&#x00D7;</span></button>
   </span>
   {% endfor %}
-  <a href="/pigments/"
-     class="text-sm text-stone-500 hover:text-stone-800 underline ml-1">Clear all</a>
+  <a href="{% url 'pigments:list' %}"
+     class="text-sm text-ink-subtle hover:text-ink underline ml-1">Clear all</a>
 </div>
 {% endif %}
 
 {# Result count. tabindex="-1" so focus can land here after the last filter pill is removed. #}
-<p id="result-count" tabindex="-1" class="text-sm text-stone-500 mb-3">
+<p id="result-count" tabindex="-1" class="text-sm text-ink-subtle mb-3">
   {% if is_filtered %}
     {{ filtered_count }} of {{ total_count }} pigment{{ total_count|pluralize }}
   {% else %}
@@ -29,20 +29,20 @@
 </p>
 
 {# Pigment list rows #}
-<ul class="divide-y divide-stone-200 border border-stone-200 rounded">
+<ul class="divide-y divide-line border border-line rounded">
   {% for pigment in pigments %}
   <li>
-    <a href="/pigments/{{ pigment.pk }}/"
-       class="flex items-center justify-between px-4 py-3 hover:bg-stone-50">
-      <span class="font-medium text-stone-800">{{ pigment.name }}</span>
+    <a href="{% url 'pigments:detail' pigment.pk %}"
+       class="flex items-center justify-between px-4 py-3 hover:bg-surface-muted">
+      <span class="font-medium text-ink">{{ pigment.name }}</span>
       <span class="flex gap-2">
         {% if pigment.color_family %}
-        <span class="text-xs bg-stone-100 border border-stone-200 rounded-full px-2 py-0.5 text-stone-600">
+        <span class="text-xs bg-surface-muted border border-line rounded-full px-2 py-0.5 text-ink-muted">
           {{ pigment.color_family }}
         </span>
         {% endif %}
         {% if pigment.pigment_family %}
-        <span class="text-xs bg-stone-100 border border-stone-200 rounded-full px-2 py-0.5 text-stone-600">
+        <span class="text-xs bg-surface-muted border border-line rounded-full px-2 py-0.5 text-ink-muted">
           {{ pigment.pigment_family }}
         </span>
         {% endif %}
@@ -50,9 +50,9 @@
     </a>
   </li>
   {% empty %}
-  <li class="px-4 py-6 text-center text-stone-500">
+  <li class="px-4 py-6 text-center text-ink-subtle">
     No pigments match these filters.
-    <a href="/pigments/" class="text-stone-700 underline ml-1">Clear filters</a>
+    <a href="{% url 'pigments:list' %}" class="text-ink-muted underline ml-1">Clear filters</a>
   </li>
   {% endfor %}
 </ul>

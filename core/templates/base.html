@@ -5,6 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}{% if page %}{{ page.seo_title|default:page.title }} — {% endif %}A Forest of Rabbits{% endblock %}</title>
 
+  {# Theme: follows the device unless the visitor picked one with the nav toggle. #}
+  {# Runs before the stylesheet so the page never flashes the wrong theme. #}
+  <meta name="color-scheme" content="light dark">
+  <script>
+    (function () {
+      try {
+        var theme = localStorage.getItem('theme');
+        var supported = window.CSS && CSS.supports('color', 'light-dark(#000, #fff)');
+        if (supported && (theme === 'light' || theme === 'dark')) document.documentElement.classList.add(theme);
+      } catch (e) {}
+    })();
+  </script>
+
   <!-- Alice: display serif for headings, matched from the old Forest of Rabbits site -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,10 +34,10 @@
 
   {% block extra_head %}{% endblock %}
 </head>
-<body class="min-h-screen flex flex-col bg-white text-gray-900">
+<body class="min-h-screen flex flex-col bg-surface text-ink">
 
   <a href="#content"
-     class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:rounded focus:bg-white focus:text-accent focus:shadow-md focus:ring-2 focus:ring-accent">
+     class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:rounded focus:bg-surface focus:text-accent focus:shadow-md focus:ring-2 focus:ring-accent">
     Skip to content
   </a>
 
@@ -35,6 +48,33 @@
   </main>
 
   {% include 'includes/footer.html' %}
+
+  {# Dark-mode toggle (button in includes/nav.html). aria-pressed reflects the theme in #}
+  {# effect, including "following the device" before the visitor has chosen. #}
+  <script>
+    (function () {
+      // Browsers without light-dark() get the light palette (see input.css), so a
+      // toggle there could only darken scrollbars and form controls: leave it hidden.
+      if (!(window.CSS && CSS.supports('color', 'light-dark(#000, #fff)'))) return;
+      var root = document.documentElement;
+      var button = document.getElementById('theme-toggle');
+      var deviceDark = window.matchMedia('(prefers-color-scheme: dark)');
+      function isDark() {
+        return root.classList.contains('dark') || (!root.classList.contains('light') && deviceDark.matches);
+      }
+      function sync() { button.setAttribute('aria-pressed', String(isDark())); }
+      button.addEventListener('click', function () {
+        var dark = !isDark();
+        root.classList.toggle('dark', dark);
+        root.classList.toggle('light', !dark);
+        try { localStorage.setItem('theme', dark ? 'dark' : 'light'); } catch (e) {}
+        sync();
+      });
+      sync();
+      button.hidden = false;  // without JS the site just follows the device setting
+      if (deviceDark.addEventListener) deviceDark.addEventListener('change', sync);
+    })();
+  </script>
 
   <!-- HTMX CDN — pinned with SRI (see Alpine note above) -->
   <script src="https://unpkg.com/htmx.org@2.0.11/dist/htmx.min.js"
