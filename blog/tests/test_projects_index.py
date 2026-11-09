@@ -14,7 +14,7 @@ pytestmark = pytest.mark.django_db
 
 @pytest.fixture
 def other():
-    """The default category, created by migration 0018."""
+    """The default category, seeded by the blog migrations."""
     return Category.objects.get(name=DEFAULT_CATEGORY_NAME)
 
 
