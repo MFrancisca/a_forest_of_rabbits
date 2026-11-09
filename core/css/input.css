@@ -7,13 +7,90 @@
 @source "../../pigments/templates/**/*.html";
 @source "../../blog/templates/**/*.html";
 
-/* Una Nueva Esperanza — Tailwind v4 @theme customizations */
 /* Palette and display face carried over from the old Forest of Rabbits site
-   (sampled from https://sites.google.com/view/forestofrabbits/home) */
+   (sampled from https://sites.google.com/view/forestofrabbits/home).
+
+   Light and dark themes: every site color is a semantic token whose value is
+   light-dark(<light>, <dark>). Which one applies follows `color-scheme` on <html>:
+     - default "light dark" → follows the device setting (also the no-JS fallback)
+     - class "light" / "dark" → pinned by the nav toggle (saved in localStorage;
+       see the inline scripts in base.html)
+   Templates use the token utilities (bg-surface, text-ink, border-line, …), never
+   raw stone-/gray- colors, so nothing needs a dark: variant.
+
+   Every text/background pair below meets WCAG AA in both themes (≥ 4.5:1 for text,
+   ≥ 3:1 for UI parts); ratios are listed in the dark-mode PR. Dark accent is a
+   light lilac because the brand purple drops to ~1.9:1 on a dark background. */
 @theme {
   --color-plum: #4f3868;
-  --color-accent: #741f8a;
   --font-display: "Alice", "Palatino Linotype", Georgia, serif;
+
+  /* Backgrounds */
+  --color-surface: light-dark(#ffffff, #1c1917);        /* page, nav, cards, panels */
+  --color-surface-muted: light-dark(#f5f5f4, #292524);  /* hover rows, pills, highlights */
+
+  /* Text: ink > ink-muted > ink-subtle in emphasis */
+  --color-ink: light-dark(#1c1917, #f5f5f4);
+  --color-ink-muted: light-dark(#57534e, #d6d3d1);
+  --color-ink-subtle: light-dark(#736b66, #a8a29e);
+
+  /* Borders and dividers */
+  --color-line: light-dark(#e7e5e4, #44403c);
+  --color-line-strong: light-dark(#d6d3d1, #57534e);
+
+  /* Brand */
+  --color-accent: light-dark(#741f8a, #c99be0);
+  --color-on-accent: light-dark(#ffffff, #1c1917);      /* text on an accent background */
+  --color-tag: light-dark(#f3e8f7, #3d2b48);            /* category tags */
+  --color-on-tag: light-dark(#5e1a70, #e6cdf2);
+}
+
+/* Browsers without light-dark() (Safari < 17.5, Chrome < 123, Firefox < 120) would drop
+   every token above (borders turn currentColor, accents vanish), so they get the light
+   values. Keep in sync with @theme; core/tests/test_theme.py checks it. */
+@supports not (color: light-dark(#000, #fff)) {
+  :root {
+    --color-surface: #ffffff;
+    --color-surface-muted: #f5f5f4;
+    --color-ink: #1c1917;
+    --color-ink-muted: #57534e;
+    --color-ink-subtle: #736b66;
+    --color-line: #e7e5e4;
+    --color-line-strong: #d6d3d1;
+    --color-accent: #741f8a;
+    --color-on-accent: #ffffff;
+    --color-tag: #f3e8f7;
+    --color-on-tag: #5e1a70;
+  }
+}
+
+:root { color-scheme: light dark; }
+:root.light { color-scheme: light; }
+:root.dark { color-scheme: dark; }
+
+/* Native controls (checkboxes) pick up the brand color in both themes. */
+:root { accent-color: var(--color-accent); }
+
+/* Rich text (@tailwindcss/typography) on the same tokens, so it switches with the theme. */
+@utility prose-site {
+  --tw-prose-body: var(--color-ink-muted);
+  --tw-prose-headings: var(--color-ink);
+  --tw-prose-lead: var(--color-ink-muted);
+  --tw-prose-links: var(--color-accent);
+  --tw-prose-bold: var(--color-ink);
+  --tw-prose-counters: var(--color-ink-subtle);
+  --tw-prose-bullets: var(--color-line-strong);
+  --tw-prose-hr: var(--color-line);
+  --tw-prose-quotes: var(--color-ink);
+  --tw-prose-quote-borders: var(--color-line);
+  --tw-prose-captions: var(--color-ink-subtle);
+  --tw-prose-code: var(--color-ink);
+  --tw-prose-pre-code: var(--color-ink);
+  --tw-prose-pre-bg: var(--color-surface-muted);
+  --tw-prose-th-borders: var(--color-line-strong);
+  --tw-prose-td-borders: var(--color-line);
+  --tw-prose-kbd: var(--color-ink);
+  --tw-prose-kbd-shadows: color-mix(in oklab, var(--color-ink) 10%, transparent);
 }
 
 [x-cloak] { display: none !important; }

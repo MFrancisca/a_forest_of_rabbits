@@ -1,25 +1,40 @@
 {% load static nav_tags %}
 {% nav_links as links %}
 <!-- Add logo.png to core/static/img/ to display the logo -->
-<nav aria-label="Main" class="bg-white border-b border-gray-200 px-4 py-3" x-data="{ open: false }">
+<nav aria-label="Main" class="bg-surface border-b border-line px-4 py-3" x-data="{ open: false }">
   <div class="max-w-6xl mx-auto flex justify-between items-center">
 
     <!-- Logo (left) -->
     <a href="/" class="flex items-center gap-2">
       <img src="{% static 'img/logo.png' %}" alt="A Forest of Rabbits" class="h-10 w-auto" onerror="this.style.display='none'">
-      <span class="font-semibold text-gray-800 text-lg">A Forest of Rabbits</span>
+      <span class="font-semibold text-ink text-lg">A Forest of Rabbits</span>
     </a>
 
+    <div class="flex items-center gap-2 md:gap-4">
     <!-- Desktop nav links (right, hidden on mobile) -->
-    <ul class="hidden md:flex gap-6 items-center text-sm font-medium text-gray-600">
+    <ul class="hidden md:flex gap-6 items-center text-sm font-medium text-ink-muted">
       {% for link in links %}
       <li><a href="{{ link.href }}"{{ link.current }} class="hover:text-accent transition-colors">{{ link.label }}</a></li>
       {% endfor %}
     </ul>
 
+    <!-- Dark-mode toggle: one button for every screen size. Hidden until the script in -->
+    <!-- base.html runs; without JS the site follows the device setting. Shows the moon -->
+    <!-- while light (switch to dark) and the sun while dark. -->
+    <button type="button" id="theme-toggle" hidden
+            aria-pressed="false" aria-label="Dark mode"
+            class="group p-2 rounded text-ink-muted hover:text-accent hover:bg-surface-muted transition-colors">
+      <svg class="w-5 h-5 group-aria-pressed:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+      </svg>
+      <svg class="w-5 h-5 hidden group-aria-pressed:block" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+      </svg>
+    </button>
+
     <!-- Hamburger button (mobile only) -->
     <button type="button"
-            class="md:hidden p-2 rounded text-gray-600 hover:text-accent hover:bg-gray-100 transition-colors"
+            class="md:hidden p-2 rounded text-ink-muted hover:text-accent hover:bg-surface-muted transition-colors"
             @click="open = !open"
             aria-label="Toggle navigation menu"
             aria-controls="mobile-menu"
@@ -29,14 +44,15 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
       </svg>
     </button>
+    </div>
 
   </div>
 
   <!-- Mobile menu (shown/hidden via Alpine.js) -->
-  <div id="mobile-menu" x-show="open" x-cloak class="md:hidden mt-3 border-t border-gray-100 pt-3">
-    <ul class="flex flex-col gap-1 text-sm font-medium text-gray-600 px-2">
+  <div id="mobile-menu" x-show="open" x-cloak class="md:hidden mt-3 border-t border-line pt-3">
+    <ul class="flex flex-col gap-1 text-sm font-medium text-ink-muted px-2">
       {% for link in links %}
-      <li><a href="{{ link.href }}"{{ link.current }} class="block py-2 px-3 rounded hover:bg-gray-50 hover:text-accent transition-colors">{{ link.label }}</a></li>
+      <li><a href="{{ link.href }}"{{ link.current }} class="block py-2 px-3 rounded hover:bg-surface-muted hover:text-accent transition-colors">{{ link.label }}</a></li>
       {% endfor %}
     </ul>
   </div>

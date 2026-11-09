@@ -6,9 +6,9 @@
   <h1 class="font-display text-4xl text-accent mb-2">{{ page.title }}</h1>
 
   <div class="flex items-center gap-3 mb-6">
-    <time datetime="{{ page.date|date:'Y-m-d' }}" class="text-sm text-gray-500">{{ page.date|date:"j M Y" }}</time>
+    <time datetime="{{ page.date|date:'Y-m-d' }}" class="text-sm text-ink-subtle">{{ page.date|date:"j M Y" }}</time>
     {% for category in page.display_categories %}
-    <span class="inline-block text-xs font-medium px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">
+    <span class="inline-block text-xs font-medium px-2 py-0.5 rounded-full bg-tag text-on-tag">
       {{ category }}
     </span>
     {% endfor %}
@@ -20,18 +20,18 @@
     <div class="pt-4">
       {% for block in page.technical_info %}
         {% if block.block_type == 'freeform' %}
-        <div class="prose prose-gray max-w-none">{{ block.value }}</div>
+        <div class="prose prose-site max-w-none">{{ block.value }}</div>
         {% elif block.block_type == 'scribal_details' %}
         <dl class="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-3 text-sm">
-          <div><dt class="font-semibold text-gray-700">Size</dt><dd class="text-gray-600">{{ block.value.size }}</dd></div>
-          <div><dt class="font-semibold text-gray-700">Reference</dt><dd class="text-gray-600">{{ block.value.reference }}</dd></div>
-          <div><dt class="font-semibold text-gray-700">Surface</dt><dd class="text-gray-600">{{ block.value.surface }}</dd></div>
-          <div><dt class="font-semibold text-gray-700">Colors</dt><dd class="text-gray-600">{{ block.value.colors }}</dd></div>
-          <div><dt class="font-semibold text-gray-700">Nib</dt><dd class="text-gray-600">{{ block.value.nib }}</dd></div>
-          <div><dt class="font-semibold text-gray-700">Ink</dt><dd class="text-gray-600">{{ block.value.ink }}</dd></div>
-          <div><dt class="font-semibold text-gray-700">Hand</dt><dd class="text-gray-600">{{ block.value.hand }}</dd></div>
+          <div><dt class="font-semibold text-ink">Size</dt><dd class="text-ink-muted">{{ block.value.size }}</dd></div>
+          <div><dt class="font-semibold text-ink">Reference</dt><dd class="text-ink-muted">{{ block.value.reference }}</dd></div>
+          <div><dt class="font-semibold text-ink">Surface</dt><dd class="text-ink-muted">{{ block.value.surface }}</dd></div>
+          <div><dt class="font-semibold text-ink">Colors</dt><dd class="text-ink-muted">{{ block.value.colors }}</dd></div>
+          <div><dt class="font-semibold text-ink">Nib</dt><dd class="text-ink-muted">{{ block.value.nib }}</dd></div>
+          <div><dt class="font-semibold text-ink">Ink</dt><dd class="text-ink-muted">{{ block.value.ink }}</dd></div>
+          <div><dt class="font-semibold text-ink">Hand</dt><dd class="text-ink-muted">{{ block.value.hand }}</dd></div>
           {% if block.value.gilding %}
-          <div><dt class="font-semibold text-gray-700">Gilding</dt><dd class="text-gray-600">{{ block.value.gilding }}</dd></div>
+          <div><dt class="font-semibold text-ink">Gilding</dt><dd class="text-ink-muted">{{ block.value.gilding }}</dd></div>
           {% endif %}
         </dl>
         {% endif %}
@@ -53,7 +53,7 @@
       {% if block.value.title %}
       <h2 class="font-display text-2xl text-accent mb-3">{{ block.value.title }}</h2>
       {% endif %}
-      <div class="prose prose-gray max-w-none">{{ block.value.text }}</div>
+      <div class="prose prose-site max-w-none">{{ block.value.text }}</div>
     </div>
 
     {# Guard on the image: if it was deleted the value is None, and {% image ... as img %} #}
@@ -68,10 +68,10 @@
       {% image block.value.image fill-800x600 as img %}
       <img src="{{ img.url }}" alt="{{ block.value.image.default_alt_text }}" class="w-full rounded-lg">
       {% if block.value.caption %}
-      <p class="text-sm text-stone-500 mt-2">{{ block.value.caption }}</p>
+      <p class="text-sm text-ink-subtle mt-2">{{ block.value.caption }}</p>
       {% endif %}
       {% if block.value.text %}
-      <div class="prose prose-gray max-w-none mt-4">{{ block.value.text }}</div>
+      <div class="prose prose-site max-w-none mt-4">{{ block.value.text }}</div>
       {% endif %}
       {% else %}
       {# Side layout: two columns aligned to the top, so the section is as tall #}
@@ -83,11 +83,11 @@
           {% image block.value.image max-800x1200 as img %}
           <img src="{{ img.url }}" alt="{{ block.value.image.default_alt_text }}" class="w-full h-auto rounded-lg">
           {% if block.value.caption %}
-          <figcaption class="text-sm text-stone-500 mt-2">{{ block.value.caption }}</figcaption>
+          <figcaption class="text-sm text-ink-subtle mt-2">{{ block.value.caption }}</figcaption>
           {% endif %}
         </figure>
         {% if block.value.text %}
-        <div class="prose prose-gray max-w-none" data-image-text>{{ block.value.text }}</div>
+        <div class="prose prose-site max-w-none" data-image-text>{{ block.value.text }}</div>
         {% endif %}
       </div>
       {% endif %}
@@ -113,7 +113,7 @@
                alt="{{ item.caption|default:item.image.default_alt_text }}"
                class="w-full max-h-96 object-cover rounded-lg shadow-sm">
           {% if item.caption %}
-          <p class="text-sm text-stone-500 mt-2">{{ item.caption }}</p>
+          <p class="text-sm text-ink-subtle mt-2">{{ item.caption }}</p>
           {% endif %}
         </div>
         {% endfor %}

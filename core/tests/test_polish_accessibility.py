@@ -85,7 +85,7 @@ def test_reference_entries_are_valid_jump_targets(client):
 
     html = _detail(client, pigment)
     entry = re.search(rf'<li id="ref-{source.pk}"[^>]*>', html).group(0)
-    assert 'tabindex="-1"' in entry and 'target:bg-stone-100' in entry
+    assert 'tabindex="-1"' in entry and 'target:bg-surface-muted' in entry
 
 
 # --- new-tab links -------------------------------------------------------------------
@@ -109,10 +109,10 @@ def test_project_dates_are_machine_readable(client, projects_index):
     project = ProjectPageFactory(parent=projects_index, date=datetime.date(2025, 3, 7))
 
     page_html = client.get(project.url).content.decode()
-    assert '<time datetime="2025-03-07" class="text-sm text-gray-500">7 Mar 2025</time>' in page_html
+    assert '<time datetime="2025-03-07" class="text-sm text-ink-subtle">7 Mar 2025</time>' in page_html
 
     index_html = client.get(projects_index.url).content.decode()
-    assert '<time datetime="2025-03" class="text-sm text-gray-500">Mar 2025</time>' in index_html
+    assert '<time datetime="2025-03" class="text-sm text-ink-subtle">Mar 2025</time>' in index_html
 
 
 # --- back to table ------------------------------------------------------------------------

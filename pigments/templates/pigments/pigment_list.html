@@ -39,18 +39,18 @@
         <button type="button" x-ref="button" @click="open = !open"
                 aria-controls="filter-{{ group.name }}"
                 aria-expanded="false" :aria-expanded="open.toString()"
-                class="filter-toggle inline-flex items-center gap-1 border border-stone-300 rounded px-3 py-1 text-sm bg-white hover:bg-stone-50">
+                class="filter-toggle inline-flex items-center gap-1 border border-line-strong rounded px-3 py-1 text-sm bg-surface hover:bg-surface-muted">
           {{ group.label }}
-          <svg class="w-3.5 h-3.5 text-stone-500 transition-transform" :class="open ? 'rotate-180' : ''"
+          <svg class="w-3.5 h-3.5 text-ink-subtle transition-transform" :class="open ? 'rotate-180' : ''"
                fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
           </svg>
         </button>
         <fieldset id="filter-{{ group.name }}" x-show="open" x-cloak
-                  class="filter-panel absolute z-10 bg-white border border-stone-200 rounded shadow-md p-2 min-w-48 mt-1">
+                  class="filter-panel absolute z-10 bg-surface border border-line rounded shadow-md p-2 min-w-48 mt-1">
           <legend class="filter-legend sr-only">{{ group.label }}</legend>
           {% for option in group.options %}
-          <label class="flex items-center gap-2 py-1 px-1 text-sm cursor-pointer hover:bg-stone-50 rounded">
+          <label class="flex items-center gap-2 py-1 px-1 text-sm cursor-pointer hover:bg-surface-muted rounded">
             <input type="checkbox"
                    name="{{ group.name }}"
                    value="{{ option.value }}"
@@ -59,14 +59,14 @@
             {{ option.label }}
           </label>
           {% empty %}
-          <p class="text-sm text-stone-500 px-1">No options</p>
+          <p class="text-sm text-ink-subtle px-1">No options</p>
           {% endfor %}
         </fieldset>
       </div>
       {% endfor %}
 
       <noscript>
-        <button type="submit" class="self-end border border-stone-800 rounded px-3 py-1 text-sm font-medium bg-stone-800 text-white">Apply filters</button>
+        <button type="submit" class="self-end border border-ink rounded px-3 py-1 text-sm font-medium bg-ink text-surface">Apply filters</button>
       </noscript>
     </div><!-- end filter bar -->
   </form>
