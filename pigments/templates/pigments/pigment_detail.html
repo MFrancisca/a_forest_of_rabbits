@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load wagtailimages_tags %}
+{% load wagtailimages_tags disclosure_tags %}
 
 {% block title %}{{ pigment.name }} — A Forest of Rabbits{% endblock %}
 
@@ -130,18 +130,11 @@
           <p class="text-2xl font-mono tracking-wide text-stone-800 mb-2">
             {% for part in formula.parts.all %}{% if part.is_trace %}Δ{% else %}{{ part.parts|floatformat:"-2" }}{% endif %}{{ part.paint.abbreviation }}{% if not forloop.last %} + {% endif %}{% endfor %}
           </p>
-          {# Notes accordion — native <details>, same chevron pattern as the Projects archive #}
+          {# Notes accordion #}
           {% if formula.notes %}
-          <details class="mt-4 group/notes">
-            <summary class="cursor-pointer list-none [&::-webkit-details-marker]:hidden flex items-center justify-between w-full py-2 border-b border-stone-200">
-              <span class="font-display text-accent text-lg">Notes</span>
-              <svg class="w-4 h-4 text-accent transition-transform group-open/notes:rotate-180"
-                   fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-              </svg>
-            </summary>
+          {% disclosure label="Notes" class="mt-4" %}
             <p class="text-sm text-stone-500 pt-2">{{ formula.notes }}</p>
-          </details>
+          {% enddisclosure %}
           {% endif %}
           </div>
           </div>
