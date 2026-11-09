@@ -27,9 +27,11 @@ copied.
   originals, so check what it recorded with
   `docker compose exec web python manage.py shell -c "from django.db.migrations.recorder import MigrationRecorder as R; print(list(R.Migration.objects.filter(app__in=['blog', 'pigments']).order_by('app', 'name').values_list('app', 'name')))"`.
   If it had applied every old migration (blog through
-  `0017_image_block_alignment`, pigments through `0005_formula_image`), mark
+  `0018_projects_index_columns`, whether recorded under the original names or
+  as `0001_squashed_0017_image_block_alignment` plus 0018; pigments through
+  `0005_formula_image`), mark
   the squashes as applied once, then `migrate` again:
-  `docker compose exec web python manage.py migrate blog 0001_squashed_0017_image_block_alignment --fake`
+  `docker compose exec web python manage.py migrate blog 0001_squashed_0018_projects_index_columns --fake`
   and `docker compose exec web python manage.py migrate pigments 0001_squashed_0005_formula_image --fake`.
   If it was further behind, faking would skip real schema changes. Don't
   recreate the database: it holds the content this runbook copies. Instead,
@@ -39,7 +41,9 @@ copied.
      including the old data conversions. Applies whatever is missing and
      records the first blog squash.
   2. `151117c`: records the pigments squash.
-  3. `9dfa4f9`: records the final blog squash.
+  3. `9dfa4f9`: records the blog squash through 0017.
+  4. `eab877e`: applies `0018_projects_index_columns` if missing and records
+     the final blog squash (through 0018).
 
   Then check out your branch again and `migrate`.
 - **Staging's Postgres needs public access.** Railway → staging → its
