@@ -32,3 +32,6 @@ local_sync_fixture.json
 .idea/
 .vscode/
 *.swp
+
+# Database backups made by scripts/load-pigments.sh
+backups/
