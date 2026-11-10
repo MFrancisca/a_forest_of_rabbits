@@ -1,0 +1,35 @@
+/* Wagtail admin overrides, loaded on every admin page (core/wagtail_hooks.py). */
+
+/* Listing filters (e.g. Images > Collection): Wagtail fixes the filter panel at
+   300px and its fields at 244px, so long collection names overflow the panel.
+   Let the panel grow to fit its widest field, from the original 300px up to 40rem.
+   The select then sizes itself to its longest option; a name too long for the room
+   is cut off in the closed select but still shown in full in the open list. */
+.tippy-box[data-theme='drilldown'] {
+    width: max-content;
+    min-width: 300px;
+    max-width: min(40rem, calc(100vw - 2rem)) !important; /* tippy sets an inline max-width */
+}
+
+/* On desktop the sidebar (200px) stays on screen and the panel opens leftwards from
+   the filter button, which sits about 388px from the right edge on Images (with the
+   sort and view controls beside it). Cap the panel at the room between the two so
+   it doesn't slide under the sidebar. Below ~905px wide that room is under 300px
+   and the panel keeps Wagtail's own 300px, as before. */
+@media (min-width: 50em) {
+    .tippy-box[data-theme='drilldown'] {
+        max-width: min(40rem, max(300px, calc(100vw - 604px))) !important;
+    }
+}
+
+.w-drilldown__submenu {
+    grid-template-columns: min-content minmax(0, 1fr);
+}
+
+.w-drilldown__submenu .w-field__wrapper {
+    max-width: none;
+}
+
+.w-drilldown__submenu .w-field {
+    max-width: 100%;
+}
