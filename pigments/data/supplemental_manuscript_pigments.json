@@ -1,0 +1,905 @@
+{
+  "_instructions": {
+    "usage": "python manage.py load_initial_pigments --data-file pigments/data/manuscript_pigments.json pigments/data/supplemental_manuscript_pigments.json  (or scripts/load-pigments.sh <env> with the same files; see docs/load-pigment-data.md)",
+    "notes": [
+      "Built from supplemental_pigments.json and master_manuscripts_palette_database.json, after checking each claim against a published source.",
+      "Same layout as manuscript_pigments.json: 'sources' defines each reference once under a short key, and manuscript links cite one with 'source' and optional 'source_detail'.",
+      "Sources whose title matches one in manuscript_pigments.json (bicchieri2014) reuse that Source row, because the loader matches sources by title.",
+      "Pigment names match existing pigments where they are the same material (Indigo, Orpiment, Red Lead, Lead White, Vergaut, Carbon Black, Azurite, Ultramarine Blue), so their new manuscript links are added to them. Cinnabar is not a separate pigment here: it is covered by the existing Vermilion.",
+      "Manuscript names match the ones already in the database (e.g. 'Codex Rossanensis').",
+      "The Pigment model has no fields for chemical formula, historical names or spectroscopic fingerprint, so those are written into 'description'.",
+      "Load manuscript_pigments.json first: entries here for existing pigments have an empty description and would create bare pigments in an empty database.",
+      "The loader never overwrites the description of a pigment that already exists; it only creates new pigments and adds links.",
+      "There are no formulas here because those are your own paint recipes; add them in the admin.",
+      "'_unverified_claims' is ignored by the loader. It keeps the claims from the source files that no published source could confirm, so they can be checked later."
+    ]
+  },
+  "sources": {
+    "bicchieri2014": {
+      "kind": "paper",
+      "authors": "Bicchieri, M.",
+      "title": "The purple Codex Rossanensis: spectroscopic characterization and first evidence of the use of the elderberry lake in a 6th century manuscript",
+      "publication": "arXiv:1404.6414",
+      "year": 2014,
+      "doi": "",
+      "url": "https://arxiv.org/abs/1404.6414"
+    },
+    "denoel2018": {
+      "kind": "paper",
+      "authors": "Denoël, C., Roger Puyo, P., Brunet, A. & Siloe, N.",
+      "title": "Illuminating the Carolingian era: new discoveries as a result of scientific analyses",
+      "publication": "Heritage Science 6, 28",
+      "year": 2018,
+      "doi": "10.1186/s40494-018-0194-1",
+      "url": ""
+    },
+    "trujillo2011": {
+      "kind": "website",
+      "authors": "Trujillo, F.",
+      "title": "The Hours of Catherine of Cleves: exhibition, conservation and analysis of an illuminated manuscript (AIC 2011 Book and Paper Group session)",
+      "publication": "Conservators Converse, American Institute for Conservation",
+      "year": 2011,
+      "doi": "",
+      "url": "https://resources.culturalheritage.org/conservators-converse/2011/06/09/2011-annual-meeting-bpg-session-wednesday-june-1-the-hours-of-catherine-of-cleves-exhibition-conservation-and-analysis-of-an-illuminated-manuscript-francisco-trujillo-morgan/"
+    },
+    "lacma_blue_quran": {
+      "kind": "website",
+      "authors": "",
+      "title": "Page from a Manuscript of the Qur'an (4:23-24; 4:24-25), M.86.196",
+      "publication": "Los Angeles County Museum of Art",
+      "year": null,
+      "doi": "",
+      "url": "https://collections.lacma.org/object/55053"
+    },
+    "gibbs1997": {
+      "kind": "paper",
+      "authors": "Gibbs, P. J., Seddon, K. R., Brovenko, N. M., Petrosyan, Y. A. & Barnard, M.",
+      "title": "Analysis of Ancient Dyed Chinese Papers by High-Performance Liquid Chromatography",
+      "publication": "Analytical Chemistry 69(10), 1965–1969",
+      "year": 1997,
+      "doi": "10.1021/ac960279v",
+      "url": ""
+    },
+    "bell2000": {
+      "kind": "paper",
+      "authors": "Bell, S. E. J., Bourguignon, E. S. O., Dennis, A. C., Fields, J. A., McGarvey, J. J. & Seddon, K. R.",
+      "title": "Identification of Dyes on Ancient Chinese Paper Samples Using the Subtracted Shifted Raman Spectroscopy Method",
+      "publication": "Analytical Chemistry 72(1), 234–239",
+      "year": 2000,
+      "doi": "10.1021/ac9909812",
+      "url": ""
+    },
+    "smieska2017": {
+      "kind": "paper",
+      "authors": "Smieska, L. M., Mullett, R., Ferri, L. & Woll, A. R.",
+      "title": "Trace elements in natural azurite pigments found in illuminated manuscript leaves investigated by synchrotron x-ray fluorescence and diffraction mapping",
+      "publication": "Applied Physics A 123, 484",
+      "year": 2017,
+      "doi": "10.1007/s00339-017-1093-0",
+      "url": ""
+    },
+    "fitzwilliam_leadtin": {
+      "kind": "website",
+      "authors": "",
+      "title": "Lead-tin yellow (MINIARE: overview of artists' materials)",
+      "publication": "Fitzwilliam Museum, University of Cambridge",
+      "year": null,
+      "doi": "",
+      "url": "https://qi.fitzmuseum.cam.ac.uk/illuminated/lab/overview-of-artists-materials/lead-tin-yellow/type/material"
+    },
+    "quandt_ortiz_walters78": {
+      "kind": "paper",
+      "authors": "Quandt, A. B. & Ortiz Miranda, A. S.",
+      "title": "A Technical Study of the Materials Used for the Writing and Illumination of Ethiopian Manuscripts",
+      "publication": "The Journal of the Walters Art Museum 78",
+      "year": null,
+      "doi": "",
+      "url": "https://journal.thewalters.org/volume/78/note/ethiopian-manuscripts/"
+    }
+  },
+  "pigments": [
+    {
+      "name": "Egyptian Blue",
+      "color_family": "Blue",
+      "pigment_family": "Copper Pigments",
+      "description": "Calcium copper silicate (CaCuSi4O10), also called Alexandrian or Vestorian blue: the oldest known synthetic pigment, made by heating sand, lime, a copper source and a flux. It was common in Antiquity and very rare by the early Middle Ages, which makes its appearance in the Godescalc Evangelistary remarkable. It glows strongly in the near-infrared (around 910–950 nm) under visible light, which makes it easy to map by imaging. Raman bands include 430 and 1086 cm⁻¹.",
+      "manuscripts": [
+        {
+          "name": "Godescalc Evangelistary",
+          "country": "Carolingian Empire",
+          "date_start": 781,
+          "date_end": 783,
+          "page_reference": "folio 3v (Fountain of Life)",
+          "notes": "Used only on the peacocks' bodies and necks. The authors read the choice of this rare, symbolic blue as giving the manuscript a special status.",
+          "source": "denoel2018",
+          "source_detail": "Fig. 26"
+        }
+      ],
+      "sources": []
+    },
+    {
+      "name": "Turnsole",
+      "color_family": "Purple",
+      "pigment_family": "Organic Dyes & Lakes",
+      "description": "A dye from the plant Chrozophora tinctoria, known in medieval treatises as folium (also tornasole). It shifts from red through purple to blue with pH, so one dye could give several shades. Reflectance spectroscopy (FORS) struggles to tell it apart from orchil, because both owe their colour to orcinol-derived compounds.",
+      "manuscripts": [
+        {
+          "name": "Godescalc Evangelistary",
+          "country": "Carolingian Empire",
+          "date_start": 781,
+          "date_end": 783,
+          "page_reference": "",
+          "notes": "Purple of the dyed parchment and edging of the large initials. The paper reports it as 'folium-orchil', a substitute for Tyrian purple; FORS identified orcinol-derived colourants found in both folium and orchil.",
+          "source": "denoel2018",
+          "source_detail": "Results: The purple colour; Fig. 24"
+        }
+      ],
+      "sources": []
+    },
+    {
+      "name": "Indigo",
+      "color_family": "Blue",
+      "pigment_family": "Organic Dyes & Lakes",
+      "description": "",
+      "manuscripts": [
+        {
+          "name": "Godescalc Evangelistary",
+          "country": "Carolingian Empire",
+          "date_start": 781,
+          "date_end": 783,
+          "page_reference": "",
+          "notes": "Reported as woad-indigo, part of the palette shared by the Court School Gospels studied.",
+          "source": "denoel2018",
+          "source_detail": "Table 1"
+        },
+        {
+          "name": "Blue Qur'an",
+          "country": "Tunisia",
+          "date_start": 850,
+          "date_end": 950,
+          "page_reference": "LACMA M.86.196",
+          "notes": "The parchment is coloured with indigo. Scholars disagree on whether the sheets were dyed or the indigo was brushed on; recent reconstructions with brushed indigo match surviving folios.",
+          "source": "lacma_blue_quran",
+          "source_detail": ""
+        },
+        {
+          "name": "Gunda Gunde Gospel Book (Walters W.850)",
+          "country": "Ethiopia",
+          "date_start": 1500,
+          "date_end": 1550,
+          "page_reference": "",
+          "notes": "Blue, identified by FORS. One of fourteen manuscripts in the study whose main blue is indigo.",
+          "source": "quandt_ortiz_walters78",
+          "source_detail": "note 53"
+        },
+        {
+          "name": "Gunda Gunde Processional Fan (Walters 36.9)",
+          "country": "Ethiopia",
+          "date_start": 1475,
+          "date_end": 1500,
+          "page_reference": "",
+          "notes": "Used both as a blue-black in the decorative bands (harag) above and below the saints and as a bright blue for their robes. Identified by FORS. A folding liturgical fan (märäwǝḥ), the only one of the seven surviving fans that is outside Ethiopia.",
+          "source": "quandt_ortiz_walters78",
+          "source_detail": "Fig. 2; note 53"
+        },
+        {
+          "name": "Gondär Homiliary (Walters W.835)",
+          "country": "Ethiopia",
+          "date_start": 1675,
+          "date_end": 1700,
+          "page_reference": "",
+          "notes": "Blue, and mixed with anhydrite for a grey.",
+          "source": "quandt_ortiz_walters78",
+          "source_detail": "note 53; White section"
+        },
+        {
+          "name": "Homilies of Saint Michael (Melikian 389)",
+          "country": "Ethiopia",
+          "date_start": 1770,
+          "date_end": 1779,
+          "page_reference": "",
+          "notes": "Blue, and in the vergaut ink of the text.",
+          "source": "quandt_ortiz_walters78",
+          "source_detail": "notes 48, 53"
+        }
+      ],
+      "sources": []
+    },
+    {
+      "name": "Orpiment",
+      "color_family": "Yellow",
+      "pigment_family": "Arsenic Pigments",
+      "description": "",
+      "manuscripts": [
+        {
+          "name": "Godescalc Evangelistary",
+          "country": "Carolingian Empire",
+          "date_start": 781,
+          "date_end": 783,
+          "page_reference": "",
+          "notes": "Yellow, part of the palette shared by the Court School Gospels studied.",
+          "source": "denoel2018",
+          "source_detail": "Table 1"
+        },
+        {
+          "name": "Gunda Gunde Gospel Book (Walters W.850)",
+          "country": "Ethiopia",
+          "date_start": 1500,
+          "date_end": 1550,
+          "page_reference": "fol. 60v",
+          "notes": "Bright yellow ('king's yellow') of the Evangelist's halo and cloak, coarsely ground so it keeps its gold-like sparkle. Identified by XRF and FORS. Also mixed with vermilion for orange and with vermilion, lead white and iron earth for flesh tones.",
+          "source": "quandt_ortiz_walters78",
+          "source_detail": "Fig. 4"
+        },
+        {
+          "name": "Gondär Homiliary (Walters W.835)",
+          "country": "Ethiopia",
+          "date_start": 1675,
+          "date_end": 1700,
+          "page_reference": "",
+          "notes": "In the orange mixed with vermilion and in the flesh tones.",
+          "source": "quandt_ortiz_walters78",
+          "source_detail": "note 88; White section"
+        },
+        {
+          "name": "Homilies of Saint Michael (Melikian 389)",
+          "country": "Ethiopia",
+          "date_start": 1770,
+          "date_end": 1779,
+          "page_reference": "",
+          "notes": "In the orange mixed with vermilion, and in the vergaut ink of the text (arsenic detected by XRF).",
+          "source": "quandt_ortiz_walters78",
+          "source_detail": "notes 48, 88"
+        }
+      ],
+      "sources": []
+    },
+    {
+      "name": "Red Lead",
+      "color_family": "Red",
+      "pigment_family": "Lead Pigments",
+      "description": "",
+      "manuscripts": [
+        {
+          "name": "Godescalc Evangelistary",
+          "country": "Carolingian Empire",
+          "date_start": 781,
+          "date_end": 783,
+          "page_reference": "",
+          "notes": "Orange, part of the palette shared by the Court School Gospels studied.",
+          "source": "denoel2018",
+          "source_detail": "Table 1"
+        }
+      ],
+      "sources": []
+    },
+    {
+      "name": "Vergaut",
+      "color_family": "Green",
+      "pigment_family": "Mixtures",
+      "description": "",
+      "manuscripts": [
+        {
+          "name": "Godescalc Evangelistary",
+          "country": "Carolingian Empire",
+          "date_start": 781,
+          "date_end": 783,
+          "page_reference": "",
+          "notes": "Green made from woad-indigo and orpiment, part of the palette shared by the Court School Gospels studied.",
+          "source": "denoel2018",
+          "source_detail": "Table 1"
+        },
+        {
+          "name": "Gunda Gunde Gospel Book (Walters W.850)",
+          "country": "Ethiopia",
+          "date_start": 1500,
+          "date_end": 1550,
+          "page_reference": "",
+          "notes": "Indigo and orpiment green, used on its own and only in the backgrounds of the miniatures.",
+          "source": "quandt_ortiz_walters78",
+          "source_detail": "note 90"
+        },
+        {
+          "name": "Gunda Gunde Processional Fan (Walters 36.9)",
+          "country": "Ethiopia",
+          "date_start": 1475,
+          "date_end": 1500,
+          "page_reference": "",
+          "notes": "Indigo and orpiment green, in the backgrounds and decorative elements; used together with a copper green in specific areas.",
+          "source": "quandt_ortiz_walters78",
+          "source_detail": "notes 89, 90"
+        },
+        {
+          "name": "Homilies of Saint Michael (Melikian 389)",
+          "country": "Ethiopia",
+          "date_start": 1770,
+          "date_end": 1779,
+          "page_reference": "",
+          "notes": "The text is written in a blue-green vergaut ink (indigo and orpiment, identified by FORS and XRF), a rare use of vergaut as a writing ink. It is also used for illumination, on its own and together with verdigris.",
+          "source": "quandt_ortiz_walters78",
+          "source_detail": "notes 31, 48, 89, 90"
+        }
+      ],
+      "sources": []
+    },
+    {
+      "name": "Lead White",
+      "color_family": "White",
+      "pigment_family": "Lead Pigments",
+      "description": "",
+      "manuscripts": [
+        {
+          "name": "Godescalc Evangelistary",
+          "country": "Carolingian Empire",
+          "date_start": 781,
+          "date_end": 783,
+          "page_reference": "",
+          "notes": "White, part of the palette shared by the Court School Gospels studied.",
+          "source": "denoel2018",
+          "source_detail": "Table 1"
+        },
+        {
+          "name": "Gunda Gunde Gospel Book (Walters W.850)",
+          "country": "Ethiopia",
+          "date_start": 1500,
+          "date_end": 1550,
+          "page_reference": "",
+          "notes": "In the flesh tones, mixed with vermilion, orpiment and an iron earth.",
+          "source": "quandt_ortiz_walters78",
+          "source_detail": "White section"
+        }
+      ],
+      "sources": []
+    },
+    {
+      "name": "Carbon Black",
+      "color_family": "Black",
+      "pigment_family": "Carbon Pigments",
+      "description": "",
+      "manuscripts": [
+        {
+          "name": "Godescalc Evangelistary",
+          "country": "Carolingian Empire",
+          "date_start": 781,
+          "date_end": 783,
+          "page_reference": "",
+          "notes": "Black, part of the palette shared by the Court School Gospels studied.",
+          "source": "denoel2018",
+          "source_detail": "Table 1"
+        },
+        {
+          "name": "Gunda Gunde Gospel Book (Walters W.850)",
+          "country": "Ethiopia",
+          "date_start": 1500,
+          "date_end": 1550,
+          "page_reference": "",
+          "notes": "Carbon black without phosphate (soot or lampblack), the black used for illumination in all the manuscripts examined.",
+          "source": "quandt_ortiz_walters78",
+          "source_detail": "Black section; note 30"
+        },
+        {
+          "name": "Gunda Gunde Processional Fan (Walters 36.9)",
+          "country": "Ethiopia",
+          "date_start": 1475,
+          "date_end": 1500,
+          "page_reference": "",
+          "notes": "Carbon black without phosphate (soot or lampblack), the black used for illumination in all the manuscripts examined.",
+          "source": "quandt_ortiz_walters78",
+          "source_detail": "Black section; note 30"
+        },
+        {
+          "name": "Gondär Homiliary (Walters W.835)",
+          "country": "Ethiopia",
+          "date_start": 1675,
+          "date_end": 1700,
+          "page_reference": "",
+          "notes": "Carbon black without phosphate (soot or lampblack), the black used for illumination in all the manuscripts examined.",
+          "source": "quandt_ortiz_walters78",
+          "source_detail": "Black section; note 30"
+        },
+        {
+          "name": "Homilies of Saint Michael (Melikian 389)",
+          "country": "Ethiopia",
+          "date_start": 1770,
+          "date_end": 1779,
+          "page_reference": "",
+          "notes": "Carbon black without phosphate (soot or lampblack), the black used for illumination in all the manuscripts examined.",
+          "source": "quandt_ortiz_walters78",
+          "source_detail": "Black section; note 30"
+        }
+      ],
+      "sources": []
+    },
+    {
+      "name": "Gold",
+      "color_family": "Metallic",
+      "pigment_family": "Metals",
+      "description": "Metallic gold (Au), applied as leaf or as powdered 'shell gold' in a binder for writing (chrysography). XRF often shows small amounts of silver, copper or iron, which reveal whether the gold was pure or an alloy.",
+      "manuscripts": [
+        {
+          "name": "Codex Rossanensis",
+          "country": "Byzantine Empire",
+          "date_start": 500,
+          "date_end": 600,
+          "page_reference": "e.g. p. 19",
+          "notes": "Pure gold with very small amounts of iron and copper, the same in the inks and the illuminations. Raman ruled out mosaic gold.",
+          "source": "bicchieri2014",
+          "source_detail": "Table 1; Fig. 9"
+        },
+        {
+          "name": "Godescalc Evangelistary",
+          "country": "Carolingian Empire",
+          "date_start": 781,
+          "date_end": 783,
+          "page_reference": "folio 3",
+          "notes": "The gold text and decoration are alloys, not pure metal; pure gold appears only in the illumination of folio 3.",
+          "source": "denoel2018",
+          "source_detail": "Table 2"
+        },
+        {
+          "name": "Blue Qur'an",
+          "country": "Tunisia",
+          "date_start": 850,
+          "date_end": 950,
+          "page_reference": "LACMA M.86.196",
+          "notes": "The whole text is written in gold leaf, outlined in ink.",
+          "source": "lacma_blue_quran",
+          "source_detail": ""
+        }
+      ],
+      "sources": []
+    },
+    {
+      "name": "Verdigris",
+      "color_family": "Green",
+      "pigment_family": "Copper Pigments",
+      "description": "",
+      "manuscripts": [
+        {
+          "name": "Gunda Gunde Processional Fan (Walters 36.9)",
+          "country": "Ethiopia",
+          "date_start": 1475,
+          "date_end": 1500,
+          "page_reference": "",
+          "notes": "Copper-based green, reported as verdigris, used in specific areas alongside vergaut.",
+          "source": "quandt_ortiz_walters78",
+          "source_detail": "note 89"
+        },
+        {
+          "name": "Homilies of Saint Michael (Melikian 389)",
+          "country": "Ethiopia",
+          "date_start": 1770,
+          "date_end": 1779,
+          "page_reference": "",
+          "notes": "Copper green, used in specific areas together with vergaut.",
+          "source": "quandt_ortiz_walters78",
+          "source_detail": "note 89"
+        }
+      ],
+      "sources": []
+    },
+    {
+      "name": "Vermilion",
+      "color_family": "Red",
+      "pigment_family": "Mercury Pigments",
+      "description": "",
+      "manuscripts": [
+        {
+          "name": "Gunda Gunde Gospel Book (Walters W.850)",
+          "country": "Ethiopia",
+          "date_start": 1500,
+          "date_end": 1550,
+          "page_reference": "",
+          "notes": "Mercury sulfide red (cinnabar or vermilion; XRF cannot tell them apart), used on its own and in mixtures: with orpiment for orange, and with lead white, orpiment and iron earth for flesh tones.",
+          "source": "quandt_ortiz_walters78",
+          "source_detail": "notes 66, 88"
+        },
+        {
+          "name": "Gunda Gunde Processional Fan (Walters 36.9)",
+          "country": "Ethiopia",
+          "date_start": 1475,
+          "date_end": 1500,
+          "page_reference": "",
+          "notes": "Mercury sulfide red (cinnabar or vermilion; XRF cannot tell them apart).",
+          "source": "quandt_ortiz_walters78",
+          "source_detail": "note 66"
+        },
+        {
+          "name": "Gondär Homiliary (Walters W.835)",
+          "country": "Ethiopia",
+          "date_start": 1675,
+          "date_end": 1700,
+          "page_reference": "fol. 60r",
+          "notes": "Mercury sulfide red (XRF cannot tell cinnabar from vermilion). Under the insect-red glaze on the robes, mixed with orpiment for orange, and with chalk and a little orpiment for flesh tones.",
+          "source": "quandt_ortiz_walters78",
+          "source_detail": "Fig. 3; notes 66, 88"
+        },
+        {
+          "name": "Homilies of Saint Michael (Melikian 389)",
+          "country": "Ethiopia",
+          "date_start": 1770,
+          "date_end": 1779,
+          "page_reference": "",
+          "notes": "Mercury sulfide red (XRF cannot tell cinnabar from vermilion), under the insect-red glaze and mixed with orpiment for orange.",
+          "source": "quandt_ortiz_walters78",
+          "source_detail": "notes 66, 88"
+        }
+      ],
+      "sources": []
+    },
+    {
+      "name": "Silver",
+      "color_family": "Metallic",
+      "pigment_family": "Metals",
+      "description": "Metallic silver (Ag), used as leaf or as an ink. It tarnishes to grey-brown or black over time, and silver inks with a high copper content can corrode the parchment.",
+      "manuscripts": [
+        {
+          "name": "Codex Rossanensis",
+          "country": "Byzantine Empire",
+          "date_start": 500,
+          "date_end": 600,
+          "page_reference": "",
+          "notes": "Silver ink with a high amount of copper, used for the text but never in the illuminations. It has darkened, and some faded passages were later rewritten in black ink.",
+          "source": "bicchieri2014",
+          "source_detail": "Table 1; Fig. 10"
+        },
+        {
+          "name": "Godescalc Evangelistary",
+          "country": "Carolingian Empire",
+          "date_start": 781,
+          "date_end": 783,
+          "page_reference": "",
+          "notes": "Silver text, made of an alloy rather than pure metal.",
+          "source": "denoel2018",
+          "source_detail": "Table 2"
+        },
+        {
+          "name": "Blue Qur'an",
+          "country": "Tunisia",
+          "date_start": 850,
+          "date_end": 950,
+          "page_reference": "LACMA M.86.196",
+          "notes": "Silver rosettes separate the verses; they are now tarnished.",
+          "source": "lacma_blue_quran",
+          "source_detail": ""
+        }
+      ],
+      "sources": []
+    },
+    {
+      "name": "Azurite",
+      "color_family": "Blue",
+      "pigment_family": "Copper Pigments",
+      "description": "",
+      "manuscripts": [
+        {
+          "name": "Hours of Catherine of Cleves",
+          "country": "Netherlands",
+          "date_start": 1435,
+          "date_end": 1445,
+          "page_reference": "",
+          "notes": "The predominant blue, according to scientific and physical analysis done during the Morgan's conservation treatment (conference talk summary).",
+          "source": "trujillo2011",
+          "source_detail": ""
+        }
+      ],
+      "sources": [
+        "smieska2017"
+      ]
+    },
+    {
+      "name": "Ultramarine Blue",
+      "color_family": "Blue",
+      "pigment_family": "Lapis Lazuli",
+      "description": "",
+      "manuscripts": [
+        {
+          "name": "Hours of Catherine of Cleves",
+          "country": "Netherlands",
+          "date_start": 1435,
+          "date_end": 1445,
+          "page_reference": "",
+          "notes": "Found by FCIR and XRF with azurite in 'smooth blue' areas, only on leaves that faced each other in the original binding. Trujillo now thinks the Master himself used it on a few folios, rather than a 19th-century restorer.",
+          "source": "trujillo2011",
+          "source_detail": ""
+        }
+      ],
+      "sources": []
+    },
+    {
+      "name": "Huangbo",
+      "color_family": "Yellow",
+      "pigment_family": "Organic Dyes & Lakes",
+      "description": "A yellow dye from the inner bark of the Amur cork tree (Phellodendron amurense), also known by its Japanese name kihada. Its main colourant is the alkaloid berberine, with palmatine and jatrorrhizine. In China it was used to dye writing paper, which was also thought to keep insects away.",
+      "manuscripts": [
+        {
+          "name": "Diamond Sutra",
+          "country": "China",
+          "date_start": 868,
+          "date_end": 868,
+          "page_reference": "British Library Or.8210/P.2",
+          "notes": "Yellow-dyed paper of the printed scroll, dated 868. HPLC on dyed Dunhuang papers from the British Library's Stein collection found berberine; Bell et al. (2000) confirmed it by Raman. Check the paper to confirm that this scroll itself was sampled.",
+          "source": "gibbs1997",
+          "source_detail": ""
+        }
+      ],
+      "sources": [
+        "bell2000"
+      ]
+    },
+    {
+      "name": "Lead-Tin Yellow (Type I)",
+      "color_family": "Yellow",
+      "pigment_family": "Lead Pigments",
+      "description": "Lead tin oxide (Pb2SnO4), an opaque, light-fast yellow made by heating lead and tin oxides. It is probably the yellow most used in European painting from the 15th to the first half of the 18th century, and it is also found in many manuscripts. Historical names such as giallorino were used loosely and do not always mean this pigment. XRF shows lead and tin; only Raman reliably separates type I from type II (strongest band near 129 cm⁻¹, with others at about 196 and 291 cm⁻¹).",
+      "manuscripts": [],
+      "sources": [
+        "fitzwilliam_leadtin"
+      ]
+    },
+    {
+      "name": "Lead-Tin Yellow (Type II)",
+      "color_family": "Yellow",
+      "pigment_family": "Lead Pigments",
+      "description": "Lead tin silicon oxide (Pb(Sn,Si)O3), made with silica, which links its manufacture to glass-making. It is found mainly in 14th- and 15th-century Italian painting and is earlier and rarer than type I. Raman separates it from type I (strongest band near 138 cm⁻¹).",
+      "manuscripts": [],
+      "sources": [
+        "fitzwilliam_leadtin"
+      ]
+    },
+    {
+      "name": "Malachite",
+      "color_family": "Green",
+      "pigment_family": "Copper Pigments",
+      "description": "Basic copper carbonate (Cu2CO3(OH)2), a natural green mineral that often occurs with azurite. It is ground and washed rather than synthesised, and it is more stable than verdigris. Also called mountain green; verde azzurro is an Italian name. Raman bands include 153, 433 and 1491 cm⁻¹.",
+      "manuscripts": [],
+      "sources": []
+    },
+    {
+      "name": "Realgar",
+      "color_family": "Orange",
+      "pigment_family": "Arsenic Pigments",
+      "description": "Arsenic sulphide (As4S4), a poisonous orange-red mineral that often occurs with orpiment. Historical names include sandarach. Light turns it into yellow pararealgar. Raman bands include 183, 193, 220, 343 and 355 cm⁻¹.",
+      "manuscripts": [],
+      "sources": []
+    },
+    {
+      "name": "Chrysocolla",
+      "color_family": "Green",
+      "pigment_family": "Copper Pigments",
+      "description": "A hydrated copper silicate (roughly Cu2-xAlx(H2-xSi2O5)(OH)4·nH2O) that forms near copper deposits, with a blue-green colour. It is amorphous or poorly crystalline, so it gives only broad, weak Raman spectra and is usually identified by XRF (copper with silicon) and infrared spectroscopy.",
+      "manuscripts": [],
+      "sources": []
+    },
+    {
+      "name": "Weld Lake",
+      "color_family": "Yellow",
+      "pigment_family": "Organic Dyes & Lakes",
+      "description": "A yellow lake made from weld (Reseda luteola), whose main colourant is the flavonoid luteolin, precipitated onto alum or chalk. It was the most common yellow dye plant in medieval Europe and is called arzica in some Italian sources. It fades in light. Like other organic dyes it gives no XRF signal of its own and is identified by HPLC or surface-enhanced Raman (SERS).",
+      "manuscripts": [],
+      "sources": []
+    },
+    {
+      "name": "Kermes Lake",
+      "color_family": "Red",
+      "pigment_family": "Organic Dyes & Lakes",
+      "description": "A crimson lake made from kermes (Kermes vermilio), a scale insect of Mediterranean oaks, whose colourant is kermesic acid, precipitated with alum. Medieval sources call the dried insects grana. It was a luxury red in Europe until New World cochineal replaced it in the 16th century. Identified by HPLC or surface-enhanced Raman (SERS).",
+      "manuscripts": [],
+      "sources": []
+    },
+    {
+      "name": "Lac Dye Lake",
+      "color_family": "Red",
+      "pigment_family": "Organic Dyes & Lakes",
+      "description": "A crimson to magenta lake made from lac (Kerria lacca), a scale insect of South and Southeast Asia, whose colourants are the laccaic acids. Medieval Europe imported it as lacca. Identified by HPLC or surface-enhanced Raman (SERS).",
+      "manuscripts": [],
+      "sources": []
+    },
+    {
+      "name": "Sap Green",
+      "color_family": "Green",
+      "pigment_family": "Organic Dyes & Lakes",
+      "description": "A translucent olive green made from the ripe berries of buckthorn (Rhamnus cathartica), traditionally stored in animal bladders, hence the Italian verde di vescica ('bladder green'). It contains no copper or iron, so XRF finds nothing distinctive.",
+      "manuscripts": [],
+      "sources": []
+    },
+    {
+      "name": "Saffron",
+      "color_family": "Yellow",
+      "pigment_family": "Organic Dyes & Lakes",
+      "description": "A transparent golden-yellow from the stigmas of the saffron crocus (Crocus sativus); its colourants are crocin and crocetin. It was used as a glaze without a mineral base, for example over tin or silver to imitate gold. It absorbs strongly at about 440 nm.",
+      "manuscripts": [],
+      "sources": []
+    },
+    {
+      "name": "Brazilwood Lake",
+      "color_family": "Pink",
+      "pigment_family": "Organic Dyes & Lakes",
+      "description": "A pink to red-violet lake made from brazilin, extracted from the wood of sappanwood (Biancaea sappan, formerly Caesalpinia sappan), which medieval Europe imported from South and Southeast Asia as verzino. From the 16th century the related South American tree (Paubrasilia echinata) took its name. It is cheaper and less light-fast than the insect reds, and it fluoresces orange under UV.",
+      "manuscripts": [],
+      "sources": []
+    },
+    {
+      "name": "Bone Black",
+      "color_family": "Black",
+      "pigment_family": "Carbon Pigments",
+      "description": "Charred animal bone or ivory (ivory black): carbon mixed with calcium phosphate (hydroxyapatite). XRF shows calcium and phosphorus, which separates it from plant-based lamp black or charcoal black. Raman shows the carbon bands near 1320 and 1580 cm⁻¹ plus a phosphate band at 960 cm⁻¹.",
+      "manuscripts": [],
+      "sources": []
+    },
+    {
+      "name": "Bistre",
+      "color_family": "Brown",
+      "pigment_family": "Carbon Pigments",
+      "description": "A transparent yellow-brown made by boiling the tarry soot of burnt wood (often beech) and filtering the extract. It was used mainly for washes and drawings.",
+      "manuscripts": [],
+      "sources": []
+    },
+    {
+      "name": "Smalt",
+      "color_family": "Blue",
+      "pigment_family": "Cobalt Pigments",
+      "description": "A blue glass coloured with cobalt, ground to a powder (from Italian smaltare, 'to melt'). It was known in Europe from the 16th century, often as a cheaper substitute for ultramarine and azurite, and must be coarsely ground to keep its colour. It fades and greys in oil. XRF shows cobalt, often with nickel, arsenic and iron from the ore (skutterudite) and potassium from the potash flux.",
+      "manuscripts": [
+        {
+          "name": "Gondär Homiliary (Walters W.835)",
+          "country": "Ethiopia",
+          "date_start": 1675,
+          "date_end": 1700,
+          "page_reference": "fol. 60r",
+          "notes": "Bright blue found throughout the manuscript, e.g. the angel's wings on fol. 60r. XRF found cobalt with nickel, arsenic and iron (impurities of the cobalt ore skutterudite) and potassium (the potash flux); FORS confirmed a cobalt blue. A European import of the Jesuit-era trade.",
+          "source": "quandt_ortiz_walters78",
+          "source_detail": "Fig. 3; notes 57–61"
+        }
+      ],
+      "sources": []
+    },
+    {
+      "name": "Red Insect Lake",
+      "color_family": "Red",
+      "pigment_family": "Organic Dyes & Lakes",
+      "description": "A translucent red lake made from an insect dye (kermes, lac or cochineal) precipitated onto a mineral base, used when the analysis shows an insect red but cannot say which insect. See Kermes Lake, Lac Dye Lake and Cochineal Lake for the specific dyes.",
+      "manuscripts": [
+        {
+          "name": "Gondär Homiliary (Walters W.835)",
+          "country": "Ethiopia",
+          "date_start": 1675,
+          "date_end": 1700,
+          "page_reference": "fol. 60r",
+          "notes": "Translucent red lake glazed over opaque vermilion to model the shadows of the robes' folds, a European technique. Identified as an insect-based red (kermes or lac).",
+          "source": "quandt_ortiz_walters78",
+          "source_detail": "Fig. 3; note 70"
+        },
+        {
+          "name": "Homilies of Saint Michael (Melikian 389)",
+          "country": "Ethiopia",
+          "date_start": 1770,
+          "date_end": 1779,
+          "page_reference": "",
+          "notes": "Red insect lake (kermes or lac) used over vermilion to shade drapery folds.",
+          "source": "quandt_ortiz_walters78",
+          "source_detail": "note 70"
+        }
+      ],
+      "sources": []
+    },
+    {
+      "name": "Anhydrite",
+      "color_family": "White",
+      "pigment_family": "Calcium Pigments",
+      "description": "Anhydrous calcium sulphate (CaSO4), a white mineral; gypsum is the hydrated form. Large deposits occur in Ethiopia, where it was used as a local white in manuscripts.",
+      "manuscripts": [
+        {
+          "name": "Gondär Homiliary (Walters W.835)",
+          "country": "Ethiopia",
+          "date_start": 1675,
+          "date_end": 1700,
+          "page_reference": "",
+          "notes": "Mixed with indigo for a grey.",
+          "source": "quandt_ortiz_walters78",
+          "source_detail": "White section"
+        }
+      ],
+      "sources": []
+    },
+    {
+      "name": "Chalk",
+      "color_family": "White",
+      "pigment_family": "Calcium Pigments",
+      "description": "",
+      "manuscripts": [
+        {
+          "name": "Gondär Homiliary (Walters W.835)",
+          "country": "Ethiopia",
+          "date_start": 1675,
+          "date_end": 1700,
+          "page_reference": "",
+          "notes": "A calcium-based white, likely chalk, mixed with vermilion and a little orpiment for the flesh tones.",
+          "source": "quandt_ortiz_walters78",
+          "source_detail": "White section"
+        },
+        {
+          "name": "Homilies of Saint Michael (Melikian 389)",
+          "country": "Ethiopia",
+          "date_start": 1770,
+          "date_end": 1779,
+          "page_reference": "",
+          "notes": "A calcium-based white, likely chalk, used on its own as the white.",
+          "source": "quandt_ortiz_walters78",
+          "source_detail": "White section"
+        }
+      ],
+      "sources": []
+    }
+  ],
+  "_unverified_claims": [
+    {
+      "claim": "Book of Kells: folio-by-folio pigment locations (34r indigo, 29r orpiment, 114r red lead, 32v verdigris, 7v orcein); some greens are pure verdigris.",
+      "reason": "Bioletti et al. 2009 (already in manuscript_pigments.json) does not give these folios in its abstract, and its abstract lists vergaut but not verdigris. The citation in the source file had the wrong title and issue."
+    },
+    {
+      "claim": "Codex Rossanensis: Aceto et al. 2015, Journal of Archaeological Science 53, 581–591.",
+      "reason": "This citation could not be found. The analysis in the database is Bicchieri 2014. The silver and gold inks are confirmed by Bicchieri and are included above."
+    },
+    {
+      "claim": "Durham Gospels: red lead and massicot isolated from orpiment to prevent blackening; 'Beeby 2018 Team Pigment Report'.",
+      "reason": "No such report was found. Beeby's Durham page lists red lead, orpiment, a copper green and an unidentified purple dye (Tyrian purple or orcein), with no folios. The existing links already cover red lead, massicot, orpiment and verdigris."
+    },
+    {
+      "claim": "Book of Armagh: diluted iron gall ink as a brown wash and iron-oxide ochres on folio 32v; Bioletti 2014.",
+      "reason": "Trinity College Dublin's own page names only orpiment and indigo for the Book of Armagh, and no 'Bioletti 2014' publication was found."
+    },
+    {
+      "claim": "Huexotzinco Codex: Albro et al. 2010 Library of Congress report; Maya blue on Document 3, f. 6r; cochineal on Document 1, f. 2v.",
+      "reason": "The pigments are confirmed by Villafana et al. 2021 and are already in the database. The 2010 citation and the folio numbers could not be found."
+    },
+    {
+      "claim": "Voynich Manuscript: copper-chlorine green on f. 9r and azurite on f. 72r.",
+      "reason": "The McCrone report sampled ff. 1r, 8v, 26r, 47r, 70v, 78r and 116v, not 9r or 72r. Its findings are already in the database."
+    },
+    {
+      "claim": "Lorsch Gospels: purified lapis lazuli on Pal. lat. 50 f. 1r and burnished gold over bole; 'Vatican Library Spectral Imaging Project (2018)'.",
+      "reason": "No published pigment analysis of the Lorsch Gospels was found."
+    },
+    {
+      "claim": "Black Hours (Morgan M.493): an iron-copper gall bath dyed the vellum black; kermes lake mixed with lead white on f. 14v.",
+      "reason": "Secondary sources disagree on what dyed the vellum, and no published analysis was found. The Morgan held a 2020 talk on identifying the black colourant, but no results were found."
+    },
+    {
+      "claim": "13th-century Paris Bibles: azurite with a barium fingerprint, and brazilwood lake; Riccardi 2012, Heritage Science 12(1).",
+      "reason": "That citation cannot exist (Heritage Science began in 2013). Barium in azurite is a real finding (Smieska et al. 2017), but it was on six Cornell leaves of the 13th–16th centuries, not specifically Paris Bibles, so it is attached to Azurite only as a general source."
+    },
+    {
+      "claim": "Hours of Catherine of Cleves: lead-tin yellow (type I) on p. 151 and sap green on f. 107r.",
+      "reason": "No analysis reporting these was found. The Morgan's conservation work did report azurite and ultramarine, which are included above."
+    },
+    {
+      "claim": "Lindisfarne Gospels: kermes lake on f. 211r and realgar on f. 29r.",
+      "reason": "Brown & Clark 2004 and the RSC summary do not report kermes or realgar; the RSC says the pinks are chalk or lead white."
+    },
+    {
+      "claim": "Winchester Bible: natural malachite and mineral cinnabar on 'f. 5r (The Morgan Leaf)'.",
+      "reason": "The Morgan Leaf is a separate single leaf (Morgan Library MS M.619), not f. 5r. No scientific pigment analysis was found. A Met Museum exhibition blog (2014) describes the palette generally as ultramarine, vermilion, red lead, verdigris or malachite, iron oxides, carbon and lead white; that page could not be opened to confirm it."
+    },
+    {
+      "claim": "Queen Mary Psalter: turnsole on f. 150r and weld lake on f. 84v.",
+      "reason": "No pigment analysis of British Library Royal MS 2 B VII was found."
+    },
+    {
+      "claim": "Blue Qur'an: George 2017, Journal of Islamic Manuscripts 8(1).",
+      "reason": "Alain George's article 'Calligraphy, Colour and Light in the Blue Qur'an' appeared in the Journal of Qur'anic Studies (2009), and the volume and pages given could not be matched. The materials are confirmed by the LACMA catalogue and are included above. Bloom, 'The Blue Koran Revisited', Journal of Islamic Manuscripts 6 (2015), 196–218, is a further lead."
+    },
+    {
+      "claim": "Diamond Sutra: carbon lamp black ink.",
+      "reason": "Plausible for a woodblock print but no analysis was found. Note that Gibbs & Seddon's 'Berberine and Huangbo' (British Library, 1998) is a real book, but the HPLC data is in Gibbs et al. 1997."
+    },
+    {
+      "claim": "Gunda Gunde Gospels: 14th–15th-century date, 'Gunda Gunde Monastery MS 12', volcanic orpiment from local thermal vents, realgar in the canon tables; Mercier 2000 and 'Walters Conservation Technical Assessment Reports (2012)'.",
+      "reason": "Quandt & Ortiz Miranda (JWAM 78) analysed Walters W.850 and confirmed orpiment, vermilion, indigo, vergaut, lead white and carbon black (added above), but date it to the first half of the 16th century and report no realgar anywhere in the study. Nothing in it supports the volcanic source of the orpiment (the authors think orpiment was likely imported, citing Poncet on imports from Sudan), the MS 12 shelfmark or the 2012 reports. Sciacca, JWAM 73 (2018), 92–95, is an art-historical note on the sensul leaves W.927–929 and reports no pigment analysis."
+    },
+    {
+      "claim": "Egyptian blue in early Italian codices; lead-tin yellow type II made in Bohemian and German workshops before 1400; brazilwood as a signature of Parisian university workshops; sap green as a defining feature of French and Flemish Books of Hours; kermes identified by 'Soret absorption bands'.",
+      "reason": "These general statements in supplemental_pigments.json are overstated or wrong (Soret bands belong to porphyrins, not kermes), so the descriptions above were rewritten without them."
+    }
+  ]
+}
