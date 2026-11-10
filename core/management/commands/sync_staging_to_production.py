@@ -77,6 +77,15 @@ wagtailcore.revision,
 wagtailcore.pageviewrestriction   — environment-specific audit/workflow state, not content.
 wagtailredirects.*                — redirects are domain-specific.
 wagtailsearch.*                   — regenerated via `update_index`.
+blog.projectcollection            — rebuilt after loading (see below).
+
+Project image collections
+-------------------------
+Each project page's images live in its own collection under "Projects"
+(blog/image_collections.py). Those collections are derived from page content,
+so they aren't copied: images in staging's "Projects" tree are loaded into the
+target's root collection, then moved into the target's "Projects" collection,
+and `sync_project_collections` rebuilds each project's collection from its page.
 """
 
 import json
@@ -214,6 +223,16 @@ class Command(BaseCommand):
             self.stderr.write(self.style.ERROR(f'Error loading fixture: {e}'))
             sys.exit(1)
 
+        try:
+            self._rebuild_project_collections()
+        except Exception as e:
+            # The content is loaded; only the derived project collections are off.
+            self.stderr.write(self.style.ERROR(
+                f'Content loaded, but rebuilding project image collections failed: {e}\n'
+                'Re-run `python manage.py sync_project_collections` against this database.'
+            ))
+            sys.exit(1)
+
         self.stdout.write(self.style.SUCCESS('Loaded staging content into the default database.'))
 
     def _dump_from_staging(self):
@@ -258,6 +277,13 @@ class Command(BaseCommand):
         locale_ids = self._referenced_ids(records, 'wagtailcore.page', 'locale')
         collection_ids = self._referenced_ids(records, 'wagtailimages.image', 'collection')
 
+        # Project collections are rebuilt on the target after loading (see module
+        # docstring): park their images in the target's root collection for now.
+        project_collection_ids = self._staging_project_collection_ids() & collection_ids
+        collection_ids -= project_collection_ids
+        target_root_id = Collection.get_first_root_node().pk if project_collection_ids else None
+        self.project_image_pks = []
+
         content_type_map = self._build_remap(ContentType, content_type_ids, ('app_label', 'model'), 'content type')
         locale_map = self._build_remap(Locale, locale_ids, ('language_code',), 'locale')
         # Matched by name only — fine while this project has a single "Root"
@@ -274,8 +300,33 @@ class Command(BaseCommand):
                     record['fields']['locale'] = locale_map[locale]
             elif record['model'] == 'wagtailimages.image':
                 coll = record['fields'].get('collection')
-                if coll is not None:
+                if coll in project_collection_ids:
+                    record['fields']['collection'] = target_root_id
+                    self.project_image_pks.append(record['pk'])
+                elif coll is not None:
                     record['fields']['collection'] = collection_map[coll]
+
+    @staticmethod
+    def _staging_project_collection_ids():
+        """Pks of staging's "Projects" collection and everything under it.
+        Matched by path, not treebeard's get_descendants(), which always
+        queries 'default' (see module docstring)."""
+        from blog.image_collections import PROJECTS_COLLECTION_NAME
+
+        staging = Collection.objects.using('staging')
+        projects = staging.filter(depth=2, name=PROJECTS_COLLECTION_NAME).first()
+        if projects is None:
+            return set()
+        return set(staging.filter(path__startswith=projects.path).values_list('pk', flat=True))
+
+    def _rebuild_project_collections(self):
+        from blog.image_collections import projects_collection
+        from wagtail.images import get_image_model
+
+        get_image_model().objects.filter(pk__in=self.project_image_pks).update(
+            collection=projects_collection()
+        )
+        call_command('sync_project_collections', stdout=self.stdout)
 
     @staticmethod
     def _referenced_ids(records, model_label, field_name):
