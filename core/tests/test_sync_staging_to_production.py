@@ -16,10 +16,12 @@ from django.conf import settings
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.db import connections
-from wagtail.models import Page
+import wagtail_factories
+from wagtail.models import Collection, Page
 
 from blog.factories import CategoryFactory, ProjectPageFactory, ProjectsIndexPageFactory
-from blog.models import ProjectsIndexColumn
+from blog.image_collections import projects_collection
+from blog.models import ProjectCollection, ProjectPage, ProjectsIndexColumn
 from core.management.commands.sync_staging_to_production import Command
 from pigments.factories import FormulaPartFactory
 
@@ -107,6 +109,33 @@ def test_load_replaces_rows_in_target(staging_is_default, content, tmp_path):
     assert [c.category for c in content.index.columns.all()] == [content.category]
 
 
+def test_project_collections_are_rebuilt_not_copied(staging_is_default, content, tmp_path):
+    """Images in staging's project collections are loaded into the root collection
+    (the target may not have those collections), then put back by page content."""
+    on_page, taken_off = wagtail_factories.ImageFactory(), wagtail_factories.ImageFactory()
+    page = ProjectPage.objects.get(pk=content.page.pk)
+    page.body = [{'type': 'image', 'value': {'image': on_page.pk, 'caption': ''}},
+                 {'type': 'image', 'value': {'image': taken_off.pk, 'caption': ''}}]
+    page.save_revision()
+    page.body = [{'type': 'image', 'value': {'image': on_page.pk, 'caption': ''}}]
+    page.save()  # the live row the dump copies; no revisions are copied
+    page.save_revision()
+    collection = ProjectCollection.objects.get(page=page).collection
+
+    out, fixture = _run(tmp_path, noinput=True)
+
+    images = {r['pk']: r for r in json.loads(fixture.read_text()) if r['model'] == 'wagtailimages.image'}
+    root = Collection.get_first_root_node()
+    assert images[on_page.pk]['fields']['collection'] == root.pk
+    assert images[taken_off.pk]['fields']['collection'] == root.pk
+    assert not any(r['model'] == 'blog.projectcollection' for r in json.loads(fixture.read_text()))
+    on_page.refresh_from_db()
+    taken_off.refresh_from_db()
+    assert on_page.collection == collection
+    assert taken_off.collection == projects_collection()
+    assert f'{page.title}: ' in out
+
+
 def test_interactive_cancel_does_not_load(staging_is_default, content, tmp_path):
     with mock.patch('builtins.input', return_value='no'), \
             mock.patch(f'{MODULE}.call_command', wraps=call_command) as cc:
@@ -169,7 +198,8 @@ def test_remap_shared_references_rewrites_page_and_image_fields():
         {'model': 'blog.category', 'fields': {'name': 'x'}},
     ]
     maps = {'content type': {10: 3}, 'locale': {5: 1}, 'collection': {7: 2}}
-    with mock.patch.object(Command, '_build_remap', side_effect=lambda m, ids, f, label: maps[label]):
+    with mock.patch.object(Command, '_build_remap', side_effect=lambda m, ids, f, label: maps[label]), \
+            mock.patch.object(Command, '_staging_project_collection_ids', return_value=set()):
         Command()._remap_shared_references(records)
 
     assert records[0]['fields'] == {'content_type': 3, 'locale': 1}

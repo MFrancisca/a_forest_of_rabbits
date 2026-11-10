@@ -15,6 +15,16 @@ from wagtail.search import index
 LEGACY_EMBED_RE = re.compile(r'<embed[^>]*>')
 LEGACY_EMBED_ID_RE = re.compile(r'id="(\d+)"')
 
+
+def embedded_image_ids(source):
+    """Image pks of the <embed embedtype="image" id="..."> tags in rich text
+    source, in order. Not checked against the database."""
+    for tag in LEGACY_EMBED_RE.findall(source):
+        if 'embedtype="image"' in tag:
+            match = LEGACY_EMBED_ID_RE.search(tag)
+            if match:
+                yield int(match.group(1))
+
 # Pre-selected on new project pages, and the catch-all group on the Projects
 # index for projects that aren't in any configured column. Seeded by
 # the blog migrations; matched by name, so renaming it in the admin turns both off.
@@ -332,14 +342,10 @@ class ProjectPage(Page):
                         return item['image']
             elif block.block_type == 'rich_text':
                 from wagtail.images.models import Image
-                for tag in LEGACY_EMBED_RE.findall(block.value['text'].source):
-                    if 'embedtype="image"' not in tag:
-                        continue
-                    match = LEGACY_EMBED_ID_RE.search(tag)
-                    if match:
-                        image = Image.objects.filter(pk=match.group(1)).first()
-                        if image:
-                            return image
+                for image_id in embedded_image_ids(block.value['text'].source):
+                    image = Image.objects.filter(pk=image_id).first()
+                    if image:
+                        return image
         return None
 
 
@@ -395,3 +401,21 @@ class HomePage(Page):
             if projects_index else []
         )
         return context
+
+
+class ProjectCollection(models.Model):
+    """Links a project page to the image collection that holds its images
+    (see blog/image_collections.py). Kept out of the page model so it isn't
+    stored in page revisions: reverting a revision can't unlink the collection."""
+
+    page = models.OneToOneField(
+        'wagtailcore.Page', on_delete=models.CASCADE, related_name='image_collection_link',
+    )
+    # PROTECT: deleting a project's collection in the admin would move nothing
+    # and orphan the link; delete the page (or this row) first.
+    collection = models.OneToOneField(
+        'wagtailcore.Collection', on_delete=models.PROTECT, related_name='project_link',
+    )
+
+    def __str__(self):
+        return f'{self.page} -> {self.collection}'
