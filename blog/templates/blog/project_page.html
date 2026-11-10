@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load wagtailcore_tags wagtailimages_tags disclosure_tags %}
+{% load wagtailcore_tags disclosure_tags lightbox_tags %}
 
 {% block content %}
 {# Cover, image-block and carousel images open the shared lightbox (includes/lightbox.html). #}
@@ -41,11 +41,11 @@
   {% enddisclosure %}
   {% endif %}
 
-  {% if page.cover_image %}
+  {# lightbox_renditions is None when the image was deleted or its file is missing. #}
+  {% lightbox_renditions page.cover_image "fill-800x400" as cover %}
+  {% if cover %}
   <div class="mb-8">
-    {% image page.cover_image fill-800x400 as img %}
-    {% image page.cover_image max-1600x1600 as full %}
-    {% include "includes/lightbox_opener.html" with src=img.url full=full.url alt=img.alt img_class="w-full rounded-lg" %}
+    {% include "includes/lightbox_opener.html" with src=cover.thumb.url full=cover.full.url alt=cover.thumb.alt img_class="w-full rounded-lg" %}
   </div>
   {% endif %}
 
@@ -58,18 +58,21 @@
       <div class="prose prose-site max-w-none">{{ block.value.text }}</div>
     </div>
 
-    {# Guard on the image: if it was deleted the value is None, and {% image ... as img %} #}
-    {# then leaves `img` holding the previous block's rendition instead of clearing it. #}
-    {% elif block.block_type == 'image' and block.value.image %}
+    {# The whole block is skipped when its image was deleted or its file is missing. #}
+    {% elif block.block_type == 'image' %}
     {% with align=block.value.alignment|default:'center' %}
+    {% if align == 'center' %}
+      {% lightbox_renditions block.value.image "fill-800x600" as r %}
+    {% else %}
+      {% lightbox_renditions block.value.image "max-800x1200" as r %}
+    {% endif %}
+    {% if r %}
     <div class="mb-8" data-align="{{ align }}">
       {% if block.value.title %}
       <h2 class="font-display text-2xl text-accent mb-3">{{ block.value.title }}</h2>
       {% endif %}
       {% if align == 'center' %}
-      {% image block.value.image fill-800x600 as img %}
-      {% image block.value.image max-1600x1600 as full %}
-      {% include "includes/lightbox_opener.html" with src=img.url full=full.url alt=block.value.image.default_alt_text img_class="w-full rounded-lg" %}
+      {% include "includes/lightbox_opener.html" with src=r.thumb.url full=r.full.url alt=block.value.image.default_alt_text img_class="w-full rounded-lg" %}
       {% if block.value.caption %}
       <p class="text-sm text-ink-subtle mt-2">{{ block.value.caption }}</p>
       {% endif %}
@@ -83,9 +86,7 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
         {# col-start-2 keeps a right image in the right column even when there is no text. #}
         <figure class="{% if align == 'right' %}md:order-2 md:col-start-2{% endif %}">
-          {% image block.value.image max-800x1200 as img %}
-          {% image block.value.image max-1600x1600 as full %}
-          {% include "includes/lightbox_opener.html" with src=img.url full=full.url alt=block.value.image.default_alt_text img_class="w-full h-auto rounded-lg" %}
+          {% include "includes/lightbox_opener.html" with src=r.thumb.url full=r.full.url alt=block.value.image.default_alt_text img_class="w-full h-auto rounded-lg" %}
           {% if block.value.caption %}
           <figcaption class="text-sm text-ink-subtle mt-2">{{ block.value.caption }}</figcaption>
           {% endif %}
@@ -96,10 +97,11 @@
       </div>
       {% endif %}
     </div>
+    {% endif %}
     {% endwith %}
 
     {% elif block.block_type == 'carousel' %}
-    {% with slides=block.value.slides %}
+    {% with slides=block.value.slides|lightbox_slides:"fill-800x600" %}
     {% if slides %}
     <section class="mb-8" x-data="{ slide: 0, count: {{ slides|length }} }"
              aria-roledescription="carousel"
@@ -109,12 +111,10 @@
       {% endif %}
       <div class="relative">
         {% for item in slides %}
-        {% image item.image fill-800x600 as img %}
-        {% image item.image max-1600x1600 as full %}
         {# The first slide has no x-cloak, so it still shows without JavaScript. #}
         <div x-show="slide === {{ forloop.counter0 }}"{% if not forloop.first %} x-cloak{% endif %}
              role="group" aria-roledescription="slide" aria-label="{{ forloop.counter }} of {{ slides|length }}">
-          {% include "includes/lightbox_opener.html" with src=img.url full=full.url alt=item.caption|default:item.image.default_alt_text img_class="w-full max-h-96 object-cover rounded-lg shadow-sm" %}
+          {% include "includes/lightbox_opener.html" with src=item.thumb.url full=item.full.url alt=item.caption|default:item.image.default_alt_text img_class="w-full max-h-96 object-cover rounded-lg shadow-sm" %}
           {% if item.caption %}
           <p class="text-sm text-ink-subtle mt-2">{{ item.caption }}</p>
           {% endif %}
