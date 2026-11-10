@@ -26,6 +26,26 @@
   <!-- Compiled Tailwind CSS (build: .venv/bin/tailwindcss -i core/css/input.css -o core/static/css/output.css --minify) -->
   <link rel="stylesheet" href="{% static 'css/output.css' %}">
 
+  <script>
+    // Shared lightbox state for includes/lightbox.html. Registered before Alpine
+    // (deferred below) starts, so any page can use x-data="lightbox".
+    document.addEventListener('alpine:init', function () {
+      Alpine.data('lightbox', function () {
+        return {
+          lightboxSrc: '',
+          lightboxAlt: '',
+          lightboxOpener: null,
+          openLightbox(button) {
+            this.lightboxOpener = button;
+            this.lightboxSrc = button.dataset.full;
+            this.lightboxAlt = button.querySelector('img').alt;
+            this.$refs.lightbox.showModal();
+          },
+        };
+      });
+    });
+  </script>
+
   <!-- Alpine.js CDN — pinned with SRI so an upstream release can't change or
        inject code into the live site; bump the version and hash together. -->
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"

@@ -1,0 +1,20 @@
+{% comment %}
+Lightbox dialog. Include once inside an element with x-data="lightbox" (registered in
+base.html). Enlargeable images are buttons with data-full="<large rendition url>" and
+@click="openLightbox($el)"; the enlarged image takes the button's <img> alt text.
+The native <dialog> provides the modal role, focus trap, Escape-to-close and inert background.
+{% endcomment %}
+{# Lightbox dialog. Closes on Escape (native), the Close button, or a click outside the image. #}
+{# Focus goes to Close on open and back to the image button on close. #}
+<dialog x-ref="lightbox" aria-label="Enlarged image"
+        class="m-0 w-screen h-screen max-w-none max-h-none p-4 bg-transparent backdrop:bg-black/80"
+        @click.self="$refs.lightbox.close()"
+        @close="lightboxOpener && lightboxOpener.focus()">
+  <button type="button" autofocus @click="$refs.lightbox.close()"
+          class="fixed top-4 right-4 z-10 rounded bg-white px-3 py-1.5 text-sm font-medium text-stone-900 shadow focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+    Close
+  </button>
+  <div class="h-full flex items-center justify-center" @click.self="$refs.lightbox.close()">
+    <img :src="lightboxSrc" :alt="lightboxAlt" class="max-w-full max-h-full object-contain" />
+  </div>
+</dialog>
