@@ -1,0 +1,9 @@
+{% comment %}
+An image that opens the lightbox (includes/lightbox.html) when clicked.
+Pass src (inline rendition url), full (large rendition url), alt and img_class.
+{% endcomment %}
+<button type="button" class="block w-full rounded-lg cursor-zoom-in" aria-haspopup="dialog"
+        data-full="{{ full }}" @click="openLightbox($el)">
+  <span class="sr-only">Enlarge image: </span>
+  <img src="{{ src }}" alt="{{ alt }}" class="{{ img_class }}">
+</button>

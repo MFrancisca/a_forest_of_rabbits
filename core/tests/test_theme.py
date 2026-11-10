@@ -11,7 +11,7 @@ TEMPLATE_DIRS = [Path(settings.BASE_DIR) / app / 'templates' for app in ('core',
 # The lightbox is always a black overlay in both themes, so it keeps literal colors:
 # backdrop, Close button, and the Close button's focus outline. Allowed only there.
 ALLOWED_RAW = {
-    Path('pigments/templates/pigments/pigment_detail.html'): {'bg-black', 'bg-white', 'text-stone-900', 'outline-white'},
+    Path('core/templates/includes/lightbox.html'): {'bg-black', 'bg-white', 'text-stone-900', 'outline-white'},
 }
 PALETTE = (
     'red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple'

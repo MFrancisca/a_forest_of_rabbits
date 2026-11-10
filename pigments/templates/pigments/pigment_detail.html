@@ -4,19 +4,8 @@
 {% block title %}{{ pigment.name }} — A Forest of Rabbits{% endblock %}
 
 {% block content %}
-{# Lightbox: enlargeable images are buttons with data-full; the native <dialog> provides #}
-{# the modal role, focus trap, Escape-to-close and inert background. #}
-<div x-data="{
-       lightboxSrc: '',
-       lightboxAlt: '',
-       lightboxOpener: null,
-       openLightbox(button) {
-         this.lightboxOpener = button;
-         this.lightboxSrc = button.dataset.full;
-         this.lightboxAlt = button.querySelector('img').alt;
-         this.$refs.lightbox.showModal();
-       },
-     }"
+{# Enlargeable images open the shared lightbox (includes/lightbox.html). #}
+<div x-data="lightbox"
      class="max-w-4xl mx-auto px-4 py-8">
 
   {# Back to the list. The script at the bottom points it at the filtered list the visitor #}
@@ -60,13 +49,7 @@
   {% image featured_image.image fill-800x600 as feat_rendition %}
   {% image featured_image.image max-1600x1600 as feat_full %}
   <div class="mb-8">
-    <button type="button" class="block w-full rounded-lg cursor-zoom-in" aria-haspopup="dialog"
-            data-full="{{ feat_full.url }}" @click="openLightbox($el)">
-      <span class="sr-only">Enlarge image: </span>
-      <img src="{{ feat_rendition.url }}"
-           alt="{{ featured_image.alt_text|default:pigment.name }}"
-           class="w-full max-h-96 object-cover rounded-lg shadow-sm" />
-    </button>
+    {% include "includes/lightbox_opener.html" with src=feat_rendition.url full=feat_full.url alt=featured_image.alt_text|default:pigment.name img_class="w-full max-h-96 object-cover rounded-lg shadow-sm" %}
     {% if featured_image.caption %}
     <p class="text-sm text-ink-subtle mt-2">{{ featured_image.caption }}</p>
     {% endif %}
@@ -202,13 +185,7 @@
       {# The first slide has no x-cloak, so it still shows without JavaScript. #}
       <div x-show="slide === {{ forloop.counter0 }}"{% if not forloop.first %} x-cloak{% endif %}
            role="group" aria-roledescription="slide" aria-label="{{ forloop.counter }} of {{ additional_images|length }}">
-        <button type="button" class="block w-full rounded-lg cursor-zoom-in" aria-haspopup="dialog"
-                data-full="{{ carousel_full.url }}" @click="openLightbox($el)">
-          <span class="sr-only">Enlarge image: </span>
-          <img src="{{ carousel_rendition.url }}"
-               alt="{{ img.alt_text|default:pigment.name }}"
-               class="w-full max-h-96 object-cover rounded-lg shadow-sm" />
-        </button>
+        {% include "includes/lightbox_opener.html" with src=carousel_rendition.url full=carousel_full.url alt=img.alt_text|default:pigment.name img_class="w-full max-h-96 object-cover rounded-lg shadow-sm" %}
       </div>
       {% endfor %}
     </div>
@@ -316,20 +293,7 @@
   </div>
   {% endif %}
 
-  {# Lightbox dialog. Closes on Escape (native), the Close button, or a click outside the image. #}
-  {# Focus goes to Close on open and back to the image button on close. #}
-  <dialog x-ref="lightbox" aria-label="Enlarged image"
-          class="m-0 w-screen h-screen max-w-none max-h-none p-4 bg-transparent backdrop:bg-black/80"
-          @click.self="$refs.lightbox.close()"
-          @close="lightboxOpener && lightboxOpener.focus()">
-    <button type="button" autofocus @click="$refs.lightbox.close()"
-            class="fixed top-4 right-4 z-10 rounded bg-white px-3 py-1.5 text-sm font-medium text-stone-900 shadow focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
-      Close
-    </button>
-    <div class="h-full flex items-center justify-center" @click.self="$refs.lightbox.close()">
-      <img :src="lightboxSrc" :alt="lightboxAlt" class="max-w-full max-h-full object-contain" />
-    </div>
-  </dialog>
+  {% include "includes/lightbox.html" %}
 
 </div>
 

@@ -215,6 +215,26 @@ def test_lightbox_open(browser, site, theme):
 
 
 @pytest.mark.parametrize('theme', THEMES)
+def test_project_carousel_image_opens_lightbox(browser, site, theme):
+    """Clicking a project carousel image used to do nothing."""
+    page = _open(browser, site, site['project'], theme)
+    page.get_by_role('button', name='Next image').click()
+    page.get_by_role('button', name='Enlarge image: Angle 1').click()
+    page.locator('dialog[open]').wait_for()
+    enlarged = page.locator('dialog[open] img')
+    assert 'max-1600x1600' in enlarged.get_attribute('src')
+    assert enlarged.get_attribute('alt') == 'Angle 1'
+    try:
+        _assert_accessible(page, f'project lightbox open ({theme})')
+        page.keyboard.press('Escape')
+        page.wait_for_function("!document.querySelector('dialog[open]')")
+        # Focus returns to the image that opened it.
+        assert page.evaluate("document.activeElement.textContent.includes('Enlarge image')")
+    finally:
+        page.close()
+
+
+@pytest.mark.parametrize('theme', THEMES)
 def test_disclosures_and_table_notes_open(browser, site, theme):
     page = _open(browser, site, site['pigment'], theme)
     page.locator('#formula-panel-0 summary').click()

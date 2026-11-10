@@ -2,7 +2,8 @@
 {% load wagtailcore_tags wagtailimages_tags disclosure_tags %}
 
 {% block content %}
-<article class="max-w-3xl mx-auto px-4 py-8">
+{# Cover, image-block and carousel images open the shared lightbox (includes/lightbox.html). #}
+<article x-data="lightbox" class="max-w-3xl mx-auto px-4 py-8">
   <h1 class="font-display text-4xl text-accent mb-2">{{ page.title }}</h1>
 
   <div class="flex items-center gap-3 mb-6">
@@ -43,7 +44,8 @@
   {% if page.cover_image %}
   <div class="mb-8">
     {% image page.cover_image fill-800x400 as img %}
-    <img src="{{ img.url }}" alt="{{ img.alt }}" class="w-full rounded-lg">
+    {% image page.cover_image max-1600x1600 as full %}
+    {% include "includes/lightbox_opener.html" with src=img.url full=full.url alt=img.alt img_class="w-full rounded-lg" %}
   </div>
   {% endif %}
 
@@ -66,7 +68,8 @@
       {% endif %}
       {% if align == 'center' %}
       {% image block.value.image fill-800x600 as img %}
-      <img src="{{ img.url }}" alt="{{ block.value.image.default_alt_text }}" class="w-full rounded-lg">
+      {% image block.value.image max-1600x1600 as full %}
+      {% include "includes/lightbox_opener.html" with src=img.url full=full.url alt=block.value.image.default_alt_text img_class="w-full rounded-lg" %}
       {% if block.value.caption %}
       <p class="text-sm text-ink-subtle mt-2">{{ block.value.caption }}</p>
       {% endif %}
@@ -81,7 +84,8 @@
         {# col-start-2 keeps a right image in the right column even when there is no text. #}
         <figure class="{% if align == 'right' %}md:order-2 md:col-start-2{% endif %}">
           {% image block.value.image max-800x1200 as img %}
-          <img src="{{ img.url }}" alt="{{ block.value.image.default_alt_text }}" class="w-full h-auto rounded-lg">
+          {% image block.value.image max-1600x1600 as full %}
+          {% include "includes/lightbox_opener.html" with src=img.url full=full.url alt=block.value.image.default_alt_text img_class="w-full h-auto rounded-lg" %}
           {% if block.value.caption %}
           <figcaption class="text-sm text-ink-subtle mt-2">{{ block.value.caption }}</figcaption>
           {% endif %}
@@ -106,12 +110,11 @@
       <div class="relative">
         {% for item in slides %}
         {% image item.image fill-800x600 as img %}
+        {% image item.image max-1600x1600 as full %}
         {# The first slide has no x-cloak, so it still shows without JavaScript. #}
         <div x-show="slide === {{ forloop.counter0 }}"{% if not forloop.first %} x-cloak{% endif %}
              role="group" aria-roledescription="slide" aria-label="{{ forloop.counter }} of {{ slides|length }}">
-          <img src="{{ img.url }}"
-               alt="{{ item.caption|default:item.image.default_alt_text }}"
-               class="w-full max-h-96 object-cover rounded-lg shadow-sm">
+          {% include "includes/lightbox_opener.html" with src=img.url full=full.url alt=item.caption|default:item.image.default_alt_text img_class="w-full max-h-96 object-cover rounded-lg shadow-sm" %}
           {% if item.caption %}
           <p class="text-sm text-ink-subtle mt-2">{{ item.caption }}</p>
           {% endif %}
@@ -124,5 +127,7 @@
     {% endwith %}
     {% endif %}
   {% endfor %}
+
+  {% include "includes/lightbox.html" %}
 </article>
 {% endblock %}

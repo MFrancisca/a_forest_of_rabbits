@@ -64,6 +64,42 @@ def test_no_lightbox_triggers_without_images(client):
     assert 'openLightbox($el)' not in html.split('<dialog')[0]
 
 
+def test_project_images_open_the_lightbox(client, projects_index):
+    """Project images used to be plain <img> tags: clicking one did nothing."""
+    cover, single, side, a, b = (wagtail_factories.ImageFactory() for _ in range(5))
+    page = ProjectPageFactory(parent=projects_index, cover_image=cover, body=[
+        {'type': 'image', 'value': {'image': single.pk, 'caption': ''}},
+        {'type': 'image', 'value': {'image': side.pk, 'caption': '', 'alignment': 'left'}},
+        {'type': 'carousel', 'value': {'title': '', 'images': [
+            {'image': a.pk, 'caption': 'First angle'}, {'image': b.pk, 'caption': ''}]}},
+    ])
+
+    html = client.get(page.url).content.decode()
+
+    [article] = _tags(html, r'<article')
+    assert _attr(article, 'x-data') == 'lightbox'
+    openers = _tags(html, r'<button[^>]*@click="openLightbox\(\$el\)"')
+    assert len(openers) == 5  # cover, centred image, side image, two slides
+    for opener in openers:
+        assert _attr(opener, 'aria-haspopup') == 'dialog'
+        assert 'max-1600x1600' in _attr(opener, 'data-full')
+    assert html.count('<span class="sr-only">Enlarge image: </span>') == 5
+    # Each slide's button sits inside that slide, so it switches with the carousel.
+    slides = re.findall(r'aria-roledescription="slide".*?</div>', html, flags=re.S)
+    assert all('openLightbox($el)' in slide for slide in slides)
+    dialog = _tags(html, r'<dialog')
+    assert len(dialog) == 1 and _attr(dialog[0], 'aria-label') == 'Enlarged image'
+    assert html.index('<dialog') > html.index('aria-roledescription="carousel"')
+
+
+def test_lightbox_component_is_registered_once_in_base(client, projects_index):
+    page = ProjectPageFactory(parent=projects_index)
+    html = client.get(page.url).content.decode()
+    assert html.count("Alpine.data('lightbox'") == 1
+    # Registered on alpine:init, before the deferred Alpine script starts.
+    assert html.index("addEventListener('alpine:init'") < html.index('alpinejs@')
+
+
 # --- missing pigment images -----------------------------------------------------
 
 def test_pigment_images_whose_file_was_deleted_are_skipped(client):
