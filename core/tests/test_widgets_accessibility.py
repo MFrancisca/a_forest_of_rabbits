@@ -4,6 +4,7 @@ import re
 
 import pytest
 import wagtail_factories
+from django.core.cache import cache
 from django.urls import reverse
 
 from blog.factories import ProjectPageFactory
@@ -90,6 +91,36 @@ def test_project_images_open_the_lightbox(client, projects_index):
     dialog = _tags(html, r'<dialog')
     assert len(dialog) == 1 and _attr(dialog[0], 'aria-label') == 'Enlarged image'
     assert html.index('<dialog') > html.index('aria-roledescription="carousel"')
+
+
+def test_project_images_whose_file_is_missing_are_skipped(client, projects_index):
+    """An image whose original file is gone from storage renders as Wagtail's
+    "not-found" placeholder: a broken thumbnail that opens an empty lightbox.
+    Treat it like a deleted image and leave it out."""
+    # Wagtail caches renditions by image pk, and pks are reused between tests,
+    # so an earlier test's rendition would stand in for the missing file.
+    cache.clear()
+    gone = wagtail_factories.ImageFactory()
+    kept = wagtail_factories.ImageFactory()
+    gone.file.storage.delete(gone.file.name)
+    page = ProjectPageFactory(parent=projects_index, cover_image=gone, body=[
+        {'type': 'image', 'value': {'image': gone.pk, 'caption': 'orphan centred'}},
+        {'type': 'image', 'value': {'image': gone.pk, 'caption': 'orphan side', 'alignment': 'left'}},
+        {'type': 'carousel', 'value': {'title': '', 'images': [
+            {'image': gone.pk, 'caption': 'orphan slide'},
+            {'image': kept.pk, 'caption': 'Kept slide'},
+            {'image': kept.pk, 'caption': 'Kept again'}]}},
+    ])
+
+    html = client.get(page.url).content.decode()
+
+    assert 'not-found' not in html
+    assert 'orphan' not in html
+    openers = _tags(html, r'<button[^>]*@click="openLightbox\(\$el\)"')
+    assert len(openers) == 2  # the two surviving slides
+    # Slide numbering only counts what's shown.
+    assert 'aria-label="1 of 2"' in html and 'aria-label="2 of 2"' in html
+    assert 'of 3"' not in html
 
 
 def test_lightbox_component_is_registered_once_in_base(client, projects_index):
