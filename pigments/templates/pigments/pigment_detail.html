@@ -245,7 +245,20 @@
           </tr>
           {% if link.has_details %}
           <tr id="manuscript-notes-{{ link.pk }}" x-show="expanded" x-cloak class="bg-surface-muted">
-            <td colspan="5" class="px-2 py-2 text-sm text-ink-muted space-y-1">
+            <td colspan="5" class="px-2 py-2 text-sm text-ink-muted">
+              {% with ms=link.manuscript illum=link.illumination %}
+              {# An illumination from the manuscript, to show its colours; None if its file is missing (see the view). #}
+              <div class="flex flex-col sm:flex-row gap-4">
+              {% if illum %}
+              <figure class="sm:w-60 flex-shrink-0">
+                {% include "includes/lightbox_opener.html" with src=illum.thumb.url full=illum.full.url alt=ms.illumination_alt_text img_class="w-full rounded shadow-sm" %}
+                <figcaption class="mt-1 text-xs text-ink-subtle space-y-0.5">
+                  {% if ms.illumination_caption %}<p>{{ ms.illumination_caption }}</p>{% endif %}
+                  {% if ms.illumination_credit %}<p>{% if ms.illumination_credit_url %}<a href="{{ ms.illumination_credit_url }}" target="_blank" rel="noopener" class="underline decoration-line-strong hover:text-accent">{{ ms.illumination_credit }}<span class="sr-only"> (opens in new tab)</span></a>{% else %}{{ ms.illumination_credit }}{% endif %}</p>{% endif %}
+                </figcaption>
+              </figure>
+              {% endif %}
+              <div class="space-y-1 min-w-0">
               {% if link.notes %}<p class="italic">{{ link.notes }}</p>{% endif %}
               {% if link.other_pigments %}
               <p>
@@ -254,6 +267,12 @@
                 <span class="whitespace-nowrap">· <a href="{% url 'pigments:list' %}?manuscript={{ link.manuscript_id }}" class="underline decoration-line-strong hover:text-accent">All pigments in {{ link.manuscript.name }}</a></span>
               </p>
               {% endif %}
+              {% if ms.digitized_url %}
+              <p><a href="{{ ms.digitized_url }}" target="_blank" rel="noopener" class="underline decoration-line-strong hover:text-accent">View the digitized manuscript<span class="sr-only"> (opens in new tab)</span><svg class="inline-block w-3 h-3 ml-0.5 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5h5v5M19 5l-9 9M17 14v5H5V7h5"></path></svg></a></p>
+              {% endif %}
+              </div>
+              </div>
+              {% endwith %}
             </td>
           </tr>
           {% endif %}

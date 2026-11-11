@@ -86,6 +86,10 @@ Each project page's images live in its own collection under "Projects"
 so they aren't copied: images in staging's "Projects" tree are loaded into the
 target's root collection, then moved into the target's "Projects" collection,
 and `sync_project_collections` rebuilds each project's collection from its page.
+
+The "Manuscripts" collection (manuscript illuminations, pigments/models.py) is
+created on demand too, so the target may not have it: its images are likewise
+loaded into the root collection, then moved into the target's "Manuscripts".
 """
 
 import json
@@ -224,7 +228,7 @@ class Command(BaseCommand):
             sys.exit(1)
 
         try:
-            self._rebuild_project_collections()
+            self._rebuild_derived_collections()
         except Exception as e:
             # The content is loaded; only the derived project collections are off.
             self.stderr.write(self.style.ERROR(
@@ -277,17 +281,21 @@ class Command(BaseCommand):
         locale_ids = self._referenced_ids(records, 'wagtailcore.page', 'locale')
         collection_ids = self._referenced_ids(records, 'wagtailimages.image', 'collection')
 
-        # Project collections are rebuilt on the target after loading (see module
-        # docstring): park their images in the target's root collection for now.
-        project_collection_ids = self._staging_project_collection_ids() & collection_ids
-        collection_ids -= project_collection_ids
-        target_root_id = Collection.get_first_root_node().pk if project_collection_ids else None
-        self.project_image_pks = []
+        # The site's own collections ("Projects" and everything under it, "Manuscripts")
+        # are rebuilt on the target after loading (see module docstring): park their
+        # images in the target's root collection for now, remembering where they go.
+        derived = {}  # staging collection pk -> name of the top-level collection it's in
+        for name in self._derived_collection_names():
+            for pk in self._staging_collection_tree_ids(name) & collection_ids:
+                derived[pk] = name
+        collection_ids -= derived.keys()
+        target_root_id = Collection.get_first_root_node().pk if derived else None
+        self.parked_image_pks = {}  # top-level collection name -> image pks
 
         content_type_map = self._build_remap(ContentType, content_type_ids, ('app_label', 'model'), 'content type')
         locale_map = self._build_remap(Locale, locale_ids, ('language_code',), 'locale')
-        # Matched by name only — fine while this project has a single "Root"
-        # collection; a deeper collection tree would need path-based identity.
+        # Matched by name only — fine while the only other collections are Root
+        # and the derived ones parked above; a deeper tree would need path-based identity.
         collection_map = self._build_remap(Collection, collection_ids, ('name',), 'collection')
 
         for record in records:
@@ -300,32 +308,40 @@ class Command(BaseCommand):
                     record['fields']['locale'] = locale_map[locale]
             elif record['model'] == 'wagtailimages.image':
                 coll = record['fields'].get('collection')
-                if coll in project_collection_ids:
+                if coll in derived:
                     record['fields']['collection'] = target_root_id
-                    self.project_image_pks.append(record['pk'])
+                    self.parked_image_pks.setdefault(derived[coll], []).append(record['pk'])
                 elif coll is not None:
                     record['fields']['collection'] = collection_map[coll]
 
     @staticmethod
-    def _staging_project_collection_ids():
-        """Pks of staging's "Projects" collection and everything under it.
+    def _derived_collection_names():
+        """Top-level collections the site creates itself, rebuilt rather than copied."""
+        from blog.image_collections import PROJECTS_COLLECTION_NAME
+        from pigments.models import MANUSCRIPTS_COLLECTION_NAME
+
+        return (PROJECTS_COLLECTION_NAME, MANUSCRIPTS_COLLECTION_NAME)
+
+    @staticmethod
+    def _staging_collection_tree_ids(name):
+        """Pks of staging's top-level collection `name` and everything under it.
         Matched by path, not treebeard's get_descendants(), which always
         queries 'default' (see module docstring)."""
-        from blog.image_collections import PROJECTS_COLLECTION_NAME
-
         staging = Collection.objects.using('staging')
-        projects = staging.filter(depth=2, name=PROJECTS_COLLECTION_NAME).first()
-        if projects is None:
+        top = staging.filter(depth=2, name=name).first()
+        if top is None:
             return set()
-        return set(staging.filter(path__startswith=projects.path).values_list('pk', flat=True))
+        return set(staging.filter(path__startswith=top.path).values_list('pk', flat=True))
 
-    def _rebuild_project_collections(self):
-        from blog.image_collections import projects_collection
+    def _rebuild_derived_collections(self):
+        """Move the parked images back into their top-level collections (created if
+        the target lacks them), then rebuild each project's own collection."""
         from wagtail.images import get_image_model
 
-        get_image_model().objects.filter(pk__in=self.project_image_pks).update(
-            collection=projects_collection()
-        )
+        from core.collections import top_level_collection
+
+        for name, pks in self.parked_image_pks.items():
+            get_image_model().objects.filter(pk__in=pks).update(collection=top_level_collection(name))
         call_command('sync_project_collections', stdout=self.stdout)
 
     @staticmethod
