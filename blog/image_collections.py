@@ -19,6 +19,7 @@ from wagtail.images import get_image_model
 from wagtail.models import Collection
 
 from blog.models import ProjectCollection, embedded_image_ids
+from core.collections import top_level_collection
 
 PROJECTS_COLLECTION_NAME = 'Projects'
 
@@ -39,11 +40,7 @@ class SyncResult:
 
 def projects_collection():
     """The parent "Projects" collection (a child of Root), created if missing."""
-    root = Collection.get_first_root_node()
-    existing = root.get_children().filter(name=PROJECTS_COLLECTION_NAME).first()
-    if existing:
-        return existing
-    return root.add_child(name=PROJECTS_COLLECTION_NAME)
+    return top_level_collection(PROJECTS_COLLECTION_NAME)
 
 
 def project_image_ids(page):

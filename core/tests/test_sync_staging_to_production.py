@@ -23,7 +23,7 @@ from blog.factories import CategoryFactory, ProjectPageFactory, ProjectsIndexPag
 from blog.image_collections import projects_collection
 from blog.models import ProjectCollection, ProjectPage, ProjectsIndexColumn
 from core.management.commands.sync_staging_to_production import Command
-from pigments.factories import FormulaPartFactory
+from pigments.factories import FormulaPartFactory, ManuscriptFactory
 
 MODULE = 'core.management.commands.sync_staging_to_production'
 
@@ -136,6 +136,23 @@ def test_project_collections_are_rebuilt_not_copied(staging_is_default, content,
     assert f'{page.title}: ' in out
 
 
+def test_manuscripts_collection_is_recreated_not_required(staging_is_default, content, tmp_path):
+    """An illumination filed in staging's "Manuscripts" collection loads into the root
+    collection (the target may not have "Manuscripts"), then moves back into it."""
+    image = wagtail_factories.ImageFactory(collection=Collection.get_first_root_node())
+    ManuscriptFactory(illumination=image, illumination_credit='Library')
+    image.refresh_from_db()
+    assert image.collection.name == 'Manuscripts'
+
+    out, fixture = _run(tmp_path, noinput=True)
+
+    images = {r['pk']: r for r in json.loads(fixture.read_text()) if r['model'] == 'wagtailimages.image'}
+    assert images[image.pk]['fields']['collection'] == Collection.get_first_root_node().pk
+    image.refresh_from_db()
+    assert image.collection.name == 'Manuscripts'
+    assert 'Loaded staging content' in out
+
+
 def test_interactive_cancel_does_not_load(staging_is_default, content, tmp_path):
     with mock.patch('builtins.input', return_value='no'), \
             mock.patch(f'{MODULE}.call_command', wraps=call_command) as cc:
@@ -199,7 +216,7 @@ def test_remap_shared_references_rewrites_page_and_image_fields():
     ]
     maps = {'content type': {10: 3}, 'locale': {5: 1}, 'collection': {7: 2}}
     with mock.patch.object(Command, '_build_remap', side_effect=lambda m, ids, f, label: maps[label]), \
-            mock.patch.object(Command, '_staging_project_collection_ids', return_value=set()):
+            mock.patch.object(Command, '_staging_collection_tree_ids', return_value=set()):
         Command()._remap_shared_references(records)
 
     assert records[0]['fields'] == {'content_type': 3, 'locale': 1}

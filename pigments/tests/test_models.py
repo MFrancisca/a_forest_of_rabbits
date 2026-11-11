@@ -5,6 +5,7 @@ TDD RED phase: imports from pigments.factories which does not exist yet.
 Running this file before factories are written will fail with ImportError.
 """
 import pytest
+import wagtail_factories
 from django.core.exceptions import ValidationError
 
 from pigments.factories import (
@@ -316,3 +317,51 @@ def test_manuscript_date_display_variants():
     assert Manuscript(date_start=800, date_end=850).date_display == 'c.800–850'
     assert Manuscript(date_start=800).date_display == 'c.800'
     assert Manuscript().date_display == '—'
+
+
+@pytest.mark.django_db
+def test_manuscript_illumination_requires_a_credit():
+    manuscript = ManuscriptFactory(illumination=wagtail_factories.ImageFactory())
+    with pytest.raises(ValidationError) as exc:
+        manuscript.full_clean()
+    assert 'illumination_credit' in exc.value.message_dict
+
+    manuscript.illumination_credit = 'The British Library, public domain'
+    manuscript.full_clean()
+
+
+@pytest.mark.django_db
+def test_manuscript_without_illumination_needs_no_credit():
+    ManuscriptFactory().full_clean()
+
+
+@pytest.mark.django_db
+def test_unfiled_illumination_moves_into_manuscripts_collection():
+    from wagtail.models import Collection
+    root = Collection.get_first_root_node()
+    image = wagtail_factories.ImageFactory(collection=root)
+
+    ManuscriptFactory(illumination=image, illumination_credit='Library')
+
+    image.refresh_from_db()
+    assert image.collection.name == 'Manuscripts'
+    assert image.collection.get_parent() == root
+
+    # A second one reuses the same collection.
+    other = wagtail_factories.ImageFactory(collection=root)
+    ManuscriptFactory(illumination=other, illumination_credit='Library')
+    other.refresh_from_db()
+    assert other.collection == image.collection
+    assert Collection.objects.filter(name='Manuscripts').count() == 1
+
+
+@pytest.mark.django_db
+def test_illumination_already_in_another_collection_stays_there():
+    from wagtail.models import Collection
+    projects = Collection.get_first_root_node().add_child(name='Projects')
+    image = wagtail_factories.ImageFactory(collection=projects)
+
+    ManuscriptFactory(illumination=image, illumination_credit='Library')
+
+    image.refresh_from_db()
+    assert image.collection == projects

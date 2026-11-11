@@ -1,6 +1,8 @@
 from django.shortcuts import render, get_object_or_404
 from django.db.models import Exists, OuterRef, Q
 
+from core.templatetags.lightbox_tags import lightbox_renditions
+
 from pigments.models import (
     ColorFamily,
     Country,
@@ -273,6 +275,10 @@ def pigment_list(request):
     return render(request, "pigments/pigment_list.html", context)
 
 
+# The illumination thumbnail in a manuscript row's details.
+ILLUMINATION_SPEC = 'max-480x480'
+
+
 def pigment_detail(request, pk):
     pigment = get_object_or_404(Pigment, pk=pk)
     formulas = pigment.formulas.select_related('brand').prefetch_related(
@@ -281,7 +287,7 @@ def pigment_detail(request, pk):
     # Skip rows whose image was deleted, so carousel indexes match what's shown.
     images = [img for img in pigment.images.select_related('image') if img.image]
     manuscript_links = list(pigment.manuscript_links.select_related(
-        'manuscript__country', 'source'
+        'manuscript__country', 'manuscript__illumination', 'source'
     ).all())
 
     # Other listed pigments in each manuscript, for the links in the row details,
@@ -298,7 +304,11 @@ def pigment_detail(request, pk):
         pigments.setdefault(row.pigment_id, row.pigment)  # a pigment can cite a manuscript twice
     for link in manuscript_links:
         link.other_pigments = list(by_manuscript.get(link.manuscript_id, {}).values())
-        link.has_details = bool(link.notes or link.other_pigments)
+        # None when there's no illumination or its file is missing, so a row
+        # doesn't expand into nothing.
+        link.illumination = lightbox_renditions(link.manuscript.illumination, ILLUMINATION_SPEC)
+        link.has_details = bool(link.notes or link.other_pigments
+                                or link.illumination or link.manuscript.digitized_url)
 
     # Bibliography: sources cited on manuscript links first (in table order),
     # then the pigment's general references, each listed once. citing_links:
