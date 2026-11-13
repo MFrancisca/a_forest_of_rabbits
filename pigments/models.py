@@ -4,9 +4,11 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from modelcluster.fields import ParentalKey, ParentalManyToManyField
 from modelcluster.models import ClusterableModel
-from wagtail.models import Orderable
+from wagtail.models import Collection, Orderable
+
+from core.collections import top_level_collection
 from wagtail.snippets.models import register_snippet
-from wagtail.admin.panels import FieldPanel, InlinePanel
+from wagtail.admin.panels import FieldPanel, InlinePanel, MultiFieldPanel
 
 
 # ---------------------------------------------------------------------------
@@ -129,6 +131,14 @@ class Paint(models.Model):
         return f'{self.brand} — {self.name}'
 
 
+MANUSCRIPTS_COLLECTION_NAME = 'Manuscripts'
+
+
+def manuscripts_collection():
+    """The "Manuscripts" collection (a child of Root) for illuminations, created if missing."""
+    return top_level_collection(MANUSCRIPTS_COLLECTION_NAME)
+
+
 @register_snippet
 class Manuscript(models.Model):
     """
@@ -152,6 +162,33 @@ class Manuscript(models.Model):
     date_end = models.IntegerField(null=True, blank=True)
     notes = models.TextField(blank=True)
 
+    # Shown in the expanded manuscript row on pigment pages, so visitors can see
+    # the colours in the manuscript itself, with the holding library's credit.
+    illumination = models.ForeignKey(
+        'wagtailimages.Image',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='+',
+        help_text='An illumination from the manuscript that shows its colours.',
+    )
+    illumination_caption = models.CharField(
+        max_length=255, blank=True,
+        help_text='What the image shows, e.g. "Chi Rho page, fol. 34r".',
+    )
+    illumination_credit = models.CharField(
+        max_length=500, blank=True,
+        help_text='Required with an image: the credit line and licence the holding library asks for.',
+    )
+    illumination_credit_url = models.URLField(
+        max_length=500, blank=True,
+        help_text="The library's page for this image, or its licence.",
+    )
+    digitized_url = models.URLField(
+        max_length=500, blank=True,
+        help_text='Where the digitized manuscript can be viewed online.',
+    )
+
     @property
     def date_display(self):
         if self.date_start and self.date_end:
@@ -166,7 +203,44 @@ class Manuscript(models.Model):
         FieldPanel('date_start'),
         FieldPanel('date_end'),
         FieldPanel('notes'),
+        MultiFieldPanel([
+            FieldPanel('illumination'),
+            FieldPanel('illumination_caption'),
+            FieldPanel('illumination_credit'),
+            FieldPanel('illumination_credit_url'),
+            FieldPanel('digitized_url'),
+        ], heading='Illumination & digitized copy'),
     ]
+
+    @property
+    def illumination_alt_text(self):
+        # The image's description if it has one; titles are often just file names.
+        description = getattr(self.illumination, 'description', '')
+        return description or f'Illumination from {self.name}'
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self._file_illumination()
+
+    def _file_illumination(self):
+        """Move an unfiled illumination (in the root collection, where uploads land
+        by default) into a "Manuscripts" collection. One already filed elsewhere,
+        e.g. in a project's collection, stays where it is."""
+        image = self.illumination
+        if image is None:
+            return
+        if image.collection_id != Collection.get_first_root_node().pk:
+            return
+        collection = manuscripts_collection()
+        type(image).objects.filter(pk=image.pk).update(collection=collection)
+        image.collection = collection
+
+    def clean(self):
+        super().clean()
+        if self.illumination_id and not self.illumination_credit.strip():
+            raise ValidationError({
+                'illumination_credit': 'Add the credit line the holding library asks for.',
+            })
 
     class Meta:
         ordering = ['name']

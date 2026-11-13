@@ -8,6 +8,8 @@ Plan 02-02 (GREEN) will implement the view to make these pass.
 import re
 
 import pytest
+import wagtail_factories
+from django.core.cache import cache
 from django.test import Client
 from django.urls import reverse
 
@@ -408,7 +410,6 @@ def test_filter_options_only_include_listed_pigments():
 
 @pytest.mark.django_db
 def test_detail_shows_formula_image_when_set():
-    import wagtail_factories
     pigment = PigmentFactory()
     FormulaFactory(pigment=pigment, image=wagtail_factories.ImageFactory())
     html = Client().get(reverse('pigments:detail', args=[pigment.pk])).content.decode()
@@ -495,3 +496,87 @@ def test_manuscript_row_without_notes_or_shared_pigments_does_not_expand():
 
     assert 'aria-controls="manuscript-notes-' not in html
     assert 'Also in this manuscript' not in html
+
+
+# ---------------------------------------------------------------------------
+# Manuscript details: illumination image and digitized copy
+# ---------------------------------------------------------------------------
+
+def _row_details(html, link):
+    return html.split(f'id="manuscript-notes-{link.pk}"', 1)[1].split('</tr>', 1)[0]
+
+
+@pytest.mark.django_db
+def test_manuscript_illumination_and_digitized_link_show_in_row_details():
+    image = wagtail_factories.ImageFactory(title='Chi Rho')
+    manuscript = ManuscriptFactory(
+        name='Book of Kells',
+        illumination=image,
+        illumination_caption='Chi Rho page, fol. 34r',
+        illumination_credit='The Board of Trinity College Dublin, CC BY 4.0',
+        illumination_credit_url='https://digitalcollections.tcd.ie/example',
+        digitized_url='https://example.org/kells',
+    )
+    pigment = PigmentFactory(with_formula=True)
+    link = PigmentManuscriptFactory(pigment=pigment, manuscript=manuscript, notes='')
+
+    html, _ = _detail_html(pigment)
+
+    assert f'aria-controls="manuscript-notes-{link.pk}"' in html  # expands for the image alone
+    details = _row_details(html, link)
+    assert 'data-full="' in details  # opens the lightbox
+    assert 'alt="Illumination from Book of Kells"' in details
+    assert 'Chi Rho page, fol. 34r' in details
+    assert 'The Board of Trinity College Dublin, CC BY 4.0' in details
+    assert 'href="https://digitalcollections.tcd.ie/example"' in details
+    assert 'href="https://example.org/kells"' in details
+    assert 'View the digitized manuscript' in details
+
+
+@pytest.mark.django_db
+def test_manuscript_row_expands_for_a_digitized_link_alone():
+    manuscript = ManuscriptFactory(digitized_url='https://example.org/ms')
+    pigment = PigmentFactory(with_formula=True)
+    link = PigmentManuscriptFactory(pigment=pigment, manuscript=manuscript, notes='')
+
+    html, _ = _detail_html(pigment)
+
+    details = _row_details(html, link)
+    assert 'href="https://example.org/ms"' in details
+    assert '<img' not in details
+
+
+@pytest.mark.django_db
+def test_manuscript_illumination_whose_file_is_missing_is_skipped():
+    # Wagtail caches renditions by image pk, and pks are reused between tests.
+    cache.clear()
+    image = wagtail_factories.ImageFactory()
+    image.file.storage.delete(image.file.name)
+    manuscript = ManuscriptFactory(
+        illumination=image, illumination_credit='Some library',
+        digitized_url='https://example.org/ms',
+    )
+    pigment = PigmentFactory(with_formula=True)
+    link = PigmentManuscriptFactory(pigment=pigment, manuscript=manuscript, notes='')
+
+    html, _ = _detail_html(pigment)
+
+    details = _row_details(html, link)
+    assert '<img' not in details
+    assert 'not-found' not in details
+    assert 'Some library' not in details  # credit goes with the image
+    assert 'href="https://example.org/ms"' in details
+
+
+@pytest.mark.django_db
+def test_manuscript_row_with_only_a_missing_illumination_does_not_expand():
+    cache.clear()
+    image = wagtail_factories.ImageFactory()
+    image.file.storage.delete(image.file.name)
+    manuscript = ManuscriptFactory(illumination=image, illumination_credit='Some library')
+    pigment = PigmentFactory(with_formula=True)
+    PigmentManuscriptFactory(pigment=pigment, manuscript=manuscript, notes='')
+
+    html, _ = _detail_html(pigment)
+
+    assert 'aria-controls="manuscript-notes-' not in html

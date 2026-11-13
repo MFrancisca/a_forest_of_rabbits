@@ -118,7 +118,13 @@ def site(live_server):
     for order in range(3):
         PigmentImageFactory(pigment=pigment, image=wagtail_factories.ImageFactory(), sort_order=order,
                             alt_text=f'Azurite sample {order}')
-    book_of_hours = ManuscriptFactory(name='Book of Hours', date_start=1400, date_end=1450)
+    # With an illumination and a digitized copy, shown in the expanded row.
+    book_of_hours = ManuscriptFactory(
+        name='Book of Hours', date_start=1400, date_end=1450,
+        illumination=wagtail_factories.ImageFactory(), illumination_caption='Annunciation, f. 20r',
+        illumination_credit='Example Library, CC BY 4.0', illumination_credit_url='https://example.org/f20r',
+        digitized_url='https://example.org/hours',
+    )
     PigmentManuscriptFactory(pigment=pigment, manuscript=book_of_hours,
                              source=source, page_reference='f. 3r', notes='Faded on the margins.')
     pigment.sources.add(SourceFactory(title='General pigment reference'))

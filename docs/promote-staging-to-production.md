@@ -92,8 +92,10 @@ when their internal pks don't line up.
 Project image collections (each project's images, under "Projects") aren't
 copied: after loading, the command recreates "Projects" if the flush removed
 it and runs `sync_project_collections` to rebuild each project's collection
-from its page. Images in any other collection still need a same-named
-collection on production, or the command aborts before loading.
+from its page. Manuscript illuminations in "Manuscripts" are handled the same
+way: the command recreates that collection and moves them back into it.
+Images in any other collection still need a same-named collection on
+production, or the command aborts before loading.
 
 ### 5. Recreate the default `Site`
 
