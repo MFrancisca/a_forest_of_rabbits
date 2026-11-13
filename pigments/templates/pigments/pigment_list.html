@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load journal_tags %}
 
 {% block title %}Pigments — A Forest of Rabbits{% endblock %}
 
@@ -15,7 +16,10 @@
 {% endblock %}
 
 {% block content %}
-<div class="max-w-5xl mx-auto px-4 py-8">
+{% pigment_notes as notes %}
+{# With pigment notes the page widens by the sidebar's column, so the list keeps its width. #}
+<div class="max-w-5xl mx-auto px-4 py-8{% if notes %} lg:max-w-[82rem] lg:flex lg:gap-8 lg:items-start{% endif %}">
+<div class="min-w-0 lg:flex-1">
 
   <h1 class="font-display text-4xl text-accent mb-6">Pigments</h1>
 
@@ -79,6 +83,8 @@
     {% include "pigments/pigment_list_partial.html" %}
   </div>
 
+</div>
+{% if notes %}{% include "journal/includes/pigment_notes_sidebar.html" with collapsible=False %}{% endif %}
 </div>
 
 <script>

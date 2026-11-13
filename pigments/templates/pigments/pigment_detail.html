@@ -1,12 +1,15 @@
 {% extends "base.html" %}
-{% load wagtailimages_tags disclosure_tags %}
+{% load wagtailimages_tags disclosure_tags journal_tags %}
 
 {% block title %}{{ pigment.name }} — A Forest of Rabbits{% endblock %}
 
 {% block content %}
+{% pigment_notes as notes %}
+{# With pigment notes the page widens by the sidebar's column, so the content keeps its #}
+{# width; when the sidebar is hidden the content takes the freed space. #}
+<div class="max-w-4xl mx-auto px-4 py-8{% if notes %} lg:max-w-[74rem] lg:flex lg:gap-8 lg:items-start{% endif %}">
 {# Enlargeable images open the shared lightbox (includes/lightbox.html). #}
-<div x-data="lightbox"
-     class="max-w-4xl mx-auto px-4 py-8">
+<div x-data="lightbox" class="min-w-0 lg:flex-1">
 
   {# Back to the list. The script at the bottom points it at the filtered list the visitor #}
   {# came from (filters live in the list's URL); otherwise it's the unfiltered list. #}
@@ -314,6 +317,8 @@
 
   {% include "includes/lightbox.html" %}
 
+</div>
+{% if notes %}{% include "journal/includes/pigment_notes_sidebar.html" with collapsible=True %}{% endif %}
 </div>
 
 <script>

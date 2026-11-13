@@ -4,6 +4,7 @@ NAV_LINKS = [
     ('/', 'Home'),
     ('/pigments/', 'Pigments'),
     ('/projects/', 'Projects'),
+    ('/blog/', 'Blog'),
     ('/classes/', 'Classes'),
     ('/about/', 'About'),
 ]
@@ -14,6 +15,7 @@ SECTION_ITEMS = {
     '/pigments/': 'pigment',
     '/projects/': 'project',
     '/classes/': 'class',
+    '/blog/': 'post',
 }
 
 

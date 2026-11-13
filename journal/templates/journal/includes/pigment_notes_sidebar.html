@@ -1,0 +1,55 @@
+{% load wagtailcore_tags %}
+{# "Latest pigment notes" beside the pigment list and detail pages. Expects `notes` from #}
+{# {% pigment_notes %} (never None here) and `collapsible`. Beside the content on large #}
+{# screens, after it on smaller ones. When collapsible (detail pages), a Hide button #}
+{# collapses it to a slim "Notes" tab on large screens; each browser remembers the #}
+{# choice. Storage that throws or is empty leaves it shown. #}
+<aside aria-labelledby="pigment-notes-heading"
+       class="mt-12 lg:mt-0 lg:flex-shrink-0 {% if collapsible %}lg:w-auto{% else %}lg:w-64{% endif %}"
+       {% if collapsible %}
+       x-data="{
+         hidden: false,
+         init() { try { this.hidden = localStorage.getItem('pigmentNotesHidden') === '1' } catch (e) {} },
+         set(value) {
+           this.hidden = value;
+           try { localStorage.setItem('pigmentNotesHidden', value ? '1' : '0') } catch (e) {}
+         },
+       }"
+       {% endif %}>
+  {% if collapsible %}
+  <button type="button" x-ref="tab" x-show="hidden" x-cloak
+          @click="set(false); $nextTick(() => $refs.hide.focus())"
+          aria-controls="pigment-notes-list" aria-expanded="false"
+          class="hidden lg:flex items-center gap-1 px-2 py-3 rounded border border-line-strong bg-surface text-sm text-ink-muted hover:bg-surface-muted hover:text-accent [writing-mode:vertical-rl]">
+    Notes
+  </button>
+  {% endif %}
+  <div class="lg:w-64 border-t border-line pt-6 lg:border-t-0 lg:pt-0"
+       {% if collapsible %}:class="hidden && 'lg:hidden'"{% endif %}>
+    <div class="flex items-baseline justify-between gap-2 mb-3">
+      <h2 id="pigment-notes-heading" class="font-display text-xl text-accent">Latest pigment notes</h2>
+      {% if collapsible %}
+      <button type="button" x-ref="hide"
+              @click="set(true); $nextTick(() => $refs.tab.focus())"
+              aria-controls="pigment-notes-list" aria-expanded="true"
+              class="hidden lg:inline text-xs text-ink-subtle hover:text-accent underline">
+        Hide
+      </button>
+      {% endif %}
+    </div>
+    <ul id="pigment-notes-list" class="space-y-4">
+      {% for post in notes.posts %}
+      <li>
+        <a href="{% pageurl post %}" class="font-semibold text-ink hover:text-accent leading-snug">{{ post.title }}</a>
+        <time datetime="{{ post.date|date:'Y-m-d' }}" class="block text-xs text-ink-subtle mt-0.5">{{ post.date|date:"j M Y" }}</time>
+        {% with summary=post.display_summary %}
+        {% if summary %}<p class="text-sm text-ink-muted mt-1 line-clamp-3">{{ summary }}</p>{% endif %}
+        {% endwith %}
+      </li>
+      {% endfor %}
+    </ul>
+    {% if notes.see_all_url %}
+    <p class="mt-4 text-sm"><a href="{{ notes.see_all_url }}" class="text-accent hover:underline">See all pigment notes →</a></p>
+    {% endif %}
+  </div>
+</aside>

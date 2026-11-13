@@ -102,3 +102,36 @@ def test_moves_classes_out_of_projects_and_clears_categories():
     # Published from a revision — the cleared categories must survive that.
     assert not classes.get_latest_revision_as_object().categories.exists()
     assert Client().get('/classes/').status_code == 200
+
+
+@pytest.mark.django_db
+def test_creates_blog_index_under_homepage_once():
+    from journal.models import BlogIndexPage
+
+    call_command('create_site_skeleton')
+    call_command('create_site_skeleton')
+
+    blog = BlogIndexPage.objects.get()
+    assert blog.slug == 'blog'
+    assert blog.live
+    assert blog.get_parent().specific_class is HomePage
+    assert Client().get('/blog/').status_code == 200
+
+
+@pytest.mark.django_db
+def test_blog_slug_taken_by_another_page_skips_instead_of_failing():
+    """The command runs at deploy startup, so a slug clash must not crash it."""
+    from io import StringIO
+
+    from blog.factories import AboutPageFactory
+    from journal.models import BlogIndexPage
+
+    call_command('create_site_skeleton')
+    BlogIndexPage.objects.all().delete()
+    AboutPageFactory(parent=HomePage.objects.get(), slug='blog', title='Old blog page')
+
+    out = StringIO()
+    call_command('create_site_skeleton', stdout=out)
+
+    assert not BlogIndexPage.objects.exists()
+    assert "slug 'blog' is taken" in out.getvalue()
