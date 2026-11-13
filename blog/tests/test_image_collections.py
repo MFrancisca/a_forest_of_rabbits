@@ -8,7 +8,7 @@ from wagtail.images.models import Image
 from wagtail.models import Collection
 
 from blog.factories import ProjectPageFactory
-from blog.image_collections import PROJECTS_COLLECTION_NAME, project_image_ids, projects_collection
+from blog.image_collections import PROJECTS_COLLECTION_NAME, page_image_ids, projects_collection
 from blog.models import ProjectCollection, ProjectPage
 
 pytestmark = pytest.mark.django_db
@@ -148,7 +148,7 @@ def test_deleted_and_missing_images_are_ignored(projects_index):
     gone.delete()
     embedded_then_deleted.delete()  # rich text keeps the dangling <embed id="...">
 
-    assert project_image_ids(ProjectPage.objects.get(pk=page.pk)) == set()
+    assert page_image_ids(ProjectPage.objects.get(pk=page.pk)) == set()
 
 
 def test_deleting_a_page_keeps_its_collection_and_images(projects_index):

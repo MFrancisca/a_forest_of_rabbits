@@ -132,8 +132,20 @@ def site(live_server):
     # Shares the manuscript, so the row details also show "Also in this manuscript" links.
     PigmentManuscriptFactory(pigment=PigmentFactory(with_formula=True, name='Vermilion'), manuscript=book_of_hours)
 
+    # A blog with a Pigments post linked to the project: shows the pigment notes sidebar
+    # and "Updates on this project".
+    from journal.factories import BlogIndexPageFactory, BlogPostPageFactory
+    from journal.models import PIGMENTS_TAG_SLUG, Tag
+
+    blog = BlogIndexPageFactory(parent=home, intro='<p>Notes from the studio.</p>')
+    post = BlogPostPageFactory(
+        parent=blog, title='Grinding azurite', tags=[Tag.objects.get(slug=PIGMENTS_TAG_SLUG)],
+        related_projects=[project], cover_image=images[1],
+        body=[{'type': 'rich_text', 'value': {'title': 'Notes', 'text': '<p>Coarse grinds keep the blue.</p>'}}],
+    )
+
     return {'url': live_server.url, 'project': project.url, 'pigment': f'/pigments/{pigment.pk}/',
-            'color': pigment.color_family_id}
+            'color': pigment.color_family_id, 'post': post.url}
 
 
 def _open(browser, site, path, theme, width=1280):
@@ -183,6 +195,9 @@ PAGES = {
     'pigment list': lambda s: '/pigments/',
     'pigment list, filtered': lambda s: f"/pigments/?color={s['color']}",
     'pigment detail': lambda s: s['pigment'],
+    'blog index': lambda s: '/blog/',
+    'blog index, filtered': lambda s: '/blog/?tag=pigments',
+    'blog post': lambda s: s['post'],
 }
 
 
@@ -252,6 +267,26 @@ def test_disclosures_and_table_notes_open(browser, site, theme):
     page.get_by_text('Technical Information').click()
     page.get_by_text('Gouache on vellum.').wait_for(state='visible')
     _check(page, f'technical information open ({theme})')
+
+
+@pytest.mark.parametrize('theme', THEMES)
+def test_pigment_notes_hidden(browser, site, theme):
+    """Hiding the pigment notes leaves an accessible "Notes" tab, remembered across pages."""
+    page = _open(browser, site, site['pigment'], theme)
+    try:
+        page.get_by_role('button', name='Hide').click()
+        tab = page.get_by_role('button', name='Notes')
+        tab.wait_for(state='visible')
+        assert page.evaluate('document.activeElement.textContent.trim()') == 'Notes'
+        assert not page.get_by_text('Grinding azurite').is_visible()
+        _assert_accessible(page, f'pigment notes hidden ({theme})')
+        page.reload()
+        page.wait_for_load_state('networkidle')
+        page.get_by_role('button', name='Notes').wait_for(state='visible')
+        page.get_by_role('button', name='Notes').click()
+        page.get_by_text('Grinding azurite').wait_for(state='visible')
+    finally:
+        page.close()
 
 
 @pytest.mark.parametrize('theme', THEMES)

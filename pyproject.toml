@@ -6,7 +6,7 @@ python_functions = ["test_*"]
 # --ds outranks a DJANGO_SETTINGS_MODULE env var (the web container exports
 # config.settings.dev, which would otherwise run tests against the dev Postgres
 # and write factory images into the real media/ dir). Pass --ds again to override.
-addopts = "--ds=config.settings.test --cov=pigments --cov=core --cov=blog --cov-report=term-missing --cov-fail-under=80 -m 'not a11y'"
+addopts = "--ds=config.settings.test --cov=pigments --cov=core --cov=blog --cov=journal --cov-report=term-missing --cov-fail-under=80 -m 'not a11y'"
 # The axe-core browser checks are opt-in (they need Chromium): .venv/bin/pytest -m a11y --no-cov.
 # A -m on the command line replaces the one in addopts.
 markers = [
@@ -14,7 +14,7 @@ markers = [
 ]
 
 [tool.coverage.run]
-source = ["pigments", "core", "blog"]
+source = ["pigments", "core", "blog", "journal"]
 omit = [
     "*/migrations/*",
     "*/migrations_*/*",

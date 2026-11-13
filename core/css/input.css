@@ -6,6 +6,7 @@
 @source "../templates/**/*.html";
 @source "../../pigments/templates/**/*.html";
 @source "../../blog/templates/**/*.html";
+@source "../../journal/templates/**/*.html";
 
 /* Palette and display face carried over from the old Forest of Rabbits site
    (sampled from https://sites.google.com/view/forestofrabbits/home).

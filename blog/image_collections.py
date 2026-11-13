@@ -43,9 +43,10 @@ def projects_collection():
     return top_level_collection(PROJECTS_COLLECTION_NAME)
 
 
-def project_image_ids(page):
-    """Pks of every image used on a project page: cover image, image blocks,
-    carousel slides, and images embedded in rich text. Deleted images are skipped."""
+def page_image_ids(page):
+    """Pks of every image used on a project or blog post page: cover image, image
+    blocks, carousel slides, and images embedded in rich text (including a
+    project's technical info). Deleted images are skipped."""
     ids = set()
     if page.cover_image_id:
         ids.add(page.cover_image_id)
@@ -59,7 +60,9 @@ def project_image_ids(page):
             ids.update(item['image'].pk for item in block.value['images'] if item['image'])
         elif block.block_type == 'rich_text':
             rich_texts.append(block.value['text'].source)
-    rich_texts += [block.value.source for block in page.technical_info if block.block_type == 'freeform']
+    # Only projects have technical info.
+    rich_texts += [block.value.source for block in getattr(page, 'technical_info', ())
+                   if block.block_type == 'freeform']
 
     for source in rich_texts:
         ids.update(embedded_image_ids(source))
@@ -104,7 +107,7 @@ def sync_project_collection(page):
     collection, created, renamed_from = _collection_for(page, parent)
     result = SyncResult(collection=collection, created=created, renamed_from=renamed_from)
 
-    wanted = project_image_ids(page)
+    wanted = page_image_ids(page)
     other_projects = ProjectCollection.objects.exclude(page_id=page.pk).values('collection_id')
 
     to_add = Image.objects.filter(pk__in=wanted).exclude(collection=collection)

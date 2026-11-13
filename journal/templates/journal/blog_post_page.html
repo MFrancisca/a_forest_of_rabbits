@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags lightbox_tags %}
+
+{% block content %}
+{# Cover, image-block and carousel images open the shared lightbox (includes/lightbox.html). #}
+<article x-data="lightbox" class="max-w-3xl mx-auto px-4 py-8">
+  <h1 class="font-display text-4xl text-accent mb-2">{{ page.title }}</h1>
+
+  <div class="flex items-center gap-3 flex-wrap mb-6">
+    <time datetime="{{ page.date|date:'Y-m-d' }}" class="text-sm text-ink-subtle">{{ page.date|date:"j M Y" }}</time>
+    {% for tag in page.tags.all %}
+    <a href="{{ index_url }}?tag={{ tag.slug|urlencode }}"
+       class="inline-block text-xs font-medium px-2 py-0.5 rounded-full bg-tag text-on-tag hover:underline">{{ tag.name }}</a>
+    {% endfor %}
+  </div>
+
+  {% if live_projects %}
+  <p class="text-sm text-ink-muted mb-6">
+    Related project{{ live_projects|length|pluralize }}:
+    {% for project in live_projects %}<a href="{% pageurl project %}" class="underline hover:text-accent">{{ project.title }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}
+  </p>
+  {% endif %}
+
+  {# lightbox_renditions is None when the image was deleted or its file is missing. #}
+  {% lightbox_renditions page.cover_image "fill-800x400" as cover %}
+  {% if cover %}
+  <div class="mb-8">
+    {% include "includes/lightbox_opener.html" with src=cover.thumb.url full=cover.full.url alt=cover.thumb.alt img_class="w-full rounded-lg" %}
+  </div>
+  {% endif %}
+
+  {% include "blog/includes/body_blocks.html" with blocks=page.body %}
+
+  <p class="mt-10 text-sm"><a href="{{ index_url }}" class="hover:text-accent">← All posts</a></p>
+
+  {% include "includes/lightbox.html" %}
+</article>
+{% endblock %}

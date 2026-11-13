@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 py-8">
+  <h1 class="font-display text-4xl text-accent mb-4">{{ page.title }}</h1>
+  {% if page.intro %}
+  <div class="prose prose-site max-w-none mb-6">{{ page.intro|richtext }}</div>
+  {% endif %}
+
+  {% if tags %}
+  <nav aria-label="Filter posts by tag" class="mb-6">
+    <ul class="flex flex-wrap gap-2">
+      <li><a href="{% pageurl page %}"{% if not current_tag and not unknown_tag %} aria-current="page"{% endif %}
+             class="inline-block text-sm px-3 py-1 rounded-full border border-line-strong hover:bg-surface-muted aria-[current=page]:bg-tag aria-[current=page]:text-on-tag aria-[current=page]:border-transparent">All</a></li>
+      {% for tag in tags %}
+      <li><a href="{% pageurl page %}?tag={{ tag.slug|urlencode }}"{% if tag == current_tag %} aria-current="page"{% endif %}
+             class="inline-block text-sm px-3 py-1 rounded-full border border-line-strong hover:bg-surface-muted aria-[current=page]:bg-tag aria-[current=page]:text-on-tag aria-[current=page]:border-transparent">{{ tag.name }}</a></li>
+      {% endfor %}
+    </ul>
+  </nav>
+  {% endif %}
+
+  {% if posts.object_list %}
+  {% if current_tag %}<h2 class="sr-only">Posts tagged {{ current_tag.name }}</h2>{% else %}<h2 class="sr-only">All posts</h2>{% endif %}
+  <ul class="divide-y divide-line">
+    {% for post in posts %}
+    <li class="py-5">{% include "journal/includes/post_item.html" with heading_level=3 show_cover=True %}</li>
+    {% endfor %}
+  </ul>
+
+  {% if posts.has_other_pages %}
+  <nav aria-label="Pages" class="flex items-center justify-between mt-8 text-sm">
+    {% if posts.has_previous %}
+    <a href="?{{ page_query }}page={{ posts.previous_page_number }}" class="hover:text-accent" rel="prev">← Newer posts</a>
+    {% else %}<span></span>{% endif %}
+    <span class="text-ink-subtle">Page {{ posts.number }} of {{ posts.paginator.num_pages }}</span>
+    {% if posts.has_next %}
+    <a href="?{{ page_query }}page={{ posts.next_page_number }}" class="hover:text-accent" rel="next">Older posts →</a>
+    {% else %}<span></span>{% endif %}
+  </nav>
+  {% endif %}
+  {% elif unknown_tag or current_tag %}
+  <p class="text-ink-subtle">No posts tagged “{% if current_tag %}{{ current_tag.name }}{% else %}{{ unknown_tag }}{% endif %}”. <a href="{% pageurl page %}" class="underline hover:text-accent">See all posts</a>.</p>
+  {% else %}
+  <p class="text-ink-subtle">No posts yet — check back soon.</p>
+  {% endif %}
+</div>
+{% endblock %}
