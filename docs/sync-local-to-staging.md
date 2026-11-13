@@ -1,8 +1,8 @@
 # One-time sync: local database → staging
 
 Replaces staging's content with the content in your **local** Docker Compose
-database: pages (Home, Projects, About, every ProjectPage), categories, the
-whole `pigments` app, and image records. It reuses
+database: pages (Home, Projects, About, Blog, every ProjectPage and blog
+post), categories, blog tags, the whole `pigments` app, and image records. It reuses
 `sync_staging_to_production`. That command copies from any `--source-url`
 into whatever database `default` resolves to, so here the source is your local
 DB and the target is staging.

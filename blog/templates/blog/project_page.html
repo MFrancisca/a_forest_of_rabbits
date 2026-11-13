@@ -49,84 +49,18 @@
   </div>
   {% endif %}
 
-  {% for block in page.body %}
-    {% if block.block_type == 'rich_text' %}
-    <div class="mb-8">
-      {% if block.value.title %}
-      <h2 class="font-display text-2xl text-accent mb-3">{{ block.value.title }}</h2>
-      {% endif %}
-      <div class="prose prose-site max-w-none">{{ block.value.text }}</div>
-    </div>
+  {% include "blog/includes/body_blocks.html" with blocks=page.body %}
 
-    {# The whole block is skipped when its image was deleted or its file is missing. #}
-    {% elif block.block_type == 'image' %}
-    {% with align=block.value.alignment|default:'center' %}
-    {% if align == 'center' %}
-      {% lightbox_renditions block.value.image "fill-800x600" as r %}
-    {% else %}
-      {% lightbox_renditions block.value.image "max-800x1200" as r %}
-    {% endif %}
-    {% if r %}
-    <div class="mb-8" data-align="{{ align }}">
-      {% if block.value.title %}
-      <h2 class="font-display text-2xl text-accent mb-3">{{ block.value.title }}</h2>
-      {% endif %}
-      {% if align == 'center' %}
-      {% include "includes/lightbox_opener.html" with src=r.thumb.url full=r.full.url alt=block.value.image.default_alt_text img_class="w-full rounded-lg" %}
-      {% if block.value.caption %}
-      <p class="text-sm text-ink-subtle mt-2">{{ block.value.caption }}</p>
-      {% endif %}
-      {% if block.value.text %}
-      <div class="prose prose-site max-w-none mt-4">{{ block.value.text }}</div>
-      {% endif %}
-      {% else %}
-      {# Side layout: two columns aligned to the top, so the section is as tall #}
-      {# as whichever is taller — the image or the text. Stacks on small screens. #}
-      {# The image keeps its own proportions (max-, not fill-) so nothing is cropped. #}
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-        {# col-start-2 keeps a right image in the right column even when there is no text. #}
-        <figure class="{% if align == 'right' %}md:order-2 md:col-start-2{% endif %}">
-          {% include "includes/lightbox_opener.html" with src=r.thumb.url full=r.full.url alt=block.value.image.default_alt_text img_class="w-full h-auto rounded-lg" %}
-          {% if block.value.caption %}
-          <figcaption class="text-sm text-ink-subtle mt-2">{{ block.value.caption }}</figcaption>
-          {% endif %}
-        </figure>
-        {% if block.value.text %}
-        <div class="prose prose-site max-w-none" data-image-text>{{ block.value.text }}</div>
-        {% endif %}
-      </div>
-      {% endif %}
-    </div>
-    {% endif %}
-    {% endwith %}
-
-    {% elif block.block_type == 'carousel' %}
-    {% with slides=block.value.slides|lightbox_slides:"fill-800x600" %}
-    {% if slides %}
-    <section class="mb-8" x-data="{ slide: 0, count: {{ slides|length }} }"
-             aria-roledescription="carousel"
-             {% if block.value.title %}aria-labelledby="carousel-title-{{ block.id }}"{% else %}aria-label="Image carousel"{% endif %}>
-      {% if block.value.title %}
-      <h2 id="carousel-title-{{ block.id }}" class="font-display text-2xl text-accent mb-3">{{ block.value.title }}</h2>
-      {% endif %}
-      <div class="relative">
-        {% for item in slides %}
-        {# The first slide has no x-cloak, so it still shows without JavaScript. #}
-        <div x-show="slide === {{ forloop.counter0 }}"{% if not forloop.first %} x-cloak{% endif %}
-             role="group" aria-roledescription="slide" aria-label="{{ forloop.counter }} of {{ slides|length }}">
-          {% include "includes/lightbox_opener.html" with src=item.thumb.url full=item.full.url alt=item.caption|default:item.image.default_alt_text img_class="w-full max-h-96 object-cover rounded-lg shadow-sm" %}
-          {% if item.caption %}
-          <p class="text-sm text-ink-subtle mt-2">{{ item.caption }}</p>
-          {% endif %}
-        </div>
-        {% endfor %}
-      </div>
-      {% include "includes/carousel_controls.html" with slides=slides %}
-    </section>
-    {% endif %}
-    {% endwith %}
-    {% endif %}
-  {% endfor %}
+  {% if journal_updates %}
+  <section aria-labelledby="project-updates" class="mt-12 border-t border-line pt-6">
+    <h2 id="project-updates" class="font-display text-2xl text-accent mb-2">Updates on this project</h2>
+    <ul class="divide-y divide-line">
+      {% for post in journal_updates %}
+      <li class="py-4">{% include "journal/includes/post_item.html" with heading_level=3 %}</li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
 
   {% include "includes/lightbox.html" %}
 </article>

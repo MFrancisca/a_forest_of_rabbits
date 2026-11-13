@@ -6,7 +6,7 @@ DEFAULT_WAGTAIL_PLACEHOLDER_TITLE = 'Welcome to your new Wagtail site!'
 
 
 class Command(BaseCommand):
-    help = 'Create HomePage, ProjectsIndexPage, and AboutPage if they do not exist (idempotent).'
+    help = 'Create HomePage, ProjectsIndexPage, AboutPage and BlogIndexPage if they do not exist (idempotent).'
 
     def handle(self, *args, **options):
         root = Page.objects.filter(depth=1).first()
@@ -85,6 +85,25 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS('Moved AboutPage under HomePage'))
         else:
             self.stdout.write('AboutPage already exists — skipping.')
+
+        from journal.models import BlogIndexPage
+
+        blog = BlogIndexPage.objects.first()
+        if not blog and home.get_children().filter(slug='blog').exists():
+            # This runs at deploy startup: a clash must not stop the site from starting.
+            self.stdout.write(self.style.WARNING(
+                "Not creating BlogIndexPage: slug 'blog' is taken by another page under Home. "
+                'Rename that page, then run this command again.'))
+        elif not blog:
+            blog = BlogIndexPage(title='Blog', slug='blog')
+            home.add_child(instance=blog)
+            blog.save_revision().publish()
+            self.stdout.write(self.style.SUCCESS('Created BlogIndexPage at /blog/'))
+        elif blog.get_parent().id != home.id:
+            blog.move(home, pos='last-child')
+            self.stdout.write(self.style.SUCCESS('Moved BlogIndexPage under HomePage'))
+        else:
+            self.stdout.write('BlogIndexPage already exists — skipping.')
 
         # Classes doesn't belong in the Projects index's category filtering —
         # pull it out to be a standalone top-level page at /classes/.

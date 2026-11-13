@@ -1,0 +1,26 @@
+{% load wagtailcore_tags lightbox_tags %}
+{# One post in a list: the blog index and "Updates on this project". Expects `post`. #}
+<article data-post-item class="flex items-start gap-4">
+  {% if show_cover %}
+  {% lightbox_renditions post.cover_image "fill-160x160" as cover %}
+  {% if cover %}
+  <img src="{{ cover.thumb.url }}" alt="" class="w-20 h-20 object-cover rounded-lg flex-shrink-0 bg-surface-muted">
+  {% endif %}
+  {% endif %}
+  <div class="flex-1 min-w-0">
+    <h{{ heading_level|default:2 }} class="font-semibold text-lg leading-snug">
+      <a href="{% pageurl post %}" class="text-ink hover:text-accent transition-colors">{{ post.title }}</a>
+    </h{{ heading_level|default:2 }}>
+    <div class="flex items-center gap-2 flex-wrap mt-1">
+      <time datetime="{{ post.date|date:'Y-m-d' }}" class="text-sm text-ink-subtle">{{ post.date|date:"j M Y" }}</time>
+      {% for tag in post.tags.all %}
+      <span class="inline-block text-xs font-medium px-2 py-0.5 rounded-full bg-tag text-on-tag">{{ tag.name }}</span>
+      {% endfor %}
+    </div>
+    {% with summary=post.display_summary %}
+    {% if summary %}
+    <p class="text-ink-muted text-sm leading-relaxed mt-1">{{ summary }}</p>
+    {% endif %}
+    {% endwith %}
+  </div>
+</article>

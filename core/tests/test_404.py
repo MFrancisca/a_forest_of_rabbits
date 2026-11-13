@@ -65,6 +65,7 @@ def test_unknown_top_level_url_gets_the_site_404(client):
     ('/projects/old-slug/', 'project', 'Projects', '/projects/'),  # Wagtail page miss
     ('/classes/old-handout/', 'class', 'Classes', '/classes/'),
     ('/about/team/', 'page', 'About', '/about/'),
+    ('/blog/old-post/', 'post', 'Blog', '/blog/'),
 ])
 def test_missing_page_under_a_section_points_back_to_it(client, path, item, label, href):
     html, context = _get_404(client, path)

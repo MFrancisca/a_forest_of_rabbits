@@ -35,8 +35,9 @@ Models included
 wagtailcore.page (depth >= 2 only — the root page, depth=1, is excluded so it never
 collides with the target's freshly-recreated root), blog.homepage,
 blog.projectsindexpage, blog.projectpage, blog.aboutpage, blog.category,
-blog.projectsindexcolumn, the full
-pigments app, wagtailimages.image.
+blog.projectsindexcolumn, journal.tag, journal.blogindexpage,
+journal.blogpostpage (a post's tags and related projects are M2M fields on its
+own record), the full pigments app, wagtailimages.image.
 
 Dumped by plain PK (no --natural-foreign/--natural-primary): the target is always
 emptied first, so plain PKs load in cleanly for the content itself, and natural
@@ -90,6 +91,7 @@ and `sync_project_collections` rebuilds each project's collection from its page.
 The "Manuscripts" collection (manuscript illuminations, pigments/models.py) is
 created on demand too, so the target may not have it: its images are likewise
 loaded into the root collection, then moved into the target's "Manuscripts".
+Blog post images in "Blog" (journal/image_collections.py) are handled the same way.
 """
 
 import json
@@ -113,6 +115,10 @@ FULL_MODEL_LABELS = [
     'blog.aboutpage',
     'blog.category',
     'blog.projectsindexcolumn',
+    # After the blog models: posts link to project pages.
+    'journal.tag',
+    'journal.blogindexpage',
+    'journal.blogpostpage',
     'pigments',
     'wagtailimages.image',
 ]
@@ -318,9 +324,10 @@ class Command(BaseCommand):
     def _derived_collection_names():
         """Top-level collections the site creates itself, rebuilt rather than copied."""
         from blog.image_collections import PROJECTS_COLLECTION_NAME
+        from journal.image_collections import BLOG_COLLECTION_NAME
         from pigments.models import MANUSCRIPTS_COLLECTION_NAME
 
-        return (PROJECTS_COLLECTION_NAME, MANUSCRIPTS_COLLECTION_NAME)
+        return (PROJECTS_COLLECTION_NAME, MANUSCRIPTS_COLLECTION_NAME, BLOG_COLLECTION_NAME)
 
     @staticmethod
     def _staging_collection_tree_ids(name):

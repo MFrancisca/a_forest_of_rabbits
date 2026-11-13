@@ -153,6 +153,42 @@ def test_manuscripts_collection_is_recreated_not_required(staging_is_default, co
     assert 'Loaded staging content' in out
 
 
+def test_blog_posts_are_copied_and_blog_collection_recreated(staging_is_default, content, tmp_path):
+    """Blog posts, tags and their links to projects are copied; an image in staging's
+    "Blog" collection loads into the root collection, then moves back into "Blog"."""
+    from journal.factories import BlogIndexPageFactory, BlogPostPageFactory
+    from journal.image_collections import blog_collection
+    from journal.models import PIGMENTS_TAG_SLUG, Tag
+
+    image = wagtail_factories.ImageFactory(collection=blog_collection())
+    index = BlogIndexPageFactory(parent=Page.objects.get(depth=1))
+    tag = Tag.objects.get(slug=PIGMENTS_TAG_SLUG)
+    post = BlogPostPageFactory(parent=index, cover_image=image, tags=[tag],
+                               related_projects=[content.page])
+
+    out, fixture = _run(tmp_path, noinput=True)
+
+    records = json.loads(fixture.read_text())
+    models = {r['model'] for r in records}
+    assert {'journal.tag', 'journal.blogindexpage', 'journal.blogpostpage'} <= models
+    post_record = next(r for r in records if r['model'] == 'journal.blogpostpage')
+    assert post_record['fields']['tags'] == [tag.pk]
+    assert post_record['fields']['related_projects'] == [content.page.pk]
+    images = {r['pk']: r for r in records if r['model'] == 'wagtailimages.image'}
+    assert images[image.pk]['fields']['collection'] == Collection.get_first_root_node().pk
+    image.refresh_from_db()
+    assert image.collection.name == 'Blog'
+    assert post.pk in [p.pk for p in content.page.journal_posts.all()]
+
+
+def test_journal_models_follow_the_blog_models():
+    from core.management.commands.sync_staging_to_production import FULL_MODEL_LABELS
+
+    journal = [FULL_MODEL_LABELS.index(m) for m in ('journal.tag', 'journal.blogindexpage', 'journal.blogpostpage')]
+    blog = [i for i, m in enumerate(FULL_MODEL_LABELS) if m.startswith('blog.')]
+    assert min(journal) > max(blog)
+
+
 def test_interactive_cancel_does_not_load(staging_is_default, content, tmp_path):
     with mock.patch('builtins.input', return_value='no'), \
             mock.patch(f'{MODULE}.call_command', wraps=call_command) as cc:

@@ -313,6 +313,15 @@ class ProjectPage(Page):
         index.SearchField('excerpt'),
     ]
 
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        # A new page being previewed has no pk yet, and a reverse M2M can't be queried without one.
+        context['journal_updates'] = (
+            self.journal_posts.live().order_by('-date', '-first_published_at').prefetch_related('tags')
+            if self.pk else []
+        )
+        return context
+
     @property
     def display_categories(self):
         """Categories worth showing as tags: the default one says nothing."""
@@ -383,7 +392,7 @@ class HomePage(Page):
     )
 
     parent_page_types = ['wagtailcore.Page']
-    subpage_types = ['blog.ProjectsIndexPage', 'blog.AboutPage', 'blog.ProjectPage']
+    subpage_types = ['blog.ProjectsIndexPage', 'blog.AboutPage', 'blog.ProjectPage', 'journal.BlogIndexPage']
 
     content_panels = Page.content_panels + [
         FieldPanel('profile_photo'),
