@@ -95,6 +95,15 @@
       "year": null,
       "doi": "",
       "url": "https://journal.thewalters.org/volume/78/note/ethiopian-manuscripts/"
+    },
+    "ricciardi2022": {
+      "kind": "paper",
+      "authors": "Ricciardi, P., Dooley, K. A., MacLennan, D., Bertolotti, G., Gabrieli, F. et al.",
+      "title": "Use of standard analytical tools to detect small amounts of smalt in the presence of ultramarine as observed in 15th-century Venetian illuminated manuscripts",
+      "publication": "Heritage Science 10",
+      "year": 2022,
+      "doi": "10.1186/s40494-022-00671-z",
+      "url": "https://heritagesciencejournal.springeropen.com/articles/10.1186/s40494-022-00671-z"
     }
   },
   "pigments": [
@@ -739,7 +748,7 @@
       "name": "Smalt",
       "color_family": "Blue",
       "pigment_family": "Cobalt Pigments",
-      "description": "A blue glass coloured with cobalt, ground to a powder (from Italian smaltare, 'to melt'). It was known in Europe from the 16th century, often as a cheaper substitute for ultramarine and azurite, and must be coarsely ground to keep its colour. It fades and greys in oil. XRF shows cobalt, often with nickel, arsenic and iron from the ore (skutterudite) and potassium from the potash flux.",
+      "description": "A blue glass coloured with cobalt, ground to a powder (from Italian smaltare, 'to melt'). It became common in Europe in the 16th century, often as a cheaper substitute for ultramarine and azurite, but illuminators rarely used it. Earlier traces are tied to Venetian glassmaking: 15th-century fragments by the Master of the Murano Gradual probably contain small amounts mixed with ultramarine. It must be coarsely ground to keep its colour, and it fades and greys in oil. XRF shows cobalt, often with nickel, arsenic and iron from the ore (skutterudite) and potassium from the potash flux. Smalt has no strong Raman signature, so in a mixture with ultramarine, reflectance, Raman and FTIR only detect it at about 30–40% by mass; XRF finds its cobalt at about 1%.",
       "manuscripts": [
         {
           "name": "Gondär Homiliary (Walters W.835)",
@@ -752,7 +761,7 @@
           "source_detail": "Fig. 3; notes 57–61"
         }
       ],
-      "sources": []
+      "sources": ["ricciardi2022"]
     },
     {
       "name": "Red Insect Lake",
