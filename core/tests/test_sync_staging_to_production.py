@@ -109,6 +109,18 @@ def test_load_replaces_rows_in_target(staging_is_default, content, tmp_path):
     assert [c.category for c in content.index.columns.all()] == [content.category]
 
 
+def test_reference_index_is_rebuilt_after_load(staging_is_default, content, tmp_path):
+    # loaddata doesn't update Wagtail's reference index, which the admin uses to
+    # count uses and block deletes; a stale index lets a used paint be "deleted"
+    # into a ProtectedError (500).
+    from wagtail.models import ReferenceIndex
+    ReferenceIndex.objects.all().delete()
+
+    _run(tmp_path, noinput=True)
+
+    assert ReferenceIndex.get_references_to(content.part.paint).exists()
+
+
 def test_project_collections_are_rebuilt_not_copied(staging_is_default, content, tmp_path):
     """Images in staging's project collections are loaded into the root collection
     (the target may not have those collections), then put back by page content."""

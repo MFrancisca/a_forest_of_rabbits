@@ -1,6 +1,10 @@
 """
 Management command: sync_staging_to_production
 
+EMERGENCY USE ONLY. This was for the initial content load. Content is now edited
+in each environment's admin, so this is not part of the normal workflow; keep it
+for a deliberate mass replacement of content.
+
 One-time promotion of staging's content into the production database ('default').
 Dumps a fixed set of models from staging (connecting to its public Postgres URL)
 and loads them into whichever database this command is run against — intended to
@@ -134,7 +138,8 @@ FIELDS_TO_NULL = {
 
 class Command(BaseCommand):
     help = (
-        "One-time sync of staging's content into this run's default database. "
+        "EMERGENCY USE ONLY: replace this run's default database's content with "
+        "the source database's. Not part of the normal workflow. "
         "See docs/promote-staging-to-production.md for the full procedure."
     )
 
@@ -240,6 +245,19 @@ class Command(BaseCommand):
             self.stderr.write(self.style.ERROR(
                 f'Content loaded, but rebuilding project image collections failed: {e}\n'
                 'Re-run `python manage.py sync_project_collections` against this database.'
+            ))
+            sys.exit(1)
+
+        try:
+            # loaddata skips Wagtail's reference index (it ignores raw saves), and
+            # the admin relies on it to show usage and to refuse deleting rows that
+            # are still referenced. A stale index lets a used paint reach the
+            # database's PROTECT and fail with a 500.
+            call_command('rebuild_references_index', stdout=StringIO())
+        except Exception as e:
+            self.stderr.write(self.style.ERROR(
+                f'Content loaded, but rebuilding the reference index failed: {e}\n'
+                'Re-run `python manage.py rebuild_references_index` against this database.'
             ))
             sys.exit(1)
 
