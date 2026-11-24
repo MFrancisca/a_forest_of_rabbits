@@ -122,7 +122,7 @@ def filter_groups(options, selected):
     return [
         group("color", "Color Family", ((o.id, o.name) for o in options["color_families"])),
         group("pfam", "Pigment Family", ((o.id, o.name) for o in options["pigment_families"])),
-        group("country", "Country", ((o.id, o.name) for o in options["countries"])),
+        group("country", "Manuscript Origin", ((o.id, o.name) for o in options["countries"])),
         group("manuscript", "Manuscript", ((o.id, o.name) for o in options["manuscripts"])),
         group("century", "Time Period", ((b["start"], b["label"]) for b in options["century_buckets"])),
     ]

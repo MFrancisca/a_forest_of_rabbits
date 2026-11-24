@@ -45,7 +45,7 @@ def test_filter_groups_list_every_dimension_in_order_with_checked_state(client, 
     assert [(g['name'], g['label']) for g in groups] == [
         ('color', 'Color Family'),
         ('pfam', 'Pigment Family'),
-        ('country', 'Country'),
+        ('country', 'Manuscript Origin'),
         ('manuscript', 'Manuscript'),
         ('century', 'Time Period'),
     ]
@@ -70,7 +70,7 @@ def test_each_filter_is_a_labelled_fieldset_controlled_by_its_button(client, blu
     form = re.search(r'<form[^>]*id="filter-form"[^>]*>', html).group(0)
     assert _attr(form, 'role') == 'search' and _attr(form, 'aria-label') == 'Filter pigments'
 
-    for name, label in [('color', 'Color Family'), ('pfam', 'Pigment Family'), ('country', 'Country'),
+    for name, label in [('color', 'Color Family'), ('pfam', 'Pigment Family'), ('country', 'Manuscript Origin'),
                         ('manuscript', 'Manuscript'), ('century', 'Time Period')]:
         button = re.search(rf'<button[^>]*aria-controls="filter-{name}"[^>]*>', html).group(0)
         assert _attr(button, 'aria-expanded') == 'false'
