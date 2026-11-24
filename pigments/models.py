@@ -360,7 +360,7 @@ class Source(models.Model):
 # Core pigment model — ClusterableModel for nested inline admin editing
 # ---------------------------------------------------------------------------
 
-@register_snippet
+# Registered as a snippet in wagtail_hooks.py (PigmentViewSet), for its listing filters.
 class Pigment(ClusterableModel):
     """
     The central entity. Represents a historical pigment (e.g. 'Ultramarine Blue').
