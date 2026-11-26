@@ -1,5 +1,11 @@
 # Promoting staging content to production
 
+> **Emergency use only.** This was for the initial content load, which was too
+> much to do by hand. Content is now edited in each environment's admin, and
+> this procedure is no longer part of the normal workflow. Keep it for a
+> deliberate mass replacement of content. To add pigment data without wiping
+> anything, use [load-pigment-data.md](load-pigment-data.md).
+
 A one-time (or occasional, deliberate) procedure: wipe production's database
 clean, then load staging's content into it. This is irreversible — rehearse
 it against a disposable database before ever running it against the real
@@ -131,3 +137,7 @@ promotion as complete.
 - Check `/pigments/` and at least one project page return `200`.
 - Spot-check that images render (shared R2 bucket means no file-copy step
   was needed, but worth confirming).
+- In the admin, open the delete page of a paint that a formula uses. It should
+  say it's referenced and offer no delete button. The sync rebuilds Wagtail's
+  reference index after loading; if this check fails, run
+  `python manage.py rebuild_references_index` against production.

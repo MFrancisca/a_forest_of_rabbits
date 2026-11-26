@@ -79,7 +79,7 @@ Run them after any template, CSS or color change. A failure lists each rule, its
 | `create_site_skeleton` | Create the base page tree (runs on every deploy) |
 | `scrape_google_sites` | One-off import from the old Google Sites. Needs Playwright, so run it locally only |
 | `split_project_body_streamfield` | Data fix for the `ProjectPage` StreamField split |
-| `sync_staging_to_production --source-url ...` | Copy all content from one database into another. **Wipes the target first.** |
+| `sync_staging_to_production --source-url ...` | **Emergency only.** Copy all content from one database into another. **Wipes the target first.** Used for the initial content load; content is now edited in the admin. |
 | `upload_images_to_r2` | Push local media to Cloudflare R2 |
 
 ## Deployment
@@ -96,8 +96,12 @@ Production reads `SECRET_KEY`, `DATABASE_URL`, `ALLOWED_HOSTS`, `WAGTAILADMIN_BA
 Runbooks:
 
 - [Staging environment](docs/staging-environment.md)
+- [Load pigment data](docs/load-pigment-data.md)
+- [Upload images to R2](docs/upload_images_to_r2.md)
+
+Emergency only, no longer part of the normal workflow (they were for the initial content load):
+
 - [Sync local content to staging](docs/sync-local-to-staging.md)
 - [Promote staging to production](docs/promote-staging-to-production.md)
-- [Upload images to R2](docs/upload_images_to_r2.md)
 
 Both sync runbooks overwrite the target database and can't be undone. Follow them step by step.

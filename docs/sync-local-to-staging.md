@@ -1,5 +1,11 @@
 # One-time sync: local database → staging
 
+> **Emergency use only.** This was for the initial content load, which was too
+> much to do by hand. Content is now edited in each environment's admin, and
+> this procedure is no longer part of the normal workflow. Keep it for a
+> deliberate mass replacement of content. To add pigment data without wiping
+> anything, use [load-pigment-data.md](load-pigment-data.md).
+
 Replaces staging's content with the content in your **local** Docker Compose
 database: pages (Home, Projects, About, Blog, every ProjectPage and blog
 post), categories, blog tags, the whole `pigments` app, and image records. It reuses
@@ -139,4 +145,7 @@ on-staging create_site_skeleton   # expect only "already exists — skipping" li
 
 Then open <https://appealing-heart-staging.up.railway.app/> and check the
 homepage, `/projects/`, a project page, `/pigments/`, and that images render.
+In the admin, a paint that a formula uses should say it's referenced on its
+delete page, with no delete button. If it doesn't, run
+`on-staging rebuild_references_index`.
 Delete `local_sync_fixture.json` once you're happy with the result.
